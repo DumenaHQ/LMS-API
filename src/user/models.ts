@@ -1,0 +1,111 @@
+import mongoose, { Schema } from "mongoose";
+
+export interface IUserCreate {
+    fullname: string;
+    email: string;
+    password: string;
+    user_type: string;
+    contact_person?: string;
+    phone?: string,
+    resident_state?: string;
+    address?: string;
+};
+
+// export interface IUserModel {
+//     fullname: string;
+//     email: string;
+//     password: string;
+//     role: string;
+//     active_organization?: Schema.Types.ObjectId;
+// }
+
+export interface IUserView {
+    fullname: string;
+    email: string;
+    role: string;
+    active_organization?: Schema.Types.ObjectId;
+    createdAt: string;
+    updatedAt: string;
+}
+
+
+const UserSchema: Schema = new Schema(
+    {
+        fullname: String,
+        email: {
+            type: String,
+            unique: true,
+            trim: true
+        },
+        password: {
+            type: String,
+            trim: true
+        },
+        active_organization: {
+            type: Schema.Types.ObjectId,
+            ref: 'Organization'
+        },
+        role: String
+    },
+    { timestamps: true });
+
+const RoleSchema: Schema = new Schema({
+    role: String,
+    permissions: [String]
+}, { timestamps: true });
+
+export const Role = mongoose.model("Role", RoleSchema);
+
+
+const ParentSchema: Schema = new Schema({
+    phone: {
+        type: String,
+        unique: true
+    },
+    resident_state: String,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
+}, { timestamps: true });
+
+export const Parent = mongoose.model("Parent", ParentSchema);
+
+
+export const LearnerSchema: Schema = new Schema({
+    phone: String,
+    username: {
+        type: String,
+        trim: true,
+        unique: true
+    },
+    parent: {
+        type: Schema.Types.ObjectId,
+        ref: 'Organization'
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
+}, { timestamps: true });
+
+export const Learner = mongoose.model("Learner", LearnerSchema);
+
+
+const SchoolSchema: Schema = new Schema({
+    phone: {
+        type: String,
+        unique: true
+    },
+    contact_person: String,
+    address: String,
+    resident_state: String,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
+}, { timestamps: true });
+
+export const School = mongoose.model("School", SchoolSchema);
+
+export default mongoose.model<IUserModel>("User", UserSchema);

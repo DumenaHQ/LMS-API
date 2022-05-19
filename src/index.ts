@@ -1,12 +1,12 @@
 import * as dotenv from "dotenv";
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 dotenv.config();
 import { notFoundHandler } from "./middleware/notFound";
 import { errorHandler } from "./middleware/error";
 require('./config/db_connection');
-import { router as userRouter } from './routes/user';
+import { router as routes } from './routes/';
 
 
 if (!process.env.PORT) {
@@ -22,9 +22,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => res.json({ message: 'Dumena, LMS API' }));
-
-app.use('/users', userRouter);
+app.use('/', routes);
 
 
 // catch 404 and forward to error handler
