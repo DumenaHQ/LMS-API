@@ -1,4 +1,4 @@
-import User, { IUserView, IUserCreate, Role, Parent, School } from './models';
+import User, { IUserView, IUserCreate, Parent, School } from './models';
 import { sign } from "jsonwebtoken";
 import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";

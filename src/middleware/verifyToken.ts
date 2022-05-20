@@ -25,3 +25,27 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
         return res.sendStatus(403);
     }
 }
+
+export const isSchool = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user && req.user.role === 'school') {
+        next();
+    } else {
+        return res.sendStatus(403);
+    }
+}
+
+export const isParent = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user && req.user.role === 'parent') {
+        next();
+    } else {
+        return res.sendStatus(403);
+    }
+}
+
+export const isLearner = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user && req.user.role === 'learner') {
+        next();
+    } else {
+        return res.sendStatus(403);
+    }
+}
