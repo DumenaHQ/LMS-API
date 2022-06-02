@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-const { check, body, validationResult } = require("express-validator");
-import { send as sendResponse } from '../../helpers/httpResponse';
+import { check } from 'express-validator';
 import User, { Role } from '../../user/models';
+import { validate } from './validate';
+
+export default validate;
 
 export const userCreationRules = () => {
     return [
@@ -26,16 +27,4 @@ export const loginRules = () => {
         check('email').exists().withMessage('Email field must be provided'),
         check('password').exists().withMessage('Password field must be provided')
     ]
-}
-
-
-export const validate = (req: Request, res: Response, next: NextFunction) => {
-    const raw_errors = validationResult(req);
-
-    if (raw_errors.isEmpty()) {
-        return next();
-    }
-    const errors = raw_errors.errors.map((err: { param: any; msg: any; }) => ({ field: err.param, message: err.msg }));
-
-    return sendResponse(res, 400, 'Invalid Input', errors);
 }

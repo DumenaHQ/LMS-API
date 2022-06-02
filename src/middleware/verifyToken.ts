@@ -1,14 +1,15 @@
 import { verify } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.sendStatus(401); // Unauthorized
 
         verify(token, process.env.JWT_SECRET, (err: any, payload: any) => {
             if (err) {
-                return res.sendStatus(403); // forbidden
+                //return res.sendStatus(403); // forbidden
+                next(err);
             }
             req.user = payload;
             next();

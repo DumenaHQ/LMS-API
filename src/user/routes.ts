@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createUser, login } from './controller';
-import { userCreationRules, loginRules, validate } from '../middleware/validators/userValidators';
+import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 
 export const router = Router();
 

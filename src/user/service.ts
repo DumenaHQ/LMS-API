@@ -64,6 +64,6 @@ export const userService = {
                 newUser = await School.create({ phone, contact_person, address, resident_state, user });
                 break;
         }
-        return User.findById(newUser.user).select(USER_FIELDS).lean();
+        return User.findById(user).select(USER_FIELDS).lean();
     }
 }

@@ -11,13 +11,13 @@ export interface IUserCreate {
     address?: string;
 };
 
-// export interface IUserModel {
-//     fullname: string;
-//     email: string;
-//     password: string;
-//     role: string;
-//     active_organization?: Schema.Types.ObjectId;
-// }
+export interface IUserModel {
+    fullname: string;
+    email: string;
+    password: string;
+    role: string;
+    active_organization?: Schema.Types.ObjectId;
+}
 
 export interface IUserView {
     fullname: string;
@@ -107,5 +107,21 @@ const SchoolSchema: Schema = new Schema({
 }, { timestamps: true });
 
 export const School = mongoose.model("School", SchoolSchema);
+
+
+const InstructorSchema: Schema = new Schema({
+    fullname: String,
+    email: {
+        type: String,
+        unique: true
+    },
+    phone: {
+        type: String,
+        unique: true
+    }
+}, { timestamps: true });
+
+export const Instructor = mongoose.model("Instructor", SchoolSchema);
+
 
 export default mongoose.model<IUserModel>("User", UserSchema);
