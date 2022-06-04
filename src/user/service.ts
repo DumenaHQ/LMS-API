@@ -4,7 +4,7 @@ import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
 import { ObjectId } from 'mongoose';
 
-import { SALT_ROUNDS, USER_FIELDS } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 
 
 export const userService = {
@@ -33,9 +33,13 @@ export const userService = {
 
 
     async create(userData: IUserCreate): Promise<IUserView> {
-        const { fullname, email, password, user_type, contact_person } = userData;
+        const { fullname, email, password, user_type } = userData;
 
-        const newUserId = await this.createLoginUser(contact_person || fullname, email, password, user_type);
+        if (user_type === USER_TYPES.school && !userData.school) {
+            throw new handleError(400, 'School name must be provided');
+        }
+
+        const newUserId = await this.createLoginUser(fullname, email, password, user_type);
         return this.createUserType(userData, newUserId);
     },
 
@@ -54,16 +58,16 @@ export const userService = {
 
 
     async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView> {
-        const { phone, contact_person, user_type, address, resident_state } = userData;
+        const { phone, fullname: contact_person, school, user_type, address, resident_state } = userData;
         let newUser;
         switch (user_type) {
             case 'parent':
                 newUser = await Parent.create({ phone, resident_state, user });
                 break;
             case 'school':
-                newUser = await School.create({ phone, contact_person, address, resident_state, user });
+                newUser = await School.create({ school, phone, contact_person, address, resident_state, user });
                 break;
         }
-        return User.findById(user).select(USER_FIELDS).lean();
+        return User.findById(user).select(USER_FIELDS);
     }
 }

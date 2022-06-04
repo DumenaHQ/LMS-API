@@ -5,6 +5,7 @@ export interface IUserCreate {
     email: string;
     password: string;
     user_type: string;
+    school: string;
     contact_person?: string;
     phone?: string,
     resident_state?: string;
@@ -20,6 +21,7 @@ export interface IUserModel {
 }
 
 export interface IUserView {
+    id: Schema.Types.ObjectId;
     fullname: string;
     email: string;
     role: string;
@@ -93,6 +95,10 @@ export const Learner = mongoose.model("Learner", LearnerSchema);
 
 
 const SchoolSchema: Schema = new Schema({
+    school: {
+        type: String,
+        unique: true
+    },
     phone: {
         type: String,
         unique: true
