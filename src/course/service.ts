@@ -5,7 +5,6 @@ import { handleError } from "../helpers/handleError";
 import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
 import path from 'path';
-import { ObjectId } from 'mongoose';
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {

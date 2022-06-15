@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-import { config } from "./config";
-const env = process.env.NODE_ENV || 'development';
+import { dbConfig, env } from "./config";
 
-const { db: { host, port, name: dbname } } = config[env as keyof object];
+const { host, port, name: dbname } = dbConfig;
 
 (async function () {
     try {
