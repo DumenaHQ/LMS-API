@@ -92,7 +92,8 @@ export const userService = {
         user.status = 'active';
         await user.save();
         // remove this
-        emailService.sendLauchInviteEmail(user);
+        if (user.role == USER_TYPES.school || user.role == USER_TYPES.parent)
+            emailService.sendLauchInviteEmail(user);
         return user;
     },
 
