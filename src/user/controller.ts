@@ -22,3 +22,13 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         next(err);
     }
 }
+
+export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email_hash, hash_string } = req.body;
+        const user = await userService.activateAccount(email_hash, hash_string);
+        sendResponse(res, 200, 'Account activated', { user });
+    } catch (err) {
+        next(err);
+    }
+}

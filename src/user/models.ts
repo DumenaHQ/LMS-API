@@ -26,6 +26,7 @@ export interface IUserView {
     email: string;
     role: string;
     active_organization?: Schema.Types.ObjectId;
+    status: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -47,7 +48,11 @@ const UserSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'Organization'
         },
-        role: String
+        role: String,
+        status: {
+            type: String,
+            default: 'inactive'
+        }
     },
     { timestamps: true });
 

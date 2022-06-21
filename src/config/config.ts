@@ -11,17 +11,17 @@ const dbconfig: envKeys = {
     development: {
         host: process.env.DEV_DB_HOST || 'localhost',
         port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
-        name: process.env.DEV_DB_NAME || 'league'
+        name: process.env.DEV_DB_NAME || 'lms'
     },
     production: {
         host: process.env.DEV_DB_HOST || 'localhost',
         port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
-        name: process.env.DEV_DB_NAME || 'league'
+        name: process.env.DEV_DB_NAME || 'lms'
     },
     test: {
         host: process.env.TEST_DB_HOST || 'localhost',
         port: parseInt(process.env.TEST_DB_PORT as string) || 27017,
-        name: process.env.TEST_DB_NAME || 'leagueTest'
+        name: process.env.TEST_DB_NAME || 'lms_test'
     }
 };
 export const dbConfig = dbconfig[env as keyof envKeys];

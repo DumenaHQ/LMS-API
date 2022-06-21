@@ -2,7 +2,10 @@ import User, { IUserView, IUserCreate, Parent, School } from './models';
 import { sign } from "jsonwebtoken";
 import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
+import * as crypto from "crypto";
+import { Buffer } from 'buffer';
 import { ObjectId } from 'mongoose';
+import { emailService } from '../helpers/email';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 
@@ -40,7 +43,9 @@ export const userService = {
         }
 
         const newUserId = await this.createLoginUser(fullname, email, password, user_type);
-        return this.createUserType(userData, newUserId);
+        const newUser = await this.createUserType(userData, newUserId);
+        emailService.sendVerificationEmail(newUser);
+        return newUser;
     },
 
 
@@ -69,5 +74,55 @@ export const userService = {
                 break;
         }
         return User.findById(user).select(USER_FIELDS);
+    },
+
+    async activateAccount(email_hash: string, hash_string: string) {
+        if (!email_hash || !hash_string) {
+            throw new handleError(400, 'Email or hash not found');
+        }
+        const email = Buffer.from(email_hash, 'base64').toString('ascii');
+        const user = await User.findOne({ email }).select(USER_FIELDS);
+
+        if (!user) throw new handleError(400, 'Account not found');
+
+        const hash = crypto.createHash('md5').update(user.email + process.env.EMAIL_HASH_STRING).digest('hex');
+        if (hash_string !== hash) {
+            throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
+        }
+        user.status = 'active';
+        await user.save();
+        // remove this
+        emailService.sendLauchInviteEmail(user);
+        return user;
+    },
+
+    async verifyPasswordResetLink(email_hash: string, hash_string: string) {
+        if (!email_hash || !hash_string) {
+            throw new handleError(400, 'Email or hash not found');
+        }
+        const email = Buffer.from(email_hash, 'base64').toString('ascii');
+        const user = await this.view({ email });
+        if (!user) throw new handleError(400, 'User not found');
+
+        const hash = crypto.createHash('md5').update(email + process.env.EMAIL_HASH_STRING).digest('hex');
+        if (hash_string !== hash) {
+            throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
+        }
+        return { id: user.id, status: true };
+    },
+
+    async changePassword(newPassword: string, user_id: string) {
+        if (!newPassword) throw new handleError(400, 'Password can not be empty');
+        const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+        return User.updateOne({ _id: user_id }, { password: passwordHash });
+    },
+
+    async view(criteria: object) {
+        return User.findOne(criteria).select(USER_FIELDS);
+    },
+
+    async list(criteria = {}) {
+        return User.find(criteria).select(USER_FIELDS);
     }
 }
