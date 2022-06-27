@@ -1,9 +1,8 @@
 'use strict';
 
-//const { Buffer } = require('buffer');
 import { Buffer } from 'buffer';
 import * as path from 'path';
-import * as crypto from "crypto";
+import * as crypto from 'crypto';
 import nodemailer from 'nodemailer';
 var hbs = require('nodemailer-express-handlebars');
 
@@ -46,13 +45,13 @@ const sendMail = (to: string, subject: string, template: string, data: object) =
         if (error) {
             return console.log(error);
         }
-        console.log('Message sent: %s', info.messageId);
+        // console.log('Message sent: %s', info.messageId);
     });
 }
 
 export const emailService = {
     sendVerificationEmail: function (user: any): void {
-        const email_b64 = Buffer.from(user.email).toString('base64');
+        const email_b64 = Buffer.from(user.email).toString('base64url');
         const hash = crypto.createHash('md5').update(user.email + process.env.EMAIL_HASH_STRING).digest('hex');
 
         const data = {

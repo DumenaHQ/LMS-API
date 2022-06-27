@@ -15,8 +15,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, password } = req.body;
-        const user = await userService.authenticate(email, password);
+        const { username, password } = req.body;
+        const user = await userService.authenticate(username, password);
         sendResponse(res, 200, 'User Logged in', { user });
     } catch (err) {
         next(err);
@@ -28,6 +28,35 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
         const { email_hash, hash_string } = req.body;
         const user = await userService.activateAccount(email_hash, hash_string);
         sendResponse(res, 200, 'Account activated', { user });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: userId } = req.params;
+        const user = await userService.view({ _id: userId });
+        sendResponse(res, 200, 'User fetched', { user });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await userService.list({});
+        sendResponse(res, 200, 'User fetched', { users });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: userId } = req.params;
+        const user = await userService.update({ _id: userId }, req.body);
+        sendResponse(res, 200, 'User fetched', { user });
     } catch (err) {
         next(err);
     }

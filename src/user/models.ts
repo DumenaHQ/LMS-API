@@ -32,29 +32,37 @@ export interface IUserView {
 }
 
 
-const UserSchema: Schema = new Schema(
-    {
-        fullname: String,
-        email: {
-            type: String,
+const UserSchema: Schema = new Schema({
+    fullname: String,
+    email: {
+        type: String,
+        trim: true,
+        index: {
             unique: true,
-            trim: true
-        },
-        password: {
-            type: String,
-            trim: true
-        },
-        active_organization: {
-            type: Schema.Types.ObjectId,
-            ref: 'Organization'
-        },
-        role: String,
-        status: {
-            type: String,
-            default: 'inactive'
+            partialFilterExpression: {
+                'email': { $exists: true, $eq: null }
+            }
         }
     },
-    { timestamps: true });
+    username: {
+        type: String,
+        trim: true
+    },
+    password: {
+        type: String,
+        trim: true
+    },
+    active_organization: {
+        type: Schema.Types.ObjectId,
+        ref: 'Organization'
+    },
+    role: String,
+    status: {
+        type: String,
+        default: 'inactive'
+    }
+}, { timestamps: true });
+
 
 const RoleSchema: Schema = new Schema({
     role: String,
@@ -81,19 +89,15 @@ export const Parent = mongoose.model("Parent", ParentSchema);
 
 export const LearnerSchema: Schema = new Schema({
     phone: String,
-    username: {
-        type: String,
-        trim: true,
-        unique: true
-    },
     parent: {
         type: Schema.Types.ObjectId,
-        ref: 'Organization'
+        ref: 'parent'
     },
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    resident_state: String,
 }, { timestamps: true });
 
 export const Learner = mongoose.model("Learner", LearnerSchema);
