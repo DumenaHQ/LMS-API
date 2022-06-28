@@ -4,14 +4,12 @@ import { Buffer } from 'buffer';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import nodemailer from 'nodemailer';
-var hbs = require('nodemailer-express-handlebars');
+const hbs = require('nodemailer-express-handlebars');
 
 const options = {
     viewEngine: {
         extName: '.hbs',
-        partialsDir: '/views/emails/',
-        layoutsDir: '',
-        defaultLayout: '',
+        layoutsDir: path.join(__dirname, '../views/emails/'),
     },
     viewPath: path.join(__dirname, '../views/emails/')
 };
@@ -33,7 +31,7 @@ const BASE_URL = process.env.BASE_URL;
 const SENT_FROM = 'noreply@dumena.com';
 
 const sendMail = (to: string, subject: string, template: string, data: object) => {
-    let mailOptions = {
+    const mailOptions = {
         from: '"DUMENA Education" <' + SENT_FROM + '>',
         to: to,
         subject: subject,
@@ -56,7 +54,7 @@ export const emailService = {
 
         const data = {
             user: user.fullname,
-            url: BASE_URL + 'activate/' + email_b64 + '/' + hash,
+            url: BASE_URL + '#/activate/' + email_b64 + '/' + hash,
             base_url: BASE_URL
         };
         const subject = "Verify your email address"
@@ -80,7 +78,7 @@ export const emailService = {
 
         const data = {
             user: user.fullname,
-            url: BASE_URL + 'password-reset/' + email_b64 + '/' + hash,
+            url: BASE_URL + '#/password-reset/' + email_b64 + '/' + hash,
             base_url: BASE_URL
         };
         const subject = "DUMENA Password Reset Link";

@@ -23,6 +23,10 @@ export const userService = {
             role: foundUser.role,
         };
 
+        if (foundUser.role == 'learner' && foundUser.username) {
+            payload.username = foundUser.username;
+        }
+
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
 
         const token: string = sign(payload, process.env.JWT_SECRET as string, {
