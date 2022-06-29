@@ -11,12 +11,14 @@ const dbconfig: envKeys = {
     development: {
         host: process.env.DEV_DB_HOST || 'localhost',
         port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
-        name: process.env.DEV_DB_NAME || 'lms'
+        name: process.env.DEV_DB_NAME || 'lms_dev'
     },
     production: {
         host: process.env.DEV_DB_HOST || 'localhost',
         port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
-        name: process.env.DEV_DB_NAME || 'lms'
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        name: process.env.DB_NAME || 'lms'
     },
     test: {
         host: process.env.TEST_DB_HOST || 'localhost',

@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 import { dbConfig, env } from "./config";
 
-const { host, port, name: dbname } = dbConfig;
+const { host, port, user, password, name: dbname } = dbConfig;
 
 (async function () {
     try {
-        await mongoose.connect(`mongodb://${host}:${port}/${dbname}`, {
+        const credentials = {
+            development: `mongodb://${host}:${port}/${dbname}`,
+            production: `mongodb://${user}:${password}@${host}/${dbname}?w=majority`
+        };
+        await mongoose.connect(`${credentials[env]}`, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
