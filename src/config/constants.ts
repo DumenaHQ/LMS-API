@@ -4,7 +4,7 @@ export const
         school: 'school',
         learner: 'learner'
     },
-    USER_FIELDS = 'fullname email role active_organization createdAt updatedAt',
+    USER_FIELDS = 'fullname email username role active_organization createdAt updatedAt',
     SALT_ROUNDS = 10,
     UPLOADS = {
         course_thumbs: 'course_thumbs',

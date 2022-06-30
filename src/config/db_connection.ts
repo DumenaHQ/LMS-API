@@ -7,7 +7,7 @@ const { host, port, user, password, name: dbname } = dbConfig;
     try {
         const credentials = {
             development: `mongodb://${host}:${port}/${dbname}`,
-            production: `mongodb://${user}:${password}@${host}/${dbname}?w=majority`
+            production: `mongodb+srv://${user}:${password}@${host}/${dbname}?w=majority`
         };
         await mongoose.connect(`${credentials[env]}`, {
             useNewUrlParser: true,

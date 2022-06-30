@@ -9,3 +9,5 @@ router.get('/', (req: Request, res: Response) => res.json({ message: 'Dumena, LM
 router.use('/users', userRoutes);
 
 router.use('/courses', courseRoutes);
+
+router.use('/parents', userRoutes);

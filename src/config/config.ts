@@ -14,7 +14,7 @@ const dbconfig: envKeys = {
         name: process.env.DEV_DB_NAME || 'lms_dev'
     },
     production: {
-        host: process.env.DEV_DB_HOST || 'localhost',
+        host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,

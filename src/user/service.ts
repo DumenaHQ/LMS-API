@@ -8,17 +8,19 @@ import { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { getParentChildren } from './controller';
 
 
 export const userService = {
     async authenticate(emailOrUsername: string, password: string): Promise<object> {
-        const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] }).lean();
+        const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
         if (!foundUser) throw new handleError(404, 'Email or password is incorrect');
 
         const match = await bcrypt.compare(password, foundUser.password);
         if (!match) throw new handleError(400, 'Email and password doesn\'t match');
 
         const payload: any = {
+            id: foundUser.id,
             fullname: foundUser.fullname,
             role: foundUser.role,
         };
@@ -84,7 +86,7 @@ export const userService = {
                 newUser = await School.create({ school, phone, contact_person, address, resident_state, user });
                 break;
             case 'learner':
-                newUser = await Learner.create({ phone, parent: parent ?? null });
+                newUser = await Learner.create({ phone, parent: parent ?? null, user });
                 break;
         }
         return User.findById(user).select(USER_FIELDS);
@@ -144,7 +146,7 @@ export const userService = {
     async update(criteria: object, userData: IUserCreate): Promise<IUserView | null> {
         await User.updateOne(criteria, userData);
         return this.view(criteria);
-    }
+    },
 
     // async validateUsername(username: string): Promise<Boolean> {
     //     const foundUsername = await User.findOne({ username }).lean();
@@ -154,4 +156,19 @@ export const userService = {
     //     }
     //     return foundUsername ? true : false;
     // }
+
+    async getParentChildren(parent: string) {
+        const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select('parent');
+        return learners.map(learner => this.sanitizeLearner(learner));
+    },
+
+    sanitizeLearner(learner: object) {
+        const { user, parent, user: { fullname, username }, _id: id } = learner;
+        return {
+            id,
+            parent,
+            fullname,
+            username
+        };
+    }
 }

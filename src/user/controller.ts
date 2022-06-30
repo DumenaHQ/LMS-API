@@ -61,3 +61,13 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
 }
+
+export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: parentId } = req.params;
+        const learners = await userService.getParentChildren(parentId);
+        sendResponse(res, 200, 'Learners fetched', { learners });
+    } catch (err) {
+        next(err);
+    }
+}
