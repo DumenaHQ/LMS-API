@@ -19,6 +19,8 @@ export const userService = {
         const match = await bcrypt.compare(password, foundUser.password);
         if (!match) throw new handleError(400, 'Email and password doesn\'t match');
 
+        if (foundUser.status == 'inactive') throw new handleError(400, 'User account is inactive.');
+
         const payload: any = {
             id: foundUser.id,
             fullname: foundUser.fullname,
@@ -107,9 +109,6 @@ export const userService = {
         }
         user.status = 'active';
         await user.save();
-        // remove this
-        if (user.role == USER_TYPES.school || user.role == USER_TYPES.parent)
-            emailService.sendLauchInviteEmail(user);
         return user;
     },
 
