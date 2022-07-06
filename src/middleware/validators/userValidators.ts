@@ -48,7 +48,7 @@ export const userCreationRules = () => {
 
 export const loginRules = () => {
     return [
-        check('username').exists().withMessage('Email/username field must be provided'),
+        check('email').exists().withMessage('Email/username field must be provided'),
         check('password').exists().withMessage('Password field must be provided')
     ]
 }

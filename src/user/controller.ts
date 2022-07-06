@@ -15,8 +15,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { username, password } = req.body;
-        const user = await userService.authenticate(username, password);
+        const { email, password } = req.body;
+        const user = await userService.authenticate(email, password);
         sendResponse(res, 200, 'User Logged in', { user });
     } catch (err) {
         next(err);
