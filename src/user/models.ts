@@ -39,9 +39,7 @@ const UserSchema: Schema = new Schema({
         trim: true,
         index: {
             unique: true,
-            partialFilterExpression: {
-                'email': { $exists: true, $eq: null }
-            }
+            sparse: true
         }
     },
     username: {

@@ -11,4 +11,5 @@ export const
         lesson_videos: 'lesson_videos'
     },
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
-    COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker']
+    COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
+    ORDER_TYPES = ['sub', 'item']
