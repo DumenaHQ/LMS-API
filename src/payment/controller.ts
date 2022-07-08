@@ -2,10 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import { paymentService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
 
-export const acceptPayment = async (req: Request, res: Response, next: NextFunction) => {
+export const verifyPayment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const payment = await paymentService.acceptPayment(req.body);
+        const { reference } = req.body;
+        const payment = await paymentService.save(reference);
         sendResponse(res, 201, 'Payment successful', { payment });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+export const fetchPayments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const payments = await paymentService.list();
+        sendResponse(res, 201, 'Payments fetched', { payments });
     } catch (err) {
         next(err);
     }

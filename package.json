@@ -15,6 +15,7 @@
     "@types/chai-as-promised": "^7.1.5",
     "@types/jsonwebtoken": "^8.5.8",
     "aws-sdk": "^2.1140.0",
+    "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "chance": "^1.1.8",
     "cors": "^2.8.5",

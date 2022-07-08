@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
-import { paymentService } from './service';
+import { verifyPayment, fetchPayments } from './controller';
 
 export const router = Router();
 
-router.post('/', isAuthenticated, paymentService.acceptPayment);
+router.post('/verify', isAuthenticated, verifyPayment);
 
-router.get('/', isAuthenticated, isAdmin);
+router.get('/', isAuthenticated, isAdmin, fetchPayments);

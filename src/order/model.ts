@@ -12,6 +12,8 @@ export interface IOrder {
     user: Schema.Types.ObjectId;
     order_type: String;
     order_type_id: Schema.Types.ObjectId;
+    ordered_item?: String;
+    slug?: String;
     amount: Number;
     reference: String;
     status?: String

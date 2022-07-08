@@ -5,6 +5,16 @@ enum PaymentStatus {
     Success = 'success',
 }
 
+export interface IPayment {
+    order: Schema.Types.ObjectId;
+    user: Schema.Types.ObjectId;
+    amount: Number;
+    reference: String;
+    channel: String;
+    currency: string;
+    status?: String;
+}
+
 const paymentSchema = new Schema({
     order: {
         type: Schema.Types.ObjectId,
@@ -17,6 +27,13 @@ const paymentSchema = new Schema({
     amount: {
         type: Number,
         required: true
+    },
+    currency: {
+        type: String,
+        default: 'NGN'
+    },
+    channel: {
+        type: String
     },
     reference: {
         type: String,
