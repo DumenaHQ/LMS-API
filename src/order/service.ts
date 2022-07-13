@@ -4,14 +4,26 @@ import { generateId } from '../helpers/utility';
 import { handleError } from '../helpers/handleError';
 
 export const orderService = {
-    async save(orderData: IOrder): Promise<IOrder> {
-        // get order details
-        const orderDetails = await Subscription.findOne({ $or: [{ _id: orderData.order_type_id }, { slug: orderData.slug }] });
-        if (!orderDetails) throw new handleError(400, 'Item ordered is not valid');
+    async create({ items, ...orderData }: IOrder): Promise<IOrder> {
+        // get order item details
+        let total_amount = 0;
+        const orderItems = await Promise.all(items.map(async item => {
+            total_amount += item.amount;
+            const orderDetails = await Subscription.findOne({ $or: [{ _id: item.order_type_id }, { slug: item.slug }] });
+            return {
+                title: orderDetails.title,
+                amount: orderDetails.amount,
+                order_type: item.order_type,
+                order_type_id: orderDetails.id
+            };
+        }));
 
-        orderData.amount = orderDetails.amount;
-        orderData.order_type_id = orderDetails.id;
-        return Order.create({ ...orderData, reference: generateId('ORD_') });
+        return Order.create({
+            ...orderData,
+            total_amount,
+            reference: generateId('ORD_'),
+            items: orderItems
+        });
     },
 
     async view(criteria: object): Promise<IOrder | null> {

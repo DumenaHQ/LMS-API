@@ -4,7 +4,7 @@ import { send as sendResponse } from "../helpers/httpResponse";
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const order = await orderService.save(req.body);
+        const order = await orderService.create({ ...req.body, user: req.user.id });
         sendResponse(res, 201, 'Order created', { order });
     } catch (err) {
         next(err);
@@ -14,7 +14,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 
 export const listOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const orders = await orderService.list();
+        const orders = await orderService.list({});
         sendResponse(res, 200, 'Orders fetched', { orders });
     } catch (err) {
         next(err);
