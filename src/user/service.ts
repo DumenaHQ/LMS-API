@@ -44,14 +44,7 @@ export const userService = {
 
 
     async create(userData: IUserCreate): Promise<IUserView> {
-        const { fullname, email, password, user_type } = userData;
-        // const data = {
-        //     fullname, email, password, user_type
-        // };
-
-        // if (user_type === USER_TYPES.learner) {
-        //     data.username = fullname.split(' ').join('.');
-        // }
+        const { user_type } = userData;
 
         const newUserId = await this.createLoginUser(userData);
         const newUser = await this.createUserType(userData, newUserId);
