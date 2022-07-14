@@ -45,15 +45,15 @@ export const userService = {
 
     async create(userData: IUserCreate): Promise<IUserView> {
         const { fullname, email, password, user_type } = userData;
-        const data = {
-            fullname, email, password, user_type
-        };
+        // const data = {
+        //     fullname, email, password, user_type
+        // };
 
-        if (user_type === USER_TYPES.learner) {
-            data.username = fullname.split(' ').join('.');
-        }
+        // if (user_type === USER_TYPES.learner) {
+        //     data.username = fullname.split(' ').join('.');
+        // }
 
-        const newUserId = await this.createLoginUser(data);
+        const newUserId = await this.createLoginUser(userData);
         const newUser = await this.createUserType(userData, newUserId);
         if (user_type != 'learner' && user_type != 'admin') {
             emailService.sendVerificationEmail(newUser);
@@ -62,7 +62,7 @@ export const userService = {
     },
 
 
-    async createLoginUser({ fullname, email, username = undefined, password, user_type: role }): Promise<ObjectId> {
+    async createLoginUser({ fullname, email, password, user_type: role, parent }): Promise<ObjectId> {
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
         const data = {
             fullname,
@@ -70,7 +70,11 @@ export const userService = {
             role,
             password: passwordHash,
         };
-        if (username) data.username = username;
+
+        if (role === USER_TYPES.learner && parent) {
+            data.username = fullname.split(' ').join('.');
+            data.status = 'active';
+        }
         const newUser = await User.create(data);
         return newUser.id;
     },
