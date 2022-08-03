@@ -28,14 +28,14 @@ export const courseService = {
     },
 
 
-    async addLesson(courseId: String, lesson: ILesson): Promise<ILesson | undefined> {
+    async addLesson(courseId: String, lesson: ILesson): Promise<ILesson> {
         const course = await this.view({ _id: courseId });
         if (!course) throw new handleError(404, 'Course not found');
 
         // upload lesson video
         let video_url: String;
         if (lesson.lesson_video) {
-            const key = `${UPLOADS.lesson_videos}/${randomUUID()}${path.extname(lesson.lesson_video.name)}`;
+            const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
             video_url = await uploadFile(lesson.lesson_video, key);
             lesson.lesson_video = video_url;
         }
