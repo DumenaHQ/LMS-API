@@ -8,7 +8,7 @@ export const lesson = {
         required: true
     },
     further_reading: String,
-    video_url: String,
+    lesson_video: String,
     class_activity: String,
     code_example: String,
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' }

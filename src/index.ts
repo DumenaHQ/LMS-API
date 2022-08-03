@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+const fileUpload = require('express-fileupload');
 dotenv.config();
 import { notFoundHandler } from "./middleware/notFound";
 import { errorHandler } from "./middleware/error";
@@ -22,6 +23,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 app.use('/', routes);
 

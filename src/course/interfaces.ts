@@ -40,7 +40,6 @@ export interface ILesson {
     lesson_video: any;
     class_activity: String;
     code_example: String;
-    video_url: String;
     instructor: ObjectId
 }
 

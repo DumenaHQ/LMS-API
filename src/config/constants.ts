@@ -8,7 +8,7 @@ export const
     SALT_ROUNDS = 10,
     UPLOADS = {
         course_thumbs: 'course_thumbs',
-        lesson_videos: 'lesson_videos'
+        lesson_videos: 'lessons'
     },
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
