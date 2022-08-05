@@ -71,6 +71,15 @@ export const emailService = {
         sendMail(user.email, subject, template, data);
     },
 
+    sendSummerSchoolEmail: function (user: any): void {
+        const data = {
+            user: user.fullname
+        };
+        const subject = `Thanks for Registering, Here's What's Next 🎉🎊`;
+        const template = 'summerSchool';
+        sendMail(user.email, subject, template, data);
+    },
+
     sendPasswordResetLink: function (user: any): void {
         if (!user) return;
         const email_b64 = Buffer.from(user.email).toString('base64');
@@ -97,8 +106,9 @@ export const emailService = {
         };
 
         const mailOptions = {
-            from: sender_name + '<' + SENT_FROM + '>',
-            to: 'info@dumena.com',
+            from: 'DUMENA Education' + '<' + SENT_FROM + '>',
+            to: 'hidumena@gmail.com',
+            bcc: 'chibuzohenry@gmail.com',
             replyTo: sender_email,
             subject: subject,
             template: template,
@@ -109,7 +119,7 @@ export const emailService = {
             if (error) {
                 return console.log(error);
             }
-            //console.log('Message sent: %s', info.messageId);
+            // console.log('Message sent: %s', info.messageId);
         });
     }
 }

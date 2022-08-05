@@ -106,6 +106,11 @@ export const userService = {
         }
         user.status = 'active';
         await user.save();
+        if (user.role == USER_TYPES.parent) {
+            emailService.sendSummerSchoolEmail(user);
+            const parent = await Parent.findOne({ user: user.id });
+            emailService.emailDUMENA({ sender_email: user.email, sender_name: user.fullname, sender_phone: parent.phone, subject: 'New sign up for Summer School', message: 'New parent sign up' });
+        }
         return user;
     },
 
