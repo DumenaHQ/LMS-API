@@ -8,7 +8,7 @@ export const lesson = {
         required: true
     },
     further_reading: String,
-    lesson_video: String,
+    video_source: String,
     class_activity: String,
     code_example: String,
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' }
@@ -28,8 +28,13 @@ const courseSchema = new Schema({
     difficulty_level: String,
     course_quadrant: String,
     thumb_url: String,
+    access_scopes: [],
     lessons: [lesson],
-    quizzes: [quiz]
+    quizzes: [quiz],
+    deleted: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true });
 
 export default mongoose.model('Course', courseSchema);

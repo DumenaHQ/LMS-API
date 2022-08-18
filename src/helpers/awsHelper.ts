@@ -1,10 +1,13 @@
 import AWS from 'aws-sdk';
 import { handleError } from "./handleError";
+import { s3Config } from '../config/config';
+
+const { ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION } = s3Config;
 
 const s3Service = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
+    accessKeyId: ACCESS_KEY_ID,
+    secretAccessKey: SECRET_ACCESS_KEY,
+    region: REGION,
 });
 
 export const getObject = async (bucketName: string, key: string) => {

@@ -1,11 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { paymentService } from './service';
+import { subscriptionService } from "../subscription/service";
 import { send as sendResponse } from "../helpers/httpResponse";
 
 export const verifyPayment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { reference } = req.body;
-        const payment = await paymentService.save(reference);
+        const { payment, order } = await paymentService.save(reference);
+
+        // grant access to content
+        await subscriptionService.grantAccess(order);
         sendResponse(res, 201, 'Payment successful', { payment });
     } catch (err) {
         next(err);

@@ -9,6 +9,7 @@ enum OrderStatus {
 }
 
 export interface IOrder {
+    id: Schema.Types.ObjectId;
     user: Schema.Types.ObjectId;
     total_amount: number;
     coupon: Schema.Types.ObjectId;
@@ -21,6 +22,7 @@ export interface IOrder {
             ordered_item?: String;
             slug?: String;
             amount: number;
+            user_id: Schema.Types.ObjectId
         }
     ]
 }
@@ -36,7 +38,9 @@ const orderItems = {
     amount: {
         type: Number,
         required: true
-    }
+    },
+    slug: String,
+    user_id: Schema.Types.ObjectId
 }
 
 const orderSchema = new Schema({

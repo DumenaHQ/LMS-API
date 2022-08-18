@@ -1,7 +1,6 @@
 import Order, { IOrder } from './model';
 import Subscription from '../subscription/model';
 import { generateId } from '../helpers/utility';
-import { handleError } from '../helpers/handleError';
 
 export const orderService = {
     async create({ items, ...orderData }: IOrder): Promise<IOrder> {
@@ -13,8 +12,10 @@ export const orderService = {
             return {
                 title: orderDetails.title,
                 amount: orderDetails.amount,
+                order_type_id: orderDetails.id,
                 order_type: item.order_type,
-                order_type_id: orderDetails.id
+                slug: orderDetails.slug,
+                user_id: item.user_id
             };
         }));
 

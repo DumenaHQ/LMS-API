@@ -42,9 +42,10 @@ export const addQuiz = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-export const listLearnerCourses = async (req: Request, res: Response, next: NextFunction) => {
+export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const courses = await courseService.list({});
+        const { role: userType, id: userId } = req.user;
+        const courses = await courseService.listByUserType(userType, userId);
         sendResponse(res, 200, 'Courses fetched', { courses });
     } catch (err) {
         next(err);
