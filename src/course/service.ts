@@ -5,6 +5,8 @@ import { handleError } from "../helpers/handleError";
 import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
 import path from 'path';
+import mongoose from 'mongoose';
+import { ContentAccess } from '../subscription/model';
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
@@ -48,7 +50,7 @@ export const courseService = {
     },
 
 
-    async addQuizToCourse(courseId: string, quiz: IQuiz): Promise<IQuiz | undefined> {
+    async addQuizToCourse(courseId: string, quiz: IQuiz): Promise<IQuiz> {
         if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
 
         const course = await this.view({ _id: courseId });
@@ -60,5 +62,29 @@ export const courseService = {
         await course.save();
         const newQuiz = course.quizzes.find(_quiz => String(_quiz.title) == String(quiz.title));
         return newQuiz;
+    },
+
+
+    async listByUserType(userType: string, userId: string): Promise<ICourseView[]> {
+        const criteria = { deleted: false };
+        let queryCriteria = {};
+
+        switch (userType) {
+            case 'learner':
+                queryCriteria = await this.prepareUserCoursesCriteria(userId);
+                break;
+            case 'admin':
+            default:
+        }
+
+        return this.list({ ...criteria, ...queryCriteria });
+    },
+
+
+    async prepareUserCoursesCriteria(userId: string): Promise<{}> {
+        const access = await ContentAccess.find({ user: new mongoose.Types.ObjectId(userId) }).select('-_id slug');
+        const accessSlugs = access.map(a => a.slug);
+        // const accessSlugs = await Subscription.find({ _id: { $in: accessIds } }).select('-_id slug');
+        return { access_scopes: { $in: accessSlugs.map(a => a.slug) } };
     }
 }
