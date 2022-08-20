@@ -16,6 +16,7 @@ export interface IUserModel {
     fullname: string;
     email: string;
     password: string;
+    username?: string;
     role: string;
     active_organization?: Schema.Types.ObjectId;
 }
@@ -95,6 +96,7 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    avatar: String,
     resident_state: String,
 }, { timestamps: true });
 

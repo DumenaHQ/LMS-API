@@ -28,7 +28,9 @@ export const userService = {
         };
 
         if (foundUser.role == 'learner' && foundUser.username) {
+            const learner = await Learner.findOne({ user: foundUser.id });
             payload.username = foundUser.username;
+            payload.avatar = learner.avatar;
         }
 
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
