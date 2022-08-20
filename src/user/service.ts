@@ -8,6 +8,8 @@ import { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { generateId } from '../helpers/utility';
+import { String } from 'aws-sdk/clients/apigateway';
 
 
 export const userService = {
@@ -67,7 +69,7 @@ export const userService = {
         };
 
         if (role === USER_TYPES.learner && parent) {
-            data.username = fullname.split(' ').join('.');
+            data.username = this.ensureUniqueUsername(fullname.split(' ').join('.'));
             data.status = 'active';
         }
         const newUser = await User.create(data);
@@ -151,14 +153,14 @@ export const userService = {
         return this.view(criteria);
     },
 
-    // async validateUsername(username: string): Promise<Boolean> {
-    //     const foundUsername = await User.findOne({ username }).lean();
-    //     if (foundUsername) {
-
-    //         return this.validateUser();
-    //     }
-    //     return foundUsername ? true : false;
-    // }
+    async ensureUniqueUsername(username: string): Promise<String> {
+        const foundUsername = await User.findOne({ username }).lean();
+        if (foundUsername) {
+            const newUsername = username + generateId('', 2);
+            return this.ensureUniqueUsername(newUsername);
+        }
+        return username;
+    },
 
     async getParentChildren(parent: string) {
         const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select('parent');
@@ -166,7 +168,7 @@ export const userService = {
     },
 
     sanitizeLearner(learner: object) {
-        const { user, parent, user: { fullname, username }, _id: id } = learner;
+        const { parent, user: { fullname, username }, _id: id } = learner;
         return {
             id,
             parent,

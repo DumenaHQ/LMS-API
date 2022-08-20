@@ -1,5 +1,5 @@
 const chance = require('chance').Chance();
 
-export const generateId = (prefix: string = '') => {
-    return `${prefix}${chance.string({ length: 15, pool: 'abcdefghijklmnopqrstuvwxyz1234567890' })}`;
+export const generateId = (prefix: string = '', length = 15) => {
+    return `${prefix}${chance.string({ length, pool: 'abcdefghijklmnopqrstuvwxyz1234567890' })}`;
 }
