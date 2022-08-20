@@ -6,10 +6,9 @@ import * as crypto from "crypto";
 import { Buffer } from 'buffer';
 import { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
+import { generateId } from '../helpers/utility';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
-import { generateId } from '../helpers/utility';
-import { String } from 'aws-sdk/clients/apigateway';
 
 
 export const userService = {
@@ -69,7 +68,7 @@ export const userService = {
         };
 
         if (role === USER_TYPES.learner && parent) {
-            data.username = this.ensureUniqueUsername(fullname.split(' ').join('.'));
+            data.username = await this.ensureUniqueUsername(fullname.split(' ').join('.'));
             data.status = 'active';
         }
         const newUser = await User.create(data);
