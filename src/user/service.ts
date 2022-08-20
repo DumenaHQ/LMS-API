@@ -8,7 +8,6 @@ import { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
-import { getParentChildren } from './controller';
 
 
 export const userService = {
@@ -24,6 +23,7 @@ export const userService = {
         const payload: any = {
             id: foundUser.id,
             fullname: foundUser.fullname,
+            email: foundUser.email,
             role: foundUser.role,
         };
 
