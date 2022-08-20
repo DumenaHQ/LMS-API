@@ -158,7 +158,7 @@ export const userService = {
             const newUsername = username + generateId('', 2);
             return this.ensureUniqueUsername(newUsername);
         }
-        return username;
+        return username.toLowerCase();
     },
 
     async getParentChildren(parent: string) {
