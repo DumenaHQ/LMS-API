@@ -67,6 +67,7 @@ export const userService = {
             password: passwordHash,
         };
 
+        // for learners added by parents
         if (role === USER_TYPES.learner && parent) {
             data.username = await this.ensureUniqueUsername(fullname.split(' ').join('.'));
             data.status = 'active';

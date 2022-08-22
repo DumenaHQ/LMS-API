@@ -17,10 +17,11 @@ const { host, port, user, password, name: dbname } = dbConfig;
 
         // remove _id and __v from all models
         mongoose.set('toJSON', {
-            virtuals: true,
-            transform: (doc: any, converted: { _id: any, __v: any }) => {
-                delete converted._id;
-                delete converted.__v;
+            transform: (doc: any, ret: any) => {
+                ret.id = ret._id;
+                delete ret._id;
+                delete ret.__v;
+                delete ret.deleted;
             }
         });
     } catch (error) {

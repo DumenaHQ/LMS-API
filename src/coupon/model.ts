@@ -18,6 +18,10 @@ const couponSchema = new Schema({
         type: Number,
         unique: true
     },
+    deleted: {
+        type: Boolean,
+        default: false
+    },
     status: {
         type: String,
         default: 'active'

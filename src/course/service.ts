@@ -1,17 +1,28 @@
 import Course from './model';
 import { ICourseCreate, ICourseEdit, ICourseView, ILesson, IQuiz } from './interfaces';
 import { uploadFile } from '../helpers/fileUploader';
-import { handleError } from "../helpers/handleError";
+import { handleError } from '../helpers/handleError';
 import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
+import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
 import mongoose from 'mongoose';
 import { ContentAccess } from '../subscription/model';
+import { formatTimestamp } from '../helpers/utility';
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
-        return Course.find(criteria).select({ lessons: 0, quizzes: 0 });
+        const foundCourses = await Course.find(criteria).select({ quizzes: 0 });
+
+        const courses = foundCourses.map(course => {
+            const courseDuration = course.lessons?.reduce((totalDuration: number, lesson: ILesson) => totalDuration + (lesson.duration ?? 0), 0);
+            const lesson_count = course.lessons?.length;
+            return { ...course.toJSON(), lesson_count, duration: formatTimestamp(courseDuration) };
+        });
+
+        return courses;
     },
+
 
     async view(criteria: object): Promise<ICourseView | null> {
         return Course.findOne(criteria);
@@ -40,6 +51,8 @@ export const courseService = {
             const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
             video_url = await uploadFile(lesson.lesson_video, key);
             lesson.lesson_video = video_url;
+            const duration = await getVideoDurationInSeconds(String(video_url));
+            lesson.duration = Math.round(duration);
         }
 
         course?.lessons?.push(lesson);

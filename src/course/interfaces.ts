@@ -27,6 +27,7 @@ export interface ICourseView extends Document {
     course_quadant: String;
     thumb_url: String;
     lesson_count: Number;
+    duration?: String;
     lessons?: [typeof lesson];
     quizzes: [typeof quiz];
     createdAt: Date;
@@ -38,6 +39,7 @@ export interface ILesson {
     title: String;
     further_reading: String;
     lesson_video: any;
+    duration: Number;
     class_activity: String;
     code_example: String;
     instructor: ObjectId
