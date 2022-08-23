@@ -14,7 +14,7 @@ router.put('/activate', activateUser);
 // parents routes
 router.get('/:id/learners', isAuthenticated, isParent, getParentChildren);
 
-router.put('/:id', isAuthenticated, updateUser);
+router.put('/', isAuthenticated, updateUser);
 
 router.get('/:id', isAuthenticated, getUser);
 
