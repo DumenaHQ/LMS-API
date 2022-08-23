@@ -1,7 +1,21 @@
+import { stringify } from "querystring";
+
 const chance = require('chance').Chance();
 
 export const generateId = (prefix: string = '', length = 15) => {
     return `${prefix}${chance.string({ length, pool: 'abcdefghijklmnopqrstuvwxyz1234567890' })}`;
+}
+
+
+export const getValidModelFields = (model: any, rawData: Record<string, any>) => {
+    let validFields: Record<string, any> = {};
+
+    model.schema.eachPath((field: string) => {
+        if (rawData.hasOwnProperty(field)) {
+            validFields[field] = rawData[field];
+        }
+    });
+    return validFields;
 }
 
 

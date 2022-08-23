@@ -6,7 +6,7 @@ import * as crypto from "crypto";
 import { Buffer } from 'buffer';
 import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
-import { generateId } from '../helpers/utility';
+import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
@@ -146,15 +146,39 @@ export const userService = {
     },
 
     async view(criteria: object): Promise<IUserView | null> {
-        return User.findOne(criteria).select(USER_FIELDS);
+        const user = await User.findOne(criteria).select(USER_FIELDS);
+        let userType = {};
+
+        switch (user.role) {
+            case USER_TYPES.learner:
+                userType = await Learner.findOne({ user: new mongoose.Types.ObjectId(user.id) }).select({ user: 0 });
+                break
+            case USER_TYPES.parent:
+                userType = await Parent.findOne({ user: new mongoose.Types.ObjectId(user.id) }).select({ user: 0 });
+                break
+        }
+        return { ...user?.toJSON(), ...userType?.toJSON(), id: user.id };
     },
 
     async list(criteria = {}): Promise<IUserView[] | []> {
         return User.find(criteria).select(USER_FIELDS) || [];
     },
 
-    async update(criteria: object, userData: IUserCreate): Promise<IUserView | null> {
-        await User.updateOne(criteria, userData);
+    async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
+        const criteria = { _id: new mongoose.Types.ObjectId(userId) };
+
+        const userUpdateData = getValidModelFields(User, userData);
+        await User.updateOne(criteria, userUpdateData);
+
+        switch (userData.role) {
+            case USER_TYPES.learner:
+                const learnerData = getValidModelFields(Learner, userData);
+                await Learner.updateOne({ user: new mongoose.Types.ObjectId(userId) }, learnerData);
+                break;
+            case USER_TYPES.parent:
+                const parentData = getValidModelFields(Parent, userData);
+                await Parent.updateOne({ user: new mongoose.Types.ObjectId(userId) }, parentData);
+        }
         return this.view(criteria);
     },
 

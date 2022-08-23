@@ -54,9 +54,9 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
 
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: userId } = req.params;
-        const user = await userService.update({ _id: userId }, req.body);
-        sendResponse(res, 200, 'User fetched', { user });
+        const { id: userId, role } = req.user;
+        const user = await userService.update(userId, { ...req.body, role });
+        sendResponse(res, 200, 'User Updated', { user });
     } catch (err) {
         next(err);
     }
