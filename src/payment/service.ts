@@ -46,7 +46,7 @@ export const paymentService = {
     },
 
 
-    async list(): Promise<IPayment[]> {
-        return Payment.find();
+    async list(criteria: object): Promise<IPayment[]> {
+        return Payment.find(criteria);
     }
 }

@@ -4,9 +4,10 @@ import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { Buffer } from 'buffer';
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId } from '../helpers/utility';
+import { paymentService } from '../payment/service';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 
@@ -25,8 +26,12 @@ export const userService = {
             id: foundUser.id,
             fullname: foundUser.fullname,
             email: foundUser.email,
-            role: foundUser.role,
+            role: foundUser.role
         };
+
+        if (foundUser.phone) {
+            payload.phone = foundUser.phone;
+        }
 
         if (foundUser.role == 'learner' && foundUser.username) {
             const learner = await Learner.findOne({ user: foundUser.id });
@@ -165,6 +170,10 @@ export const userService = {
     async getParentChildren(parent: string) {
         const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select('parent');
         return learners.map(learner => this.sanitizeLearner(learner));
+    },
+
+    async getUserPayments(userId: string) {
+        return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
 
     sanitizeLearner(learner: object) {

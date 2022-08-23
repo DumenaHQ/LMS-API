@@ -71,3 +71,13 @@ export const getParentChildren = async (req: Request, res: Response, next: NextF
         next(err);
     }
 }
+
+export const getUserPayments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: userId } = req.user;
+        const payments = await userService.getUserPayments(userId);
+        sendResponse(res, 200, 'Payments fetched', { payments });
+    } catch (err) {
+        next(err);
+    }
+}

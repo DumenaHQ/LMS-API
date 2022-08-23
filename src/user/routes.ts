@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren } from './controller';
+import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments } from './controller';
 import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 import { isAuthenticated, isAdmin, isParent } from "../middleware/verifyToken";
 
@@ -18,4 +18,6 @@ router.put('/:id', isAuthenticated, updateUser);
 
 router.get('/:id', isAuthenticated, getUser);
 
-router.get('/', isAuthenticated, isAdmin, getUsers);
+router.get('/', isAuthenticated, getUsers);
+
+router.get('/:id/payments', isAuthenticated, getUserPayments);

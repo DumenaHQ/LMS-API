@@ -15,6 +15,7 @@ export interface IUserCreate {
 export interface IUserModel {
     fullname: string;
     email: string;
+    phone?: string;
     password: string;
     username?: string;
     role: string;
@@ -42,6 +43,10 @@ const UserSchema: Schema = new Schema({
             unique: true,
             sparse: true
         }
+    },
+    phone: {
+        type: String,
+        unique: true
     },
     username: {
         type: String,
@@ -72,10 +77,6 @@ export const Role = mongoose.model("Role", RoleSchema);
 
 
 const ParentSchema: Schema = new Schema({
-    phone: {
-        type: String,
-        unique: true
-    },
     resident_state: String,
     user: {
         type: Schema.Types.ObjectId,
@@ -87,7 +88,6 @@ export const Parent = mongoose.model("Parent", ParentSchema);
 
 
 export const LearnerSchema: Schema = new Schema({
-    phone: String,
     parent: {
         type: Schema.Types.ObjectId,
         ref: 'parent'
@@ -105,10 +105,6 @@ export const Learner = mongoose.model("Learner", LearnerSchema);
 
 const SchoolSchema: Schema = new Schema({
     school: {
-        type: String,
-        unique: true
-    },
-    phone: {
         type: String,
         unique: true
     },
