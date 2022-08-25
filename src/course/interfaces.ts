@@ -9,6 +9,7 @@ export interface ICourseCreate {
     tags: [];
     difficult_level: String;
     course_quadant: String;
+    access_scopes: [];
     thumb_photo: any;
     thumb_url: String
 }

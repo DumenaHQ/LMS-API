@@ -1,5 +1,3 @@
-import { stringify } from "querystring";
-
 const chance = require('chance').Chance();
 
 export const generateId = (prefix: string = '', length = 15) => {
@@ -20,7 +18,6 @@ export const getValidModelFields = (model: any, rawData: Record<string, any>) =>
 
 
 export const formatTimestamp = (time: number): String => {
-    //const time_diff = Math.abs(time_difference) / 1000;
     const time_diff_hrs = Math.floor(time / 3600) % 24;
     const time_diff_mins = Math.floor(time / 60) % 60;
     const time_diff_secs = Math.floor(time % 60);

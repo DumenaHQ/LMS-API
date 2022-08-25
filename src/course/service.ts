@@ -37,6 +37,7 @@ export const courseService = {
             thumb_url = await uploadFile(course.thumb_photo, key);
             course.thumb_url = thumb_url;
         }
+        if (!course.access_scopes) course.access_scopes = ['free'];
         return courseId ? Course.findByIdAndUpdate(courseId, course, { new: true }) : Course.create(course);
     },
 
@@ -87,7 +88,7 @@ export const courseService = {
             case 'admin':
             default:
         }
-
+        console.log(JSON.stringify(queryCriteria))
         return this.list({ ...criteria, ...queryCriteria });
     },
 
@@ -95,7 +96,6 @@ export const courseService = {
     async prepareUserCoursesCriteria(userId: string): Promise<{}> {
         const access = await ContentAccess.find({ user: new mongoose.Types.ObjectId(userId) }).select('-_id slug');
         const accessSlugs = access.map(a => a.slug);
-        // const accessSlugs = await Subscription.find({ _id: { $in: accessIds } }).select('-_id slug');
-        return { access_scopes: { $in: accessSlugs.map(a => a.slug) } };
+        return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
 }
