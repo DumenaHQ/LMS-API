@@ -26,7 +26,7 @@ export const subscriptionService = {
                 access_type: order_type,
                 access_type_id: order_type_id,
                 slug,
-                end_date: end_date.toISOString()
+                end_date: new Date(end_date)
             };
         }));
         await ContentAccess.insertMany(access);
