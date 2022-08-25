@@ -88,7 +88,6 @@ export const courseService = {
             case 'admin':
             default:
         }
-        console.log(JSON.stringify(queryCriteria))
         return this.list({ ...criteria, ...queryCriteria });
     },
 
