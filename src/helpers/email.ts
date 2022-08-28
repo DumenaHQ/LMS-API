@@ -82,7 +82,7 @@ export const emailService = {
 
     sendPasswordResetLink: function (user: any): void {
         if (!user) return;
-        const email_b64 = Buffer.from(user.email).toString('base64');
+        const email_b64 = Buffer.from(user.email).toString('base64url');
         const hash = crypto.createHash('md5').update(user.email + process.env.EMAIL_HASH_STRING).digest('hex');
 
         const data = {
@@ -95,7 +95,7 @@ export const emailService = {
         sendMail(user.email, subject, template, data);
     },
 
-    emailDUMENA: function ({ sender_email, sender_name, sender_phone = '', subject = 'From FAQ', message }) {
+    emailDUMENA: function ({ sender_email, sender_name, sender_phone = '', subject = 'From FAQ', message }: any) {
         const template = 'dumenaEmail';
         const data = {
             sender_name,

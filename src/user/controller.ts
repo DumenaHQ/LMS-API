@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { userService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
+import { handleError } from "../helpers/handleError";
+import { emailService } from "../helpers/email";
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -44,6 +46,47 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
         next(err);
     }
 }
+
+
+export const resendVerificationEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        const user = await userService.view({ email, status: 'inactive' });
+        if (!user) throw new handleError(404, 'Inactive account not found');
+
+        emailService.sendVerificationEmail(user);
+        sendResponse(res, 200, 'Verification email sent');
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+export const sendPasswordResetEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        const user = await userService.view({ email, status: 'active' });
+        if (!user) throw new handleError(400, 'There is no active account associated with this email');
+
+        emailService.sendPasswordResetLink(user);
+        sendResponse(res, 200, 'A password reset link has been sent to your email');
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email_hash, hash_string, password } = req.body;
+        const { id: user_id } = await userService.verifyPasswordResetLink(email_hash, hash_string);
+        await userService.changePassword(password, user_id);
+        sendResponse(res, 200, 'Password successfully changed');
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {

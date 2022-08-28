@@ -20,7 +20,7 @@ export const userService = {
         const match = await bcrypt.compare(password, foundUser.password);
         if (!match) throw new handleError(400, 'Email and password doesn\'t match');
 
-        if (foundUser.status == 'inactive') throw new handleError(400, 'User account is inactive.');
+        if (foundUser.status == 'inactive') throw new handleError(422, 'User account is inactive.');
 
         const payload: any = {
             id: foundUser.id,
@@ -130,9 +130,9 @@ export const userService = {
         if (!email_hash || !hash_string) {
             throw new handleError(400, 'Email or hash not found');
         }
-        const email = Buffer.from(email_hash, 'base64').toString('ascii');
+        const email = Buffer.from(email_hash, 'base64url').toString('ascii');
         const user = await this.view({ email });
-        if (!user) throw new handleError(400, 'User not found');
+        if (!user) throw new handleError(400, 'Invalid email hash. couldn\'t verify your email');
 
         const hash = crypto.createHash('md5').update(email + process.env.EMAIL_HASH_STRING).digest('hex');
         if (hash_string !== hash) {
@@ -141,7 +141,7 @@ export const userService = {
         return { id: user.id, status: true };
     },
 
-    async changePassword(newPassword: string, user_id: string) {
+    async changePassword(newPassword: string, user_id: ObjectId) {
         if (!newPassword) throw new handleError(400, 'Password can not be empty');
         const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
@@ -150,6 +150,8 @@ export const userService = {
 
     async view(criteria: object): Promise<IUserView | null> {
         const user = await User.findOne(criteria).select(USER_FIELDS);
+        if (!user) return null;
+
         let userType = {};
 
         switch (user?.role) {
