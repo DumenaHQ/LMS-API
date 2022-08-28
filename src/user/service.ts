@@ -51,7 +51,7 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate): Promise<IUserView> {
+    async create(userData: IUserCreate): Promise<IUserView | null> {
         const { user_type } = userData;
 
         const newUserId = await this.createLoginUser(userData);
@@ -63,9 +63,9 @@ export const userService = {
     },
 
 
-    async createLoginUser({ fullname, email, password, user_type: role, parent }): Promise<ObjectId> {
+    async createLoginUser({ fullname, email, password, user_type: role, parent, school }: Record<string, any>): Promise<ObjectId> {
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-        const data = {
+        const data: Record<string, any> = {
             fullname,
             email,
             role,
@@ -73,8 +73,8 @@ export const userService = {
         };
 
         // for learners added by parents
-        if (role === USER_TYPES.learner && parent) {
-            data.username = await this.ensureUniqueUsername(fullname.split(' ').join('.'));
+        if (role === USER_TYPES.learner && (parent || school)) {
+            data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
             data.status = 'active';
         }
         const newUser = await User.create(data);
@@ -82,25 +82,33 @@ export const userService = {
     },
 
 
-    async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView> {
-        const { phone, fullname, school, user_type, address, resident_state, parent } = userData;
-        let newUser;
+    async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView | null> {
+        const userModel = {
+            [USER_TYPES.learner]: Learner,
+            [USER_TYPES.parent]: Parent,
+            [USER_TYPES.school]: School,
+        };
+
+        const { user_type } = userData;
+
+        const userTypeData = getValidModelFields(userModel[user_type], userData);
+        userTypeData.user = user;
+
         switch (user_type) {
             case 'parent':
-                newUser = await Parent.create({ phone, resident_state, user });
+                await Parent.create(userTypeData);
                 break;
             case 'school':
-                const contact_person = fullname;
-                newUser = await School.create({ school, phone, contact_person, address, resident_state, user });
+                await School.create(userTypeData);
                 break;
             case 'learner':
-                newUser = await Learner.create({ phone, parent: parent ?? null, user });
+                await Learner.create(userTypeData);
                 break;
         }
-        return User.findById(user).select(USER_FIELDS);
+        return this.view({ _id: user });
     },
 
-    async activateAccount(email_hash: string, hash_string: string) {
+    async activateAccount(email_hash: string, hash_string: string): Promise<IUserView | null> {
         if (!email_hash || !hash_string) {
             throw new handleError(400, 'Email or hash not found');
         }
@@ -115,12 +123,7 @@ export const userService = {
         }
         user.status = 'active';
         await user.save();
-        if (user.role == USER_TYPES.parent) {
-            emailService.sendSummerSchoolEmail(user);
-            const parent = await Parent.findOne({ user: user.id });
-            emailService.emailDUMENA({ sender_email: user.email, sender_name: user.fullname, sender_phone: parent.phone, subject: 'New sign up for Summer School', message: 'New parent sign up' });
-        }
-        return user;
+        return this.view({ _id: user.id });
     },
 
     async verifyPasswordResetLink(email_hash: string, hash_string: string) {
@@ -149,15 +152,15 @@ export const userService = {
         const user = await User.findOne(criteria).select(USER_FIELDS);
         let userType = {};
 
-        switch (user.role) {
+        switch (user?.role) {
             case USER_TYPES.learner:
-                userType = await Learner.findOne({ user: new mongoose.Types.ObjectId(user.id) }).select({ user: 0 });
+                userType = await Learner.findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
                 break
             case USER_TYPES.parent:
-                userType = await Parent.findOne({ user: new mongoose.Types.ObjectId(user.id) }).select({ user: 0 });
+                userType = await Parent.findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
                 break
         }
-        return { ...user?.toJSON(), ...userType?.toJSON(), id: user.id };
+        return { ...user?.toJSON(), ...userType?.toJSON(), id: user?.id };
     },
 
     async list(criteria = {}): Promise<IUserView[] | []> {
@@ -184,11 +187,12 @@ export const userService = {
 
     async ensureUniqueUsername(username: string): Promise<String> {
         const foundUsername = await User.findOne({ username }).lean();
+
         if (foundUsername) {
-            const newUsername = username + generateId('', 2);
+            const newUsername = username + generateId('', 2, true);
             return this.ensureUniqueUsername(newUsername);
         }
-        return username.toLowerCase();
+        return username;
     },
 
     async getParentChildren(parent: string) {
@@ -201,7 +205,7 @@ export const userService = {
     },
 
     sanitizeLearner(learner: object) {
-        const { parent, user: { fullname, username }, _id: id } = learner;
+        const { parent, user: { fullname, username }, _id: id }: Record<string, any> = learner;
         return {
             id,
             parent,

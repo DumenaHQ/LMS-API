@@ -13,6 +13,18 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 }
 
 
+export const enrollLearner = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: parent } = req.user;
+        const fullname = `${req.body.lastname} ${req.body.firstname}`;
+        const user = await userService.create({ ...req.body, parent, fullname, user_type: 'learner' });
+        sendResponse(res, 201, 'Learner Enrolled', { user });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;

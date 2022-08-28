@@ -16,6 +16,8 @@ router.use('/courses', courseRoutes);
 
 router.use('/parents', userRoutes);
 
+router.use('/learners', userRoutes);
+
 router.use('/orders', orderRoutes);
 
 router.use('/payments', paymentRoutes);

@@ -20,6 +20,7 @@ export interface IUserModel {
     username?: string;
     role: string;
     active_organization?: Schema.Types.ObjectId;
+    status: string;
 }
 
 export interface IUserView {
@@ -92,6 +93,10 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'parent'
     },
+    school: {
+        type: Schema.Types.ObjectId,
+        ref: 'school'
+    },
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -108,7 +113,6 @@ const SchoolSchema: Schema = new Schema({
         type: String,
         unique: true
     },
-    contact_person: String,
     address: String,
     resident_state: String,
     user: {

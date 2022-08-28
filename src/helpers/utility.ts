@@ -1,11 +1,13 @@
 const chance = require('chance').Chance();
 
-export const generateId = (prefix: string = '', length = 15) => {
-    return `${prefix}${chance.string({ length, pool: 'abcdefghijklmnopqrstuvwxyz1234567890' })}`;
+export const generateId = (prefix: string = '', length = 15, num = false) => {
+    const pool = num ? '0123456789' : 'abcdefghijklmnopqrstuvwxyz1234567890';
+    return `${prefix}${chance.string({ length, pool })}`;
 }
 
 
 export const getValidModelFields = (model: any, rawData: Record<string, any>) => {
+    if (!model) return {};
     let validFields: Record<string, any> = {};
 
     model.schema.eachPath((field: string) => {
