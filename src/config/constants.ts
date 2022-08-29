@@ -5,6 +5,7 @@ export const
         learner: 'learner'
     },
     USER_FIELDS = 'fullname email username role active_organization createdAt updatedAt',
+    LEARNER_FIELDS = 'parent school avatar resident_state',
     SALT_ROUNDS = 10,
     UPLOADS = {
         course_thumbs: 'course_thumbs',

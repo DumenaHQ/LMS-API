@@ -9,7 +9,7 @@ import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
-import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, LEARNER_FIELDS, USER_TYPES } from '../config/constants';
 
 
 export const userService = {
@@ -198,7 +198,7 @@ export const userService = {
     },
 
     async getParentChildren(parent: string) {
-        const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select('parent');
+        const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select(LEARNER_FIELDS);
         return learners.map(learner => this.sanitizeLearner(learner));
     },
 
