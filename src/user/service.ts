@@ -152,7 +152,7 @@ export const userService = {
         const user = await User.findOne(criteria).select(USER_FIELDS);
         if (!user) return null;
 
-        let userType = {};
+        let userType = { toJSON: () => { } };
 
         switch (user?.role) {
             case USER_TYPES.learner:
@@ -160,6 +160,9 @@ export const userService = {
                 break
             case USER_TYPES.parent:
                 userType = await Parent.findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
+                break
+            case USER_TYPES.school:
+                userType = await School.findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
                 break
         }
         return { ...user?.toJSON(), ...userType?.toJSON(), id: user?.id };

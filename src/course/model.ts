@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { quiz } from './quizModel';
 
-export const lesson = {
+const lesson = {
     id: Schema.Types.ObjectId,
     title: {
         type: String,
