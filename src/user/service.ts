@@ -199,7 +199,7 @@ export const userService = {
 
     async getParentChildren(parent: string) {
         const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select(LEARNER_FIELDS);
-        return learners.map(learner => this.sanitizeLearner(learner));
+        return learners.map(learner => this.sanitizeLearner(learner.toJSON()));
     },
 
     async getUserPayments(userId: string) {
@@ -207,12 +207,11 @@ export const userService = {
     },
 
     sanitizeLearner(learner: object) {
-        const { parent, user: { fullname, username }, _id: id }: Record<string, any> = learner;
+        const user = { ...learner.user };
+        delete learner.user;
         return {
-            id,
-            parent,
-            fullname,
-            username
+            ...learner,
+            ...user
         };
     }
 }
