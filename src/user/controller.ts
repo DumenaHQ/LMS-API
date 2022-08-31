@@ -136,3 +136,16 @@ export const getUserPayments = async (req: Request, res: Response, next: NextFun
         next(err);
     }
 }
+
+export const downloadUserData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const dataFile = await userService.downloadUserData('parent');
+        res.writeHead(200, {
+            "Content-Type": "application/octet-stream",
+            "Content-disposition": "attachment; filename=parents_mailing_list.xlsx",
+        })
+        res.end(dataFile);
+    } catch (err) {
+        next(err);
+    }
+}

@@ -10,6 +10,13 @@ import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
 import { SALT_ROUNDS, USER_FIELDS, LEARNER_FIELDS, USER_TYPES } from '../config/constants';
+import { xlsxHelper } from '../helpers/xlsxHelper';
+
+const userModel = {
+    [USER_TYPES.learner]: Learner,
+    [USER_TYPES.parent]: Parent,
+    [USER_TYPES.school]: School,
+};
 
 
 export const userService = {
@@ -37,6 +44,7 @@ export const userService = {
             const learner = await Learner.findOne({ user: foundUser.id });
             payload.username = foundUser.username;
             payload.avatar = learner.avatar;
+            payload.content_access = learner.content_access;
         }
 
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
@@ -83,12 +91,6 @@ export const userService = {
 
 
     async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView | null> {
-        const userModel = {
-            [USER_TYPES.learner]: Learner,
-            [USER_TYPES.parent]: Parent,
-            [USER_TYPES.school]: School,
-        };
-
         const { user_type } = userData;
 
         const userTypeData = getValidModelFields(userModel[user_type], userData);
@@ -216,5 +218,18 @@ export const userService = {
             ...learner,
             ...user
         };
+    },
+
+    async downloadUserData(userType: string) {
+        const columns = [
+            { label: "Name", value: (row) => row.user.fullname },
+            { label: "Email", value: (row) => row.user.email },
+            { label: "Phone", value: (row) => row.phone || row.user.phone },
+            { label: "Location", value: "resident_state" },
+            { label: "Signed up on", value: (row) => row.user.createdAt, format: "d-mmm-yy" }
+        ];
+
+        const users = await userModel[userType].find({}).populate({ path: 'user', select: 'fullname email phone createdAt' });
+        return xlsxHelper.write(columns, users, 'parents_mailing_list');
     }
 }

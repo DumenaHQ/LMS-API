@@ -7,8 +7,8 @@ import { randomUUID } from 'crypto';
 import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
 import mongoose from 'mongoose';
-import { ContentAccess } from '../subscription/model';
 import { formatTimestamp } from '../helpers/utility';
+import { Learner } from '../user/models';
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
@@ -93,8 +93,8 @@ export const courseService = {
 
 
     async prepareUserCoursesCriteria(userId: string): Promise<{}> {
-        const access = await ContentAccess.find({ user: new mongoose.Types.ObjectId(userId) }).select('-_id slug');
-        const accessSlugs = access.map(a => a.slug);
+        const access = await Learner.findOne({ user: new mongoose.Types.ObjectId(userId) }).select('-_id content_access');
+        const accessSlugs = access.content_access.map((a: { slug: any; }) => a.slug);
         return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
 }

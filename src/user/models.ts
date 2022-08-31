@@ -34,6 +34,15 @@ export interface IUserView {
     updatedAt: string;
 }
 
+const contentAccess = {
+    title: String,
+    order: Schema.Types.ObjectId,
+    access_type: String,
+    access_type_id: Schema.Types.ObjectId,
+    slug: String,
+    expiry_date: Date
+}
+
 
 const UserSchema: Schema = new Schema({
     fullname: String,
@@ -101,6 +110,7 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    content_access: [contentAccess],
     avatar: String,
     resident_state: String,
 }, { timestamps: true });
