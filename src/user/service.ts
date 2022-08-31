@@ -224,7 +224,7 @@ export const userService = {
         const columns = [
             { label: "Name", value: (row) => row.user.fullname },
             { label: "Email", value: (row) => row.user.email },
-            { label: "Phone", value: (row) => row.phone || row.user.phone },
+            { label: "Phone", value: (row) => row.user.phone },
             { label: "Location", value: "resident_state" },
             { label: "Signed up on", value: (row) => row.user.createdAt, format: "d-mmm-yy" }
         ];
