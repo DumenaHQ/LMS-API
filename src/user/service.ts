@@ -40,7 +40,7 @@ export const userService = {
             payload.phone = foundUser.phone;
         }
 
-        if (foundUser.role == 'learner' && foundUser.username) {
+        if (foundUser.role == 'learner') {
             const learner = await Learner.findOne({ user: foundUser.id });
             payload.username = foundUser.username;
             payload.avatar = learner.avatar;
@@ -80,7 +80,7 @@ export const userService = {
             password: passwordHash,
         };
 
-        // for learners added by parents
+        // for learners added by parents/schools
         if (role === USER_TYPES.learner && (parent || school)) {
             data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
             data.status = 'active';
@@ -224,7 +224,7 @@ export const userService = {
         const columns = [
             { label: "Name", value: (row) => row.user.fullname },
             { label: "Email", value: (row) => row.user.email },
-            { label: "Phone", value: (row) => row.user.phone },
+            { label: "Phone", value: "phone" },
             { label: "Location", value: "resident_state" },
             { label: "Signed up on", value: (row) => row.user.createdAt, format: "d-mmm-yy" }
         ];

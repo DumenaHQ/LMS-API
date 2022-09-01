@@ -20,7 +20,17 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
         const { id: parent } = req.user;
         const fullname = `${req.body.lastname} ${req.body.firstname}`;
         const user = await userService.create({ ...req.body, parent, fullname, user_type: 'learner' });
+
         sendResponse(res, 201, 'Learner Enrolled', { user });
+
+        const emailData = {
+            email: req.user.email,
+            fullname,
+            username: user.username,
+            password: req.body.password,
+            parent_name: req.user.fullname.split(' ')[0]
+        };
+        emailService.sendLearnerLoginDetails(emailData);
     } catch (err) {
         next(err);
     }

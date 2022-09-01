@@ -62,6 +62,18 @@ export const emailService = {
         sendMail(user.email, subject, template, data);
     },
 
+    sendLearnerLoginDetails: function ({ fullname, username, password, email, parent_name }: Record<string, any>): void {
+        const data = {
+            parent_name,
+            fullname,
+            username,
+            password
+        }
+        const subject = `Login Details for ${fullname}`;
+        const template = 'loginDetails';
+        sendMail(email, subject, template, data);
+    },
+
     sendLauchInviteEmail: function (user: any): void {
         const data = {
             user: user.fullname

@@ -8,9 +8,10 @@ export const verifyPayment = async (req: Request, res: Response, next: NextFunct
         const { reference } = req.body;
         const { payment, order } = await paymentService.save(reference);
 
+        sendResponse(res, 201, 'Payment successful', { payment });
+
         // grant access to content
         await subscriptionService.grantAccess(order);
-        sendResponse(res, 201, 'Payment successful', { payment });
     } catch (err) {
         next(err);
     }
