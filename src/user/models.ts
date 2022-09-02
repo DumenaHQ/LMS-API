@@ -110,6 +110,11 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    interests: [],
+    isUserOnboarded: {
+        type: Boolean,
+        default: false
+    },
     content_access: [contentAccess],
     avatar: String,
     resident_state: String,
