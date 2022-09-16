@@ -21,6 +21,7 @@ export interface IUserModel {
     role: string;
     active_organization?: Schema.Types.ObjectId;
     status: string;
+    deleted: boolean
 }
 
 export interface IUserView {
@@ -74,6 +75,10 @@ const UserSchema: Schema = new Schema({
     status: {
         type: String,
         default: 'inactive'
+    },
+    deleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
@@ -114,6 +119,7 @@ export const LearnerSchema: Schema = new Schema({
     isUserOnboarded: {
         type: Boolean,
         default: false
+
     },
     content_access: [contentAccess],
     avatar: String,

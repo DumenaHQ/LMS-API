@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData } from './controller';
+import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild } from './controller';
 import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 import { enrollLearnerRules } from '../middleware/validators/enrollLearnerValidators';
 import { isAuthenticated, isAdmin, isParent } from "../middleware/verifyToken";
@@ -31,6 +31,8 @@ router.get('/:id/payments', isAuthenticated, getUserPayments);
 
 // parents routes
 router.get('/:id/learners', isAuthenticated, isParent, getParentChildren);
+
+router.delete('/:id/learners/:learnerid', isAuthenticated, isParent, removeChild);
 
 
 // learner routes

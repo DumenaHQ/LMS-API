@@ -137,6 +137,16 @@ export const getParentChildren = async (req: Request, res: Response, next: NextF
     }
 }
 
+export const removeChild = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { learnerid } = req.params;
+        await userService.removeLearner(learnerid);
+        sendResponse(res, 200, 'Learner Removed');
+    } catch (err) {
+        next(err);
+    }
+}
+
 export const getUserPayments = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: userId } = req.user;

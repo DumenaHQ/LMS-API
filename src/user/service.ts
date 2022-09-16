@@ -24,6 +24,8 @@ export const userService = {
         const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
         if (!foundUser) throw new handleError(404, 'Email or password is incorrect');
 
+        if (foundUser.deleted) throw new handleError(404, 'This user has been deleted');
+
         const match = await bcrypt.compare(password, foundUser.password);
         if (!match) throw new handleError(400, 'Email and password doesn\'t match');
 
@@ -203,8 +205,43 @@ export const userService = {
     },
 
     async getParentChildren(parent: string) {
-        const learners = await Learner.find({ parent }).populate({ path: 'user', select: USER_FIELDS }).select(LEARNER_FIELDS);
-        return learners.map(learner => this.sanitizeLearner(learner.toJSON()));
+        const learners = await Learner.aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: "$user"
+            },
+            {
+                $match: {
+                    parent: new mongoose.Types.ObjectId(parent),
+                    'user.deleted': false
+                }
+            },
+            {
+                $project: {
+                    __v: 0,
+                    'user._id': 0,
+                    'user.__v': 0,
+                    'user.deleted': 0,
+                    'user.password': 0
+                }
+            }
+        ]);
+        return learners.map(learner => this.sanitizeLearner(learner));
+    },
+
+
+    async removeLearner(learnerId: string) {
+        const learner = await Learner.findById(learnerId);
+        if (!learner) throw new handleError(404, 'Learner not found');
+
+        await User.updateOne({ _id: learner.user }, { deleted: true });
     },
 
     async getUserPayments(userId: string) {
@@ -214,6 +251,10 @@ export const userService = {
     sanitizeLearner(learner: object) {
         const user = { ...learner.user };
         delete learner.user;
+        if (learner._id) {
+            learner.id = learner._id;
+            delete learner._id;
+        }
         return {
             ...learner,
             ...user
