@@ -28,7 +28,6 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
         const lesson = await courseService.addLesson(courseId, { ...req.body, lesson_video });
         sendResponse(res, 200, 'Lesson added', { lesson });
     } catch (err) {
-        console.log(err)
         next(err);
     }
 };
