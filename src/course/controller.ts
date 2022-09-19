@@ -24,10 +24,11 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
 export const addLesson = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId } = req.params;
-        const { lesson_video } = req.files;
+        const lesson_video = req.files && req.files.lesson_video || undefined;
         const lesson = await courseService.addLesson(courseId, { ...req.body, lesson_video });
         sendResponse(res, 200, 'Lesson added', { lesson });
     } catch (err) {
+        console.log(err)
         next(err);
     }
 };
