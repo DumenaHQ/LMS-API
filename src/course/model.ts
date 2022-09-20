@@ -1,7 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { quiz } from './quizModel';
 
-const lesson = {
+export const lesson = {
     id: Schema.Types.ObjectId,
     title: {
         type: String,
@@ -31,7 +30,6 @@ const courseSchema = new Schema({
     thumb_url: String,
     access_scopes: [],
     lessons: [lesson],
-    quizzes: [quiz],
     deleted: {
         type: Boolean,
         default: false

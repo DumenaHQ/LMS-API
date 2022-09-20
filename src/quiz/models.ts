@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const quizQuestions = {
+const quizQuestion = {
     question: String,
     optA: String,
     optB: String,
@@ -10,21 +10,23 @@ const quizQuestions = {
     answer: String
 }
 
-export const quiz = {
-    id: Schema.Types.ObjectId,
+const quizSchema = new Schema({
+    course_id: Schema.Types.ObjectId,
     title: String,
     tags: [],
     difficulty_level: String,
     course_quadrant: String,
     settings: {},
-    questions: [quizQuestions]
-}
+    questions: [quizQuestion]
+}, { timestamps: true });
+
+export default mongoose.model('Quiz', quizSchema);
 
 
 const quizResultSchema = new Schema({
     learner: { type: Schema.Types.ObjectId, ref: 'Learner' },
     answers: [],
-    courseId: Schema.Types.ObjectId,
+    course_id: Schema.Types.ObjectId,
     num_of_questions: Number
 }, { timestamps: true });
 

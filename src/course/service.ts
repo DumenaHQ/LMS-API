@@ -1,5 +1,5 @@
 import Course from './model';
-import { ICourseCreate, ICourseEdit, ICourseView, ILesson, IQuiz } from './interfaces';
+import { ICourseCreate, ICourseEdit, ICourseView, ILesson } from './interfaces';
 import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
 import { UPLOADS } from '../config/constants';
@@ -59,21 +59,6 @@ export const courseService = {
         course?.lessons?.push(lesson);
         await course.save();
         return lesson;
-    },
-
-
-    async addQuizToCourse(courseId: string, quiz: IQuiz): Promise<IQuiz> {
-        if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
-
-        const course = await this.view({ _id: courseId });
-
-        if (!course) throw new handleError(404, 'Course not found');
-
-        course.quizzes.push(quiz);
-
-        await course.save();
-        const newQuiz = course.quizzes.find(_quiz => String(_quiz.title) == String(quiz.title));
-        return newQuiz;
     },
 
 

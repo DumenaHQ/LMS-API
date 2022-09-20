@@ -30,17 +30,7 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
     } catch (err) {
         next(err);
     }
-};
-
-export const addQuiz = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id: courseId } = req.params;
-        const quiz = await courseService.addQuizToCourse(courseId, req.body);
-        sendResponse(res, 200, 'Quiz added', { quiz });
-    } catch (err) {
-        next(err);
-    }
-};
+}
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {

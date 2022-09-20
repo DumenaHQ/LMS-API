@@ -1,6 +1,6 @@
 import { ObjectId, Document } from 'mongoose';
 import { lesson } from './model';
-import { quiz } from './quizModel';
+import Quiz from '../quiz/models';
 
 export interface ICourseCreate {
     id?: ObjectId;
@@ -30,7 +30,7 @@ export interface ICourseView extends Document {
     lesson_count: Number;
     duration?: String;
     lessons?: [typeof lesson];
-    quizzes: [typeof quiz];
+    quizzes: [typeof Quiz];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -44,38 +44,4 @@ export interface ILesson {
     class_activity: String;
     code_example: String;
     instructor: ObjectId
-}
-
-export interface IQuiz {
-    id?: ObjectId;
-    title: String,
-    tags: [],
-    difficulty_level: String,
-    course_quadrant: String,
-    settings: {},
-    questions?: []
-}
-
-export interface IQuizQuestion {
-    question: String;
-    optA: String;
-    optB: String;
-    optC?: String;
-    optD?: String;
-    optE?: String;
-    answer: String;
-}
-
-export interface IQuizQuestions {
-    [key: number]: IQuizQuestion;
-    courseId: ObjectId;
-    quizId: ObjectId;
-}
-
-export interface IQuizResult {
-    learner: ObjectId;
-    answers: [];
-    courseId: ObjectId;
-    lessonId: ObjectId
-    num_of_questions: Number;
 }

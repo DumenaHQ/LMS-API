@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { router as userRoutes } from '../user/routes';
 import { router as courseRoutes } from '../course/routes';
+import { router as quizRoutes } from '../quiz/routes';
 import { router as paymentRoutes } from '../payment/routes';
 import { router as orderRoutes } from '../order/routes';
 import { router as subscriptionRoutes } from '../subscription/routes';
@@ -13,6 +14,8 @@ router.get('/', (req: Request, res: Response) => res.json({ message: 'Dumena, LM
 router.use('/users', userRoutes);
 
 router.use('/courses', courseRoutes);
+
+router.use('/quizzes', quizRoutes);
 
 router.use('/parents', userRoutes);
 
