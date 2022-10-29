@@ -15,7 +15,8 @@ const options = {
 };
 
 const transporter = nodemailer.createTransport({
-    host: 'email-smtp.us-east-1.amazonaws.com',
+    // host: 'email-smtp.us-east-1.amazonaws.com',
+    host: 'smtp.zoho.com',
     port: 465,
     secure: true, // true for 465, false for other ports,
     pool: true,
@@ -28,7 +29,8 @@ const transporter = nodemailer.createTransport({
 transporter.use('compile', hbs(options));
 
 const BASE_URL = process.env.BASE_URL;
-const SENT_FROM = 'noreply@dumena.com';
+// const SENT_FROM = 'noreply@dumena.com';
+const SENT_FROM = 'support@dumena.com';
 
 const sendMail = (to: string, subject: string, template: string, data: object) => {
     const mailOptions = {
