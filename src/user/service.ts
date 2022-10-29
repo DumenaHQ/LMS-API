@@ -61,11 +61,23 @@ export const userService = {
     },
 
 
+    async signUpToEvent(data: object, userId: string): Promise<void> {
+        switch (data.event) {
+            case 'championship':
+                const programId = '';
+                break;
+            default:
+                break;
+        }
+    },
+
+
     async create(userData: IUserCreate): Promise<IUserView | null> {
         const { user_type } = userData;
 
         const newUserId = await this.createLoginUser(userData);
         const newUser = await this.createUserType(userData, newUserId);
+        await this.signUpToEvent(userData, newUserId);
         if (user_type != 'learner' && user_type != 'admin') {
             emailService.sendVerificationEmail(newUser);
         }
@@ -247,6 +259,7 @@ export const userService = {
     async getUserPayments(userId: string) {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
+
 
     sanitizeLearner(learner: object) {
         const user = { ...learner.user };

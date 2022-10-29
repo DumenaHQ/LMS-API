@@ -6,7 +6,7 @@ import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
 import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { formatTimestamp } from '../helpers/utility';
 import { Learner } from '../user/models';
 
@@ -24,7 +24,7 @@ export const courseService = {
     },
 
 
-    async view(criteria: object): Promise<ICourseView | null> {
+    async view(criteria: object | ObjectId): Promise<ICourseView | null> {
         return Course.findOne(criteria);
     },
 
