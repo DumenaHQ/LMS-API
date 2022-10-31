@@ -1,5 +1,6 @@
 export const
     USER_TYPES = {
+        user: 'user',
         parent: 'parent',
         school: 'school',
         learner: 'learner'

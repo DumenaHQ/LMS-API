@@ -16,6 +16,7 @@ const userModel = {
     [USER_TYPES.learner]: Learner,
     [USER_TYPES.parent]: Parent,
     [USER_TYPES.school]: School,
+    [USER_TYPES.user]: User
 };
 
 
@@ -61,11 +62,23 @@ export const userService = {
     },
 
 
+    async signUpToEvent(data: object, userId: string): Promise<void> {
+        switch (data.event) {
+            case 'championship':
+                const programId = '';
+                break;
+            default:
+                break;
+        }
+    },
+
+
     async create(userData: IUserCreate): Promise<IUserView | null> {
         const { user_type } = userData;
 
         const newUserId = await this.createLoginUser(userData);
         const newUser = await this.createUserType(userData, newUserId);
+        await this.signUpToEvent(userData, newUserId);
         if (user_type != 'learner' && user_type != 'admin') {
             emailService.sendVerificationEmail(newUser);
         }
@@ -73,17 +86,16 @@ export const userService = {
     },
 
 
-    async createLoginUser({ fullname, email, password, user_type: role, parent, school }: Record<string, any>): Promise<ObjectId> {
+    async createLoginUser(userData: IUserCreate): Promise<ObjectId> {
+        const { fullname, parent, school, password, user_type } = userData;
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-        const data: Record<string, any> = {
-            fullname,
-            email,
-            role,
-            password: passwordHash,
-        };
+        const data: Record<string, any> = getValidModelFields(userModel['user'], userData);
+        data.password = passwordHash;
+        data.role = user_type
+
 
         // for learners added by parents/schools
-        if (role === USER_TYPES.learner && (parent || school)) {
+        if (user_type === USER_TYPES.learner && (parent || school)) {
             data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
             data.status = 'active';
         }
@@ -247,6 +259,7 @@ export const userService = {
     async getUserPayments(userId: string) {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
+
 
     sanitizeLearner(learner: object) {
         const user = { ...learner.user };

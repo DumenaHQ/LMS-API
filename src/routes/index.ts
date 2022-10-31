@@ -6,6 +6,7 @@ import { router as paymentRoutes } from '../payment/routes';
 import { router as orderRoutes } from '../order/routes';
 import { router as subscriptionRoutes } from '../subscription/routes';
 import { router as couponRoutes } from '../coupon/routes';
+import { router as programRouter } from '../program/routes';
 
 export const router = Router();
 
@@ -28,3 +29,5 @@ router.use('/payments', paymentRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 
 router.use('/coupons', couponRoutes);
+
+router.use('/programs', programRouter);

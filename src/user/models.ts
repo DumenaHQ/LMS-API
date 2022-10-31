@@ -6,6 +6,7 @@ export interface IUserCreate {
     password: string;
     user_type: string;
     school: string;
+    parent?: string;
     contact_person?: string;
     phone?: string,
     resident_state?: string;
@@ -65,7 +66,11 @@ const UserSchema: Schema = new Schema({
     },
     password: {
         type: String,
-        trim: true
+        trim: true,
+        index: {
+            unique: true,
+            sparse: true
+        }
     },
     active_organization: {
         type: Schema.Types.ObjectId,

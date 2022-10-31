@@ -12,7 +12,7 @@ Restart=on-failure
 # Required on some systems
 #User=<alternate user>
 #Group=<alternate group>
-Environment=NODE_ENV=development PORT=80 DB_NAME=lms_dev DB_HOST=localhost BD_USER=dumena BD_PASSWORD=s3cret+Pswd1
+Environment=NODE_ENV=development PORT=80 DB_NAME=lms_dev DB_HOST=localhost DB_USER=dumena DB_PASSWORD=s3cret+Pswd1
 Environment=JWT_SECRET=F9CD3A1A81F8DBFA752F0822FA770784B145D7A4045DE5A55C594C2FFD37BF67
 
 [Install]
