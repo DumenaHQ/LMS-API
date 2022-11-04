@@ -4,10 +4,12 @@ import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { Buffer } from 'buffer';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose, { ObjectId, Schema } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
+import { programService } from '../program/service';
+import { IAddSponsorPayload } from '../program/model';
 
 import { SALT_ROUNDS, USER_FIELDS, LEARNER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
@@ -62,10 +64,19 @@ export const userService = {
     },
 
 
-    async signUpToEvent(data: object, userId: string): Promise<void> {
+    async signUpToEvent(data: IUserCreate, userId: ObjectId): Promise<void> {
         switch (data.event) {
             case 'championship':
-                const programId = '';
+                // const programId = '6360eede66f1f1f40ddca01c';
+                const programId = '6344433ab9c51e6999e5f8af';
+                const sponsor_name = data.user_type == USER_TYPES.school ? data.school : data.fullname;
+                const sponsorData: IAddSponsorPayload = {
+                    sponsor_id: userId,
+                    sponsor_name,
+                    sponsor_type: data.user_type
+                };
+
+                programService.addSponsors(programId, [sponsorData]);
                 break;
             default:
                 break;
@@ -73,12 +84,12 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate): Promise<IUserView | null> {
+    async create(userData: IUserCreate): Promise<IUserView> {
         const { user_type } = userData;
 
         const newUserId = await this.createLoginUser(userData);
         const newUser = await this.createUserType(userData, newUserId);
-        await this.signUpToEvent(userData, newUserId);
+
         if (user_type != 'learner' && user_type != 'admin') {
             emailService.sendVerificationEmail(newUser);
         }
@@ -104,7 +115,7 @@ export const userService = {
     },
 
 
-    async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView | null> {
+    async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView> {
         const { user_type } = userData;
 
         const userTypeData = getValidModelFields(userModel[user_type], userData);
@@ -285,5 +296,10 @@ export const userService = {
 
         const users = await userModel[userType].find({}).populate({ path: 'user', select: 'fullname email phone createdAt' });
         return xlsxHelper.write(columns, users, 'parents_mailing_list');
+    },
+
+    async deleteUser(email: string) {
+        const user = await User.findOneAndDelete({ email });
+        await userModel[user.role].deleteOne({ user: user._id });
     }
 }

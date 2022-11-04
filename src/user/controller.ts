@@ -7,7 +7,9 @@ import { emailService } from "../helpers/email";
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await userService.create(req.body);
+        const userData = req.body;
+        const user = await userService.create(userData);
+        await userService.signUpToEvent(userData, user.id);
         sendResponse(res, 201, 'User Created', { user });
     } catch (err) {
         next(err);
@@ -165,6 +167,16 @@ export const downloadUserData = async (req: Request, res: Response, next: NextFu
             "Content-disposition": "attachment; filename=parents_mailing_list.xlsx",
         })
         res.end(dataFile);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.params;
+        await userService.deleteUser(email);
+        sendResponse(res, 200, 'User Deleted')
     } catch (err) {
         next(err);
     }
