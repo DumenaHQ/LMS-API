@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild } from './controller';
+import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild, deleteUser } from './controller';
 import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 import { enrollLearnerRules } from '../middleware/validators/enrollLearnerValidators';
 import { isAuthenticated, isAdmin, isParent } from "../middleware/verifyToken";
@@ -37,3 +37,6 @@ router.delete('/:id/learners/:learnerid', isAuthenticated, isParent, removeChild
 
 // learner routes
 router.post('/enroll', isAuthenticated, enrollLearnerRules(), validate, enrollLearner);
+
+// wahala
+router.delete('/delete/:email', deleteUser);

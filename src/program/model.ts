@@ -3,21 +3,38 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IProgram extends Document {
     name: String;
     description: String;
-    schools?: [];
+    category: String;
+    location: String;
+    sponsors?: [];
     courses?: [];
     start_date?: Date;
     end_date?: Date;
     status: String;
 }
 
-export interface IAddSchoolPayload {
+export interface IAddSponsorPayload {
     id: string;
     name: string;
+    type: string;
 };
 
-const school = {
-    id: Schema.Types.ObjectId,
-    name: String
+
+const sponsor = {
+    sponsor_id: Schema.Types.ObjectId,
+    sponsor_name: String,
+    sponsor_type: String,
+};
+
+const student = {
+    learner_id: Schema.Types.ObjectId,
+    name: String,
+    sponsor_id: Schema.Types.ObjectId,
+    sponsor_name: String,
+    sponsor_type: String,
+    date_added: {
+        type: Date,
+        default: Date.now
+    }
 };
 
 const programSchema = new Schema({
@@ -26,10 +43,15 @@ const programSchema = new Schema({
         unique: true
     },
     description: String,
-    schools: {
-        type: [school],
-        default: []
+    category: {
+        type: String,
+        default: 'private'
     },
+    location: {
+        type: String,
+        default: 'all'
+    },
+    sponsors: [sponsor],
     learners: [],
     courses: {
         type: [],

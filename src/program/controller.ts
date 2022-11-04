@@ -16,7 +16,7 @@ export const addSchools = async (req: Request, res: Response, next: NextFunction
     try {
         const { id: programId } = req.params;
         const { schools } = req.body;
-        await programService.addSchools(programId, schools);
+        await programService.addSponsors(programId, schools.map((schl: object) => ({ ...schl, type: 'school' })));
         sendResponse(res, 200, 'School(s) added to program');
     } catch (err) {
         next(err);
