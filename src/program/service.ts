@@ -1,7 +1,6 @@
-import Program, { IProgram, IAddSponsorPayload } from './model';
-import { School } from '../user/models';
+import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
 import { handleError } from '../helpers/handleError';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export const programService = {
     async create(program: IProgram): Promise<IProgram> {
@@ -10,47 +9,21 @@ export const programService = {
     },
 
 
-    // async addSchools(programId: string, schoolData: [IAddSchoolPayload]): Promise<Boolean> {
-    //     const program = await this.view(programId);
-
-    //     if (!program) {
-    //         throw new handleError(400, 'Invalid program ID');
-    //     }
-
-    //     const schoolIds = schoolData.map(sd => sd.id);
-    //     const schoolAlreadyOnProgram = program.schools?.find((schl: IAddSchoolPayload) => schoolIds.includes(String(schl.id)));
-    //     if (schoolAlreadyOnProgram) {
-    //         throw new handleError(400, 'School already added to Program');
-    //     }
-
-    //     const schools = [...program.schools || [], ...schoolData];
-    //     program.schools = schools;
-    //     await program.save();
-    //     return true;
-    // },
-
-
-    async addSponsors(programId: string, sponsorData: [IAddSponsorPayload]): Promise<Boolean> {
+    async addSponsors(programId: string, sponsorData: [IAddSponsorPayload]): Promise<void> {
         const program = await this.view(programId);
 
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
 
-        const sponsorIds = sponsorData.map(sd => sd.id);
-        const sponsorAlreadyOnProgram = program.sponsors?.find((spons: IAddSponsorPayload) => sponsorIds.includes(String(spons.id)));
-        if (sponsorAlreadyOnProgram) {
-            throw new handleError(400, 'Already added to Program');
-        }
-
-        const sponsors = [...program.sponsors || [], ...sponsorData];
-        program.sponsors = sponsors;
+        const addedSponsorIds = program.sponsors.map(sd => String(sd.id));
+        const filteredSponors: any = sponsorData.filter((spons: IAddSponsorPayload) => (addedSponsorIds.includes(spons.id) === false));
+        program.sponsors = [...program.sponsors || [], ...filteredSponors];
         await program.save();
-        return true;
     },
 
 
-    async addCourses(programId: string, courseIds: [string]): Promise<Boolean> {
+    async addCourses(programId: string, courseIds: [string]): Promise<void> {
         const program = await this.view(programId);
 
         if (!program) {
@@ -60,7 +33,36 @@ export const programService = {
         const courses = new Set([...program.courses, ...courseIds]);
         program.courses = Array.from(courses);
         await program.save();
-        return true;
+    },
+
+
+    async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
+        const program = await this.view(programId);
+
+        if (!program) {
+            throw new handleError(400, 'Invalid program ID');
+        }
+
+        const sponsor = program.sponsors?.find((spon: IProgramSponsor, index) => {
+            if (spon.id === sponsorId) {
+                return program.sponsors.splice(index, 1)[0];
+            }
+        });
+
+        if (!sponsor) throw new handleError(400, 'User not eligible to enroll a canididate for this program');
+
+        const addedLearnerIds = sponsor.learners.map((learner: IAddLearner) => String(learner.id));
+        const learnersToAdd: IAddLearner[] = learners.filter((learner: IAddLearner) => !addedLearnerIds.includes(String(learner.id)));
+
+        // @ts-ignore
+        sponsor.learners.concat(learnersToAdd);
+        program.sponsors.push(sponsor);
+        await program.save();
+
+        //
+        // TODO
+        // -----
+        // Detect and return learners already added to program
     },
 
 

@@ -12,11 +12,23 @@ export const createProgram = async (req: Request, res: Response, next: NextFunct
 }
 
 
+export const subscribeParent = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: programId } = req.params;
+        const { parent_id: id, name } = req.body;
+        await programService.addSponsors(programId, [{ id, name, sponsor_type: 'parent' }]);
+        sendResponse(res, 200, 'Parent Subscribed to program');
+    } catch (err) {
+        next(err)
+    }
+}
+
+
 export const addSchools = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
         const { schools } = req.body;
-        await programService.addSponsors(programId, schools.map((schl: object) => ({ ...schl, type: 'school' })));
+        await programService.addSponsors(programId, schools.map((schl: object) => ({ ...schl, sponsor_type: 'school' })));
         sendResponse(res, 200, 'School(s) added to program');
     } catch (err) {
         next(err);
@@ -46,6 +58,28 @@ export const addCourses = async (req: Request, res: Response, next: NextFunction
 
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+export const addLearners = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: programId } = req.params;
+        const { id: sponsorId } = req.user;
+        const { learners } = req.body;
+        await programService.addLearners(programId, learners, sponsorId);
+        sendResponse(res, 200, 'Learners Added');
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
     } catch (err) {

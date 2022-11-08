@@ -1,12 +1,25 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+
+
+export interface IAddLearner {
+    id: Types.ObjectId,
+    name: string
+}
+
+export interface IProgramSponsor {
+    id: Types.ObjectId;
+    name: String;
+    sponsor_type: String;
+    learners: Types.DocumentArray<IAddLearner>
+}
 
 export interface IProgram extends Document {
     name: String;
     description: String;
     category: String;
     location: String;
-    sponsors?: [];
-    courses?: [];
+    sponsors: Types.DocumentArray<IProgramSponsor>;
+    courses: [string];
     start_date?: Date;
     end_date?: Date;
     status: String;
@@ -15,27 +28,26 @@ export interface IProgram extends Document {
 export interface IAddSponsorPayload {
     id: string;
     name: string;
-    type: string;
+    sponsor_type: string;
 };
 
 
-const sponsor = {
-    sponsor_id: Schema.Types.ObjectId,
-    sponsor_name: String,
-    sponsor_type: String,
-};
-
-const student = {
-    learner_id: Schema.Types.ObjectId,
+const learner = {
+    id: Schema.Types.ObjectId,
     name: String,
-    sponsor_id: Schema.Types.ObjectId,
-    sponsor_name: String,
-    sponsor_type: String,
     date_added: {
         type: Date,
         default: Date.now
     }
 };
+
+const sponsor = {
+    id: Schema.Types.ObjectId,
+    name: String,
+    sponsor_type: String,
+    learners: [learner]
+};
+
 
 const programSchema = new Schema({
     name: {
@@ -52,7 +64,6 @@ const programSchema = new Schema({
         default: 'all'
     },
     sponsors: [sponsor],
-    learners: [],
     courses: {
         type: [],
         default: []

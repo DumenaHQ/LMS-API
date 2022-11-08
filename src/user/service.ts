@@ -45,7 +45,7 @@ export const userService = {
             payload.phone = foundUser.phone;
         }
 
-        if (foundUser.role == 'learner') {
+        if (foundUser.role === 'learner') {
             const learner = await Learner.findOne({ user: foundUser.id });
             payload.username = foundUser.username;
             payload.avatar = learner.avatar;
@@ -71,8 +71,8 @@ export const userService = {
                 const programId = '6344433ab9c51e6999e5f8af';
                 const sponsor_name = data.user_type == USER_TYPES.school ? data.school : data.fullname;
                 const sponsorData: IAddSponsorPayload = {
-                    sponsor_id: userId,
-                    sponsor_name,
+                    id: String(userId),
+                    name: sponsor_name,
                     sponsor_type: data.user_type
                 };
 
