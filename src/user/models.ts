@@ -116,6 +116,7 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'school'
     },
+    grade: String,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'

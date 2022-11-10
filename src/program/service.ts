@@ -91,10 +91,9 @@ export const programService = {
 
 
     async listEnrolledSchools(programId: string): Promise<object> {
-        // const schools = await Program.findOne(
-        //     { _id: new mongoose.Types.ObjectId(programId), 'sponsors.sponsortype': 'school' }
-        // ).select('-_id sponsors learners');
-        return [];
+        const program = await this.view(programId);
+        const schools = program?.sponsors.filter(sp => sp.sponsor_type == 'school');
+        return schools.map(sch => ({ id: sch.id, name: sch.name }));
     },
 
 

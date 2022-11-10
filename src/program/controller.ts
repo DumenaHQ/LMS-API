@@ -38,7 +38,9 @@ export const addSchools = async (req: Request, res: Response, next: NextFunction
 
 export const listSchools = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
+        const { id: programId } = req.params;
+        const schools = await programService.listEnrolledSchools(programId);
+        sendResponse(res, 200, 'Program schools fetched', { schools });
     } catch (err) {
         next(err)
     }

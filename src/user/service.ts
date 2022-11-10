@@ -4,7 +4,7 @@ import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { Buffer } from 'buffer';
-import mongoose, { ObjectId, Schema } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
@@ -199,6 +199,11 @@ export const userService = {
         return User.find(criteria).select(USER_FIELDS) || [];
     },
 
+
+    // async listUserByType(role: string, criteria = {}, field: string) {
+    //     const users = await userModel[role].find()
+    // },
+
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
         const criteria = { _id: new mongoose.Types.ObjectId(userId) };
 
@@ -265,6 +270,11 @@ export const userService = {
         if (!learner) throw new handleError(404, 'Learner not found');
 
         await User.updateOne({ _id: learner.user }, { deleted: true });
+    },
+
+
+    async addSchoolStudents(schoolId: string, studentsData: []): Promise<void> {
+        await Promise.all(studentsData.map(async (student: any) => this.create({ ...student, email: student.parent_email, school: schoolId, password: 'dumena', user_type: 'learner' })));
     },
 
     async getUserPayments(userId: string) {
