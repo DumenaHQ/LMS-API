@@ -22,6 +22,8 @@ router.use('/parents', userRoutes);
 
 router.use('/learners', userRoutes);
 
+router.use('/schools', userRoutes);
+
 router.use('/orders', orderRoutes);
 
 router.use('/payments', paymentRoutes);
