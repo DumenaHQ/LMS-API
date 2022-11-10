@@ -23,6 +23,6 @@ router.patch('/:id/courses', isAuthenticated, isAdmin, addCourses);
 
 router.get('/:id/courses', isAuthenticated, isAdmin, listCourses);
 
-router.post('/:id/learners', isAuthenticated, addLearners);
+router.patch('/:id/learners', isAuthenticated, addLearners);
 
 router.delete('/:id', isAuthenticated, isAdmin, deleteProgram);

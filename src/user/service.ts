@@ -277,6 +277,7 @@ export const userService = {
         await Promise.all(studentsData.map(async (student: any) => this.create({ ...student, email: student.parent_email, school: schoolId, password: 'dumena', user_type: 'learner' })));
     },
 
+
     async getUserPayments(userId: string) {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },

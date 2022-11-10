@@ -44,7 +44,7 @@ export const programService = {
         }
 
         const sponsor = program.sponsors?.find((spon: IProgramSponsor, index) => {
-            if (spon.id === sponsorId) {
+            if (String(spon.id) === String(sponsorId)) {
                 return program.sponsors.splice(index, 1)[0];
             }
         });

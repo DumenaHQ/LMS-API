@@ -140,6 +140,7 @@ export const addSchoolStudents = async (req: Request, res: Response, next: NextF
     }
 }
 
+
 export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: parentId } = req.params;
