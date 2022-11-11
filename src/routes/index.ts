@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { router as userRoutes } from '../user/routes';
+import { router as schoolRoutes } from '../user/schoolRoutes';
 import { router as courseRoutes } from '../course/routes';
 import { router as quizRoutes } from '../quiz/routes';
 import { router as paymentRoutes } from '../payment/routes';
@@ -22,7 +23,7 @@ router.use('/parents', userRoutes);
 
 router.use('/learners', userRoutes);
 
-router.use('/schools', userRoutes);
+router.use('/schools', schoolRoutes);
 
 router.use('/orders', orderRoutes);
 

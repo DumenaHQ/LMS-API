@@ -195,14 +195,46 @@ export const userService = {
         return { ...user?.toJSON(), ...userType?.toJSON(), id: user?.id };
     },
 
-    async list(criteria = {}): Promise<IUserView[] | []> {
-        return User.find(criteria).select(USER_FIELDS) || [];
+    async list(match = {}, user_type: string): Promise<IUserView[] | []> {
+        const users = await userModel[user_type].aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {
+                $unwind: "$user"
+            },
+            {
+                $match: match
+            },
+            {
+                $project: {
+                    __v: 0,
+                    'user._id': 0,
+                    'user.__v': 0,
+                    'user.role': 0,
+                    'user.deleted': 0,
+                    'user.password': 0,
+                    'user.status': 0
+                }
+            }
+        ]);
+        return users.map(learner => this.sanitizeLearner(learner));
     },
 
+    async listSchoolStudents(schoolId: string): Promise<{}[]> {
+        const criteria = {
+            school: new mongoose.Types.ObjectId(schoolId),
+            'user.deleted': false
+        };
 
-    // async listUserByType(role: string, criteria = {}, field: string) {
-    //     const users = await userModel[role].find()
-    // },
+        return this.list(criteria, 'learner');
+    },
+
 
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
         const criteria = { _id: new mongoose.Types.ObjectId(userId) };
@@ -232,36 +264,13 @@ export const userService = {
         return username;
     },
 
-    async getParentChildren(parent: string) {
-        const learners = await Learner.aggregate([
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "user"
-                }
-            },
-            {
-                $unwind: "$user"
-            },
-            {
-                $match: {
-                    parent: new mongoose.Types.ObjectId(parent),
-                    'user.deleted': false
-                }
-            },
-            {
-                $project: {
-                    __v: 0,
-                    'user._id': 0,
-                    'user.__v': 0,
-                    'user.deleted': 0,
-                    'user.password': 0
-                }
-            }
-        ]);
-        return learners.map(learner => this.sanitizeLearner(learner));
+    async getParentChildren(parentId: string) {
+        const criteria = {
+            parent: new mongoose.Types.ObjectId(parentId),
+            'user.deleted': false
+        };
+
+        return this.list(criteria, 'learner');
     },
 
 

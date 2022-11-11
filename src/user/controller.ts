@@ -141,6 +141,17 @@ export const addSchoolStudents = async (req: Request, res: Response, next: NextF
 }
 
 
+export const listSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: schoolId } = req.user;
+        const students = await userService.listSchoolStudents(schoolId);
+        sendResponse(res, 200, 'Students Fetched', { students });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
 export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: parentId } = req.params;
