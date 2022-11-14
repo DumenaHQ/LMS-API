@@ -11,7 +11,7 @@ import { paymentService } from '../payment/service';
 import { programService } from '../program/service';
 import { IAddSponsorPayload } from '../program/model';
 
-import { SALT_ROUNDS, USER_FIELDS, LEARNER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 
 const userModel = {
