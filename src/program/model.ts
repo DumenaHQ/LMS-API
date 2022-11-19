@@ -7,7 +7,7 @@ export interface IAddLearner {
 }
 
 export interface IProgramSponsor {
-    id: Types.ObjectId;
+    user_id: Types.ObjectId;
     name: String;
     sponsor_type: String;
     learners: Types.DocumentArray<IAddLearner>
@@ -18,8 +18,8 @@ export interface IProgram extends Document {
     description: String;
     category: String;
     location: String;
-    sponsors: Types.DocumentArray<IProgramSponsor>;
-    courses: [string];
+    sponsors?: Types.DocumentArray<IProgramSponsor>;
+    courses?: String[];
     hasJoined?: Boolean;
     start_date?: Date;
     end_date?: Date;
@@ -27,7 +27,7 @@ export interface IProgram extends Document {
 }
 
 export interface IAddSponsorPayload {
-    id: string;
+    user_id: string;
     name: string;
     sponsor_type: string;
 };
@@ -43,7 +43,7 @@ const learner = {
 };
 
 const sponsor = {
-    id: Schema.Types.ObjectId,
+    user_id: Schema.Types.ObjectId,
     name: String,
     sponsor_type: String,
     learners: [learner]
@@ -65,10 +65,7 @@ const programSchema = new Schema({
         default: 'all'
     },
     sponsors: [sponsor],
-    courses: {
-        type: [],
-        default: []
-    },
+    courses: [],
     start_date: Date,
     end_date: Date,
     deleted: {

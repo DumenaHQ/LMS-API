@@ -61,7 +61,9 @@ export const addCourses = async (req: Request, res: Response, next: NextFunction
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
+        const { id: programId } = req.params;
+        const courses = await programService.listCourses(programId);
+        sendResponse(res, 200, 'Program Courses Fetched', { program_id: programId, courses });
     } catch (err) {
         next(err)
     }

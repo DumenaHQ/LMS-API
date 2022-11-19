@@ -17,6 +17,7 @@ export const courseService = {
         const courses = foundCourses.map(course => {
             const courseDuration = course.lessons?.reduce((totalDuration: number, lesson: ILesson) => totalDuration + (lesson.duration ?? 0), 0);
             const lesson_count = course.lessons?.length;
+            course.lessons = undefined;
             return { ...course.toJSON(), lesson_count, duration: formatTimestamp(courseDuration) };
         });
 

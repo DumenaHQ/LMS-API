@@ -13,7 +13,7 @@ router.get('/:id', isAuthenticated, viewProgram);
 
 router.put('/:id', isAuthenticated, isAdmin, updateProgram);
 
-router.get('/:id/schools', isAuthenticated, isAdmin, listSchools);
+router.get('/:id/schools', isAuthenticated, isSchoolOrAdmin, listSchools);
 
 router.patch('/:id/schools', isAuthenticated, isSchoolOrAdmin, addSchools);
 
@@ -21,7 +21,7 @@ router.patch('/:id/parents', isAuthenticated, isParent, subscribeParent);
 
 router.patch('/:id/courses', isAuthenticated, isAdmin, addCourses);
 
-router.get('/:id/courses', isAuthenticated, isAdmin, listCourses);
+router.get('/:id/courses', isAuthenticated, listCourses);
 
 router.patch('/:id/learners', isAuthenticated, addLearners);
 
