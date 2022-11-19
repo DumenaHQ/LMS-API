@@ -92,7 +92,8 @@ export const listLearners = async (req: Request, res: Response, next: NextFuncti
 
 export const listPrograms = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const programs = await programService.list({});
+        const { id, role } = req.user;
+        const programs = await programService.listProgramsForRoles(id, role);
         sendResponse(res, 200, 'Programs fetched', { programs });
     } catch (err) {
         next(err);

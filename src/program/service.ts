@@ -1,6 +1,6 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
 import { handleError } from '../helpers/handleError';
-import mongoose, { Types } from 'mongoose';
+import mongoose, { ObjectId, Types } from 'mongoose';
 
 export const programService = {
     async create(program: IProgram): Promise<IProgram> {
@@ -80,8 +80,24 @@ export const programService = {
     },
 
 
-    async listSchoolPrograms(): Promise<IProgram[] | []> {
-        return this.list({});
+    async listSponsorPrograms(sponsorId: ObjectId): Promise<IProgram[] | []> {
+        const programs = await this.list({ where: { status: 'active' } });
+        const sponsorPrograms = programs.map((prog: IProgram) => {
+            const hasJoined = prog.sponsors.find((sponsor: IProgramSponsor) => String(sponsor.id) === String(sponsorId));
+            return { ...prog, hasJoined: hasJoined ? true : false };
+        });
+        // @ts-ignore
+        return sponsorPrograms;
+    },
+
+
+    async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
+        switch (userType) {
+            case 'school' || 'parent':
+                return this.listSponsorPrograms(userId);
+            case 'admin':
+                return this.list({ where: { status: 'active' } });
+        }
     },
 
 

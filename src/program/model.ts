@@ -20,6 +20,7 @@ export interface IProgram extends Document {
     location: String;
     sponsors: Types.DocumentArray<IProgramSponsor>;
     courses: [string];
+    hasJoined?: Boolean;
     start_date?: Date;
     end_date?: Date;
     status: String;
