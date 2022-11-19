@@ -35,6 +35,14 @@ export const isSchool = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+export const isSchoolOrAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user && (req.user.role === 'school' || req.user.role === 'admin')) {
+        next();
+    } else {
+        return res.sendStatus(403);
+    }
+}
+
 export const isParent = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && req.user.role === 'parent') {
         next();
