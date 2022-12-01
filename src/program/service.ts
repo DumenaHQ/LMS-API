@@ -94,7 +94,6 @@ export const programService = {
 
     async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
         const program = await this.view(programId);
-
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
@@ -105,13 +104,13 @@ export const programService = {
             }
         });
 
-        if (!sponsor) throw new handleError(400, 'User not eligible to enroll a canididate for this program');
+        if (!sponsor) throw new handleError(400, 'User not eligible to enroll a candidate for this program');
 
-        const addedLearnerIds = sponsor.learners.map((learner: IAddLearner) => String(learner.id));
-        const learnersToAdd: IAddLearner[] = learners.filter((learner: IAddLearner) => !addedLearnerIds.includes(String(learner.id)));
+        const addedLearnerUsernames = sponsor.learners.map((learner: IAddLearner) => String(learner.username));
+        const learnersToAdd: IAddLearner[] = learners.filter((learner: IAddLearner) => !addedLearnerUsernames.includes(String(learner.username)));
 
         // @ts-ignore
-        sponsor.learners.concat(learnersToAdd);
+        sponsor.learners = [...sponsor.learners, ...learnersToAdd];
         program.sponsors?.push(sponsor);
         await program.save();
 

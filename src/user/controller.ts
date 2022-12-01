@@ -19,20 +19,24 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 
 export const enrollLearner = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: parent } = req.user;
-        const fullname = `${req.body.lastname} ${req.body.firstname}`;
-        const user = await userService.create({ ...req.body, parent, fullname, user_type: 'learner' });
+        const { user } = req;
+        const learnerData = req.body;
+        learnerData[user.role] = user.id;
+        learnerData.fullname = `${req.body.lastname} ${req.body.firstname}`;
+        const learner = await userService.create({ ...learnerData, user_type: 'learner' });
 
-        sendResponse(res, 201, 'Learner Enrolled', { user });
+        sendResponse(res, 201, 'Learner Enrolled', { user: learner });
 
-        const emailData = {
-            email: req.user.email,
-            fullname,
-            username: user.username,
-            password: req.body.password,
-            parent_name: req.user.fullname.split(' ')[0]
-        };
-        emailService.sendLearnerLoginDetails(emailData);
+        if (user.role == 'parent') {
+            const emailData = {
+                email: req.user.email,
+                fullname: learnerData.fullname,
+                username: learner.username,
+                password: req.body.password,
+                parent_name: req.user.fullname.split(' ')[0]
+            };
+            emailService.sendLearnerLoginDetails(emailData);
+        }
     } catch (err) {
         next(err);
     }

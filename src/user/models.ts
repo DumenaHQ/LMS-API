@@ -30,6 +30,7 @@ export interface IUserView {
     fullname: string;
     email: string;
     role: string;
+    username?: string;
     active_organization?: Schema.Types.ObjectId;
     status: string;
     createdAt: string;
