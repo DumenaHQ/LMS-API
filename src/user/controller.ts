@@ -195,6 +195,20 @@ export const downloadUserData = async (req: Request, res: Response, next: NextFu
     }
 }
 
+export const downloadSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: schoolId } = req.params;
+        const dataFile = await userService.generateSchoolStudentsData(schoolId);
+        res.writeHead(200, {
+            "Content-Type": "application/octet-stream",
+            "Content-disposition": "attachment; filename=students_list.xlsx",
+        })
+        res.end(dataFile);
+    } catch (err) {
+        next(err);
+    }
+}
+
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.params;

@@ -120,6 +120,8 @@ export const LearnerSchema: Schema = new Schema({
         ref: 'school'
     },
     grade: String,
+    gender: String,
+    dob: Date,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'

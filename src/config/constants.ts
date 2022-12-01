@@ -15,4 +15,5 @@ export const
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
     ORDER_TYPES = ['sub', 'item'],
-    PAYSTACK_API_URL = 'https://api.paystack.co'
+    PAYSTACK_API_URL = 'https://api.paystack.co',
+    TEMPLATE_FILE_PATH = 'downloads/templates'

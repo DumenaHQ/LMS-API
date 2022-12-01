@@ -192,7 +192,8 @@ export const userService = {
                 userType = await School.findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
                 break
         }
-        return { ...user?.toJSON(), ...userType?.toJSON(), id: user?.id };
+        const userTypeData = userType.toJSON();
+        return { ...user?.toJSON(), ...userTypeData, id: user?.id };
     },
 
     async list(match = {}, user_type: string): Promise<IUserView[] | []> {
@@ -306,16 +307,28 @@ export const userService = {
     },
 
     async downloadUserData(userType: string) {
+        const users = await userModel[userType].find({}).populate({ path: 'user', select: 'fullname email phone createdAt' });
+
         const columns = [
-            { label: "Name", value: (row) => row.user.fullname },
-            { label: "Email", value: (row) => row.user.email },
+            { label: "Name", value: (row: any) => row.user.fullname },
+            { label: "Email", value: (row: any) => row.user.email },
             { label: "Phone", value: "phone" },
             { label: "Location", value: "resident_state" },
-            { label: "Signed up on", value: (row) => row.user.createdAt, format: "d-mmm-yy" }
+            { label: "Signed up on", value: (row: any) => row.user.createdAt, format: "d-mmm-yy" }
         ];
-
-        const users = await userModel[userType].find({}).populate({ path: 'user', select: 'fullname email phone createdAt' });
         return xlsxHelper.write(columns, users, 'parents_mailing_list');
+    },
+
+    async generateSchoolStudentsData(schoolId: string) {
+        const students = await this.listSchoolStudents(schoolId);
+
+        const columns = [
+            { label: "Fullname", value: (row: any) => row.user.fullname },
+            { label: "Username", value: (row: any) => row.uer.username },
+            { label: "Grade", value: (row: any) => row.grade },
+            { label: "Gender", value: (row: any) => row.gender }
+        ];
+        return xlsxHelper.write(columns, students, 'students_list');
     },
 
     async deleteUser(email: string) {

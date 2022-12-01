@@ -19,7 +19,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<IProgram[] | []> {
-        const courses = await Program.find(criteria).select({ courses: 0 });
+        const courses = await Program.find(criteria);
         return courses.map((course: any) => ({ ...course.toJSON() }));
     },
 
