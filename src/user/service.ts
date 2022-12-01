@@ -38,7 +38,8 @@ export const userService = {
             id: foundUser.id,
             fullname: foundUser.fullname,
             email: foundUser.email,
-            role: foundUser.role
+            role: foundUser.role,
+            isUserOnboarded: foundUser.isUserOnboarded
         };
 
         if (foundUser.phone) {

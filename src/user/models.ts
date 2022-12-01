@@ -21,6 +21,7 @@ export interface IUserModel {
     username?: string;
     role: string;
     active_organization?: Schema.Types.ObjectId;
+    isUserOnboarded?: boolean;
     status: string;
     deleted: boolean
 }
@@ -32,6 +33,7 @@ export interface IUserView {
     role: string;
     username?: string;
     active_organization?: Schema.Types.ObjectId;
+    isUserOnboarded: boolean;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -79,6 +81,11 @@ const UserSchema: Schema = new Schema({
     active_organization: {
         type: Schema.Types.ObjectId,
         ref: 'Organization'
+    },
+    isUserOnboarded: {
+        type: Boolean,
+        default: false
+
     },
     role: String,
     status: {
@@ -128,11 +135,6 @@ export const LearnerSchema: Schema = new Schema({
         ref: 'User'
     },
     interests: [],
-    isUserOnboarded: {
-        type: Boolean,
-        default: false
-
-    },
     content_access: [contentAccess],
     avatar: String,
     resident_state: String,
