@@ -1,5 +1,6 @@
 import { handleError } from '../helpers/handleError';
 import { TEMPLATE_FILE_PATH } from '../config/constants';
+import * as path from 'path';
 
 
 export const miscService = {
@@ -13,6 +14,6 @@ export const miscService = {
         if (!templateFiles[name]) {
             throw new handleError(400, 'Invalid template sample name');
         }
-        return `${__dirname}/${TEMPLATE_FILE_PATH}/${templateFiles[name]}`;
+        return path.join(__dirname, '../../', `${TEMPLATE_FILE_PATH}/${templateFiles[name]}`);
     }
 }

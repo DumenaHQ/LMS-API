@@ -8,4 +8,4 @@ router.get('/:id/learners', isAuthenticated, isSchool, listSchoolStudents);
 
 router.post('/:id/learners', isAuthenticated, isSchool, addSchoolStudents);
 
-router.post('/:id/download-students-list', isAuthenticated, isSchoolOrAdmin, downloadSchoolStudents);
+router.get('/:id/download-students-list', isAuthenticated, isSchoolOrAdmin, downloadSchoolStudents);

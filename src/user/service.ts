@@ -321,10 +321,9 @@ export const userService = {
 
     async generateSchoolStudentsData(schoolId: string) {
         const students = await this.listSchoolStudents(schoolId);
-
         const columns = [
-            { label: "Fullname", value: (row: any) => row.user.fullname },
-            { label: "Username", value: (row: any) => row.uer.username },
+            { label: "Fullname", value: (row: any) => row.fullname },
+            { label: "Username", value: (row: any) => row.username },
             { label: "Grade", value: (row: any) => row.grade },
             { label: "Gender", value: (row: any) => row.gender }
         ];

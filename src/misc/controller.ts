@@ -5,12 +5,8 @@ export const downloadTemplateFile = (req: Request, res: Response, next: NextFunc
     try {
         const { name = '' } = req.query;
         const templateFile = miscService.fetchTemplate(name);
-        const filename = templateFile.split('/')[2];
-        res.writeHead(200, {
-            "Content-Type": "application/octet-stream",
-            "Content-disposition": `attachment; filename=${filename}`,
-        })
-        res.end(templateFile);
+
+        res.download(templateFile);
     } catch (err) {
         next(err);
     }
