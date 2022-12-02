@@ -4,4 +4,4 @@ import { downloadTemplateFile } from './controller';
 
 export const router = Router();
 
-router.get('/template', isAuthenticated, isSchoolOrAdmin, downloadTemplateFile);
+router.get('/template', downloadTemplateFile);
