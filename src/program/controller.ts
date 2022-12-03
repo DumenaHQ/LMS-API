@@ -106,7 +106,12 @@ export const listPrograms = async (req: Request, res: Response, next: NextFuncti
 export const viewProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
-        const program = await programService.view(programId);
+        const { user } = req;
+        let sponsor = null;
+        if (['school', 'parent', 'learner'].includes(user.role)) {
+            sponsor = user.id;
+        }
+        const program = await programService.view(programId, sponsor);
         sendResponse(res, 200, 'Program fetched', { program });
     } catch (err) {
         next(err);

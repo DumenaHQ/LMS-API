@@ -9,12 +9,19 @@ export const programService = {
         return Program.create({ ...program, start_date: new Date(program.start_date), end_date: new Date(program.end_date) });
     },
 
-    async view(criteria: object | string): Promise<IProgram | null> {
+    async view(criteria: object | string, sponsorId = ''): Promise<IProgram | null> {
+        let program;
         if (typeof criteria == "object")
-            return Program.findOne(criteria);
+            program = await Program.findOne(criteria);
         else {
-            return Program.findById(criteria);
+            program = await Program.findById(criteria);
         }
+        const hasJoined = this.hasSponsorJoinedProgram(program, sponsorId);
+        if (program && sponsorId) {
+            program = program.toJSON();
+            program.hasJoined = hasJoined;
+        }
+        return program;
     },
 
 
@@ -61,9 +68,9 @@ export const programService = {
     async listSponsorPrograms(sponsorId: ObjectId): Promise<IProgram[] | []> {
         const programs = await this.list({ status: 'active' });
         const sponsorPrograms = programs.map((prog: IProgram) => {
-            const hasJoined = prog.sponsors?.find((sponsor: IProgramSponsor) => String(sponsor.user_id) === String(sponsorId));
+            const hasJoined = this.hasSponsorJoinedProgram(prog, sponsorId);
             delete prog.sponsors;
-            return { ...prog, hasJoined: hasJoined ? true : false };
+            return { ...prog, hasJoined };
         });
         // @ts-ignore
         return sponsorPrograms;
@@ -120,6 +127,10 @@ export const programService = {
         // Detect and return learners already added to program
     },
 
+    hasSponsorJoinedProgram(program: IProgram, sponsorId: ObjectId | string): boolean {
+        const hasJoined = program.sponsors?.find((sponsor: IProgramSponsor) => String(sponsor.user_id) === String(sponsorId));
+        return hasJoined ? true : false;
+    },
 
     async update(programId: string, data: object): Promise<void> {
         Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, data);
