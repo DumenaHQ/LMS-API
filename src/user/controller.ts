@@ -27,7 +27,7 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
 
         sendResponse(res, 201, 'Learner Enrolled', { user: learner });
 
-        if (user.role == 'parent') {
+        if (learner && user.role == 'parent') {
             const emailData = {
                 email: req.user.email,
                 fullname: learnerData.fullname,
