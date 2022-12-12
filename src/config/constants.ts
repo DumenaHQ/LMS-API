@@ -3,7 +3,8 @@ export const
         user: 'user',
         parent: 'parent',
         school: 'school',
-        learner: 'learner'
+        learner: 'learner',
+        admin: 'admin'
     },
     USER_FIELDS = 'fullname email username role active_organization createdAt updatedAt',
     LEARNER_FIELDS = 'parent school interests isUserOnboarded avatar resident_state',

@@ -3,6 +3,7 @@ import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
+import { USER_TYPES } from '../config/constants';
 
 export const programService = {
     async create(program: IProgram): Promise<IProgram> {
@@ -79,7 +80,7 @@ export const programService = {
 
     async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
         switch (userType) {
-            case 'school' || 'parent':
+            case USER_TYPES.school || USER_TYPES.parent:
                 return this.listSponsorPrograms(userId);
             case 'admin':
                 return this.list({ status: 'active' });
@@ -125,6 +126,33 @@ export const programService = {
         // TODO
         // -----
         // Detect and return learners already added to program
+    },
+
+    async listAllProgramLearners(programId: string) {
+        const program = await this.view(programId);
+        return program?.sponsors?.reduce((learners, sponsor) => {
+            return learners.concat(sponsor?.learners);
+        }, []);
+    },
+
+    async listSponsorLearners(programId: string, sponsorId: ObjectId) {
+        const program = await this.view(programId);
+        const sponsorData = program?.sponsors?.find(sponsor => String(sponsor.user_id) == String(sponsorId));
+        return sponsorData?.learners;
+    },
+
+    async listProgramLearners(programId: string, userType: string, userId: ObjectId): Promise<any[] | null> {
+        let learners;
+        switch (userType) {
+            case USER_TYPES.admin:
+                learners = await this.listAllProgramLearners(programId);
+                break;
+            case USER_TYPES.school || USER_TYPES.parent:
+                learners = await this.listSponsorLearners(programId, userId);
+                break;
+            default:
+        }
+        return learners;
     },
 
     hasSponsorJoinedProgram(program: IProgram, sponsorId: ObjectId | string): boolean {
