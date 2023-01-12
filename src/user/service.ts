@@ -85,10 +85,11 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate): Promise<IUserView | { status: string, message: string }> {
+    async create(userData: IUserCreate): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type } = userData;
 
         try {
+            await this.preventDuplicates(userData);
             const newUserId = await this.createLoginUser(userData);
             const newUser = await this.createUserType(userData, newUserId);
 
@@ -97,7 +98,7 @@ export const userService = {
             }
             return newUser;
         } catch (err: any) {
-            return { status: 'error', message: err.message };
+            return { status: 'error', message: err.message, data: userData };
         }
     },
 
@@ -288,13 +289,23 @@ export const userService = {
     },
 
 
-    async addSchoolStudents(schoolId: string, studentsData: []): Promise<void> {
-        await Promise.all(studentsData.map(async (student: any) => this.create({ ...student, school: schoolId, password: 'dumena', user_type: 'learner' })));
+    async addSchoolStudents(schoolId: string, studentsData: []): Promise<{}> {
+        return Promise.all(studentsData.map(async (student: any) => this.create({ ...student, school: schoolId, password: 'dumena', user_type: 'learner' })));
     },
 
 
     async getUserPayments(userId: string) {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
+    },
+
+    async preventDuplicates({ fullname, school, parent_email }: IUserCreate) {
+        const criteria = {
+            school: new mongoose.Types.ObjectId(school),
+            'user.fullname': fullname,
+            parent_email
+        };
+        const user = await this.list(criteria, 'learner');
+        if (user.length) throw new handleError(400, 'Possible duplicate account');
     },
 
 
