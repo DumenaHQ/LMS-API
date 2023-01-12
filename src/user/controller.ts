@@ -9,6 +9,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     try {
         const userData = req.body;
         const user = await userService.create(userData);
+        if (user.status == 'error') throw new Error(user.message);
         await userService.signUpToEvent(userData, user.id);
         sendResponse(res, 201, 'User Created', { user });
     } catch (err) {

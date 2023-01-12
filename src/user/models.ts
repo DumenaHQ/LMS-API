@@ -123,11 +123,18 @@ export const LearnerSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'parent'
     },
+    parent_email: {
+        type: String,
+        index: true
+    },
     school: {
         type: Schema.Types.ObjectId,
-        ref: 'school'
+        ref: 'school',
     },
-    grade: String,
+    grade: {
+        type: String,
+        index: true
+    },
     gender: String,
     dob: Date,
     user: {

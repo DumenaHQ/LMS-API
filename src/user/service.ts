@@ -85,16 +85,20 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate): Promise<IUserView> {
+    async create(userData: IUserCreate): Promise<IUserView | { status: string, message: string }> {
         const { user_type } = userData;
 
-        const newUserId = await this.createLoginUser(userData);
-        const newUser = await this.createUserType(userData, newUserId);
+        try {
+            const newUserId = await this.createLoginUser(userData);
+            const newUser = await this.createUserType(userData, newUserId);
 
-        if (user_type != 'learner' && user_type != 'admin') {
-            emailService.sendVerificationEmail(newUser);
+            if (user_type != 'learner' && user_type != 'admin') {
+                emailService.sendVerificationEmail(newUser);
+            }
+            return newUser;
+        } catch (err: any) {
+            return { status: 'error', message: err.message };
         }
-        return newUser;
     },
 
 
@@ -285,7 +289,7 @@ export const userService = {
 
 
     async addSchoolStudents(schoolId: string, studentsData: []): Promise<void> {
-        await Promise.all(studentsData.map(async (student: any) => this.create({ ...student, email: student.parent_email, school: schoolId, password: 'dumena', user_type: 'learner' })));
+        await Promise.all(studentsData.map(async (student: any) => this.create({ ...student, school: schoolId, password: 'dumena', user_type: 'learner' })));
     },
 
 
