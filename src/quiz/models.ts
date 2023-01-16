@@ -16,6 +16,8 @@ const quizSchema = new Schema({
     tags: [],
     difficulty_level: String,
     course_quadrant: String,
+    level: String,
+    level_id: Schema.Types.ObjectId,
     settings: {},
     questions: [quizQuestion]
 }, { timestamps: true });

@@ -6,8 +6,8 @@ export const
         learner: 'learner',
         admin: 'admin'
     },
-    USER_FIELDS = 'fullname email username role active_organization createdAt updatedAt',
-    LEARNER_FIELDS = 'parent school interests isUserOnboarded avatar resident_state',
+    USER_FIELDS = 'fullname email username role isUserOnboarded active_organization createdAt updatedAt',
+    LEARNER_FIELDS = 'parent school interests avatar resident_state',
     SALT_ROUNDS = 10,
     UPLOADS = {
         course_thumbs: 'course_thumbs',
