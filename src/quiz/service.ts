@@ -11,13 +11,20 @@ export const quizService = {
     },
 
 
-    async view(criteria: object): Promise<IQuiz | null> {
+    async view(criteria: object): Promise<IQuiz> {
+        const quiz = await this.findOne(criteria);
+        if (!quiz) throw new handleError(404, 'Quiz not found');
+
+        return quiz;
+    },
+
+    async findOne(criteria: object): Promise<IQuiz | null> {
         return Quiz.findOne(criteria);
     },
 
 
     async saveQuizQuestions(quizId: string, questions: IQuizQuestion[]) {
-        const quiz = await this.view({ _id: new mongoose.Types.ObjectId(quizId) });
+        const quiz = await this.findOne({ _id: new mongoose.Types.ObjectId(quizId) });
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
         quiz.questions?.push(...questions);

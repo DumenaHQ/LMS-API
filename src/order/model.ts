@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { ORDER_TYPES } from '../config/constants';
 
-enum OrderStatus {
+enum EOrderStatus {
     Pending = 'pending',
     Confirmed = 'confirmed',
     InProgress = 'in progess',
@@ -61,8 +61,8 @@ const orderSchema = new Schema({
     total_amount: Number,
     status: {
         type: String,
-        enum: Object.values(OrderStatus),
-        default: OrderStatus.Pending
+        enum: EOrderStatus,
+        default: EOrderStatus.Pending
     }
 }, { timestamps: true });
 

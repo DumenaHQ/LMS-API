@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { addQuiz, addQuizQuestions } from './controller';
-// import validate, { courseCreationRules } from '../middleware/validators/courseValidators';
+import { createQuiz, addQuestions } from './controller';
 import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
 
 export const router = Router();
 
-router.post('/', isAuthenticated, isAdmin, addQuiz);
+router.post('/', isAuthenticated, isAdmin, createQuiz);
 
-router.post('/:id/questions', isAuthenticated, isAdmin, addQuizQuestions);
+router.post('/:id/questions', isAuthenticated, isAdmin, addQuestions);

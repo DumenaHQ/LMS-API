@@ -3,7 +3,7 @@ import { quizService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
 
 
-export const addQuiz = async (req: Request, res: Response, next: NextFunction) => {
+export const createQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const quiz = await quizService.create(req.body);
         sendResponse(res, 201, 'Quiz added', { quiz });
@@ -12,7 +12,7 @@ export const addQuiz = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-export const addQuizQuestions = async (req: Request, res: Response, next: NextFunction) => {
+export const addQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
         await quizService.saveQuizQuestions(quizId, req.body);
