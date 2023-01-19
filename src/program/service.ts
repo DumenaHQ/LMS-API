@@ -27,8 +27,8 @@ export const programService = {
 
 
     async list(criteria: object): Promise<IProgram[] | []> {
-        const courses = await Program.find(criteria);
-        return courses.map((course: any) => ({ ...course.toJSON() }));
+        const programs = await Program.find(criteria);
+        return programs.map((program: any) => ({ ...program.toJSON() }));
     },
 
 
@@ -82,7 +82,7 @@ export const programService = {
         switch (userType) {
             case USER_TYPES.school || USER_TYPES.parent:
                 return this.listSponsorPrograms(userId);
-            case 'admin':
+            default:
                 return this.list({ status: 'active' });
         }
     },
