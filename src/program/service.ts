@@ -27,8 +27,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<IProgram[] | []> {
-        const programs = await Program.find(criteria);
-        return programs.map((program: any) => ({ ...program.toJSON() }));
+        return Program.find(criteria).lean();
     },
 
 
@@ -68,6 +67,9 @@ export const programService = {
 
     async listSponsorPrograms(sponsorId: ObjectId): Promise<IProgram[] | []> {
         const programs = await this.list({ status: 'active' });
+        if (!programs || !programs.length) {
+            return [];
+        }
         const sponsorPrograms = programs.map((prog: IProgram) => {
             const hasJoined = this.hasSponsorJoinedProgram(prog, sponsorId);
             delete prog.sponsors;
@@ -80,7 +82,8 @@ export const programService = {
 
     async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
         switch (userType) {
-            case USER_TYPES.school || USER_TYPES.parent:
+            case USER_TYPES.school:
+            case USER_TYPES.parent:
                 return this.listSponsorPrograms(userId);
             default:
                 return this.list({ status: 'active' });

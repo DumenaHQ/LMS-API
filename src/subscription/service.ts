@@ -31,7 +31,7 @@ export const subscriptionService = {
                 slug,
                 end_date
             };
-            const learner = await Learner.findOne({ user: new mongoose.Types.ObjectId(user_id) });
+            const learner = await Learner.findOne({ user: user_id });
             learner.content_access ? learner.content_access.push(contentAccess) : learner.content_access = [contentAccess];
             await learner.save();
         }));

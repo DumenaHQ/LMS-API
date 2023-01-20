@@ -4,6 +4,7 @@ export const
         parent: 'parent',
         school: 'school',
         learner: 'learner',
+        instructor: 'instructor',
         admin: 'admin'
     },
     USER_FIELDS = 'fullname email username role isUserOnboarded active_organization createdAt updatedAt',
