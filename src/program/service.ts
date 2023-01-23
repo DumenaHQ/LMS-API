@@ -1,4 +1,5 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
+import User from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
@@ -117,8 +118,15 @@ export const programService = {
 
         if (!sponsor) throw new handleError(400, 'User not eligible to enroll a candidate for this program');
 
-        const addedLearnerUsernames = sponsor.learners.map((learner: IAddLearner) => String(learner.username));
-        const learnersToAdd: IAddLearner[] = learners.filter((learner: IAddLearner) => !addedLearnerUsernames.includes(String(learner.username)));
+        const addedLearnerIds = sponsor.learners.map((learner: IAddLearner) => String(learner.user_id));
+
+        const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
+            return User.findById(learner.user_id);
+        }));
+
+        const learnersToAdd = validatedLearners.filter((learner: any) => {
+            return learner && !addedLearnerIds.includes(String(learner._id));
+        }).map(learner => ({ user_id: learner?._id }));
 
         // @ts-ignore
         sponsor.learners = [...sponsor.learners, ...learnersToAdd];

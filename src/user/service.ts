@@ -72,7 +72,7 @@ export const userService = {
                 const programId = '6344433ab9c51e6999e5f8af';
                 const sponsor_name = data.user_type == USER_TYPES.school ? data.school : data.fullname;
                 const sponsorData: IAddSponsorPayload = {
-                    id: String(userId),
+                    user_id: String(userId),
                     name: sponsor_name,
                     sponsor_type: data.user_type
                 };

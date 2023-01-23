@@ -2,8 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 
 export interface IAddLearner {
-    username: string,
-    name: string
+    user_id: string,
 }
 
 export interface IProgramSponsor {
@@ -34,8 +33,7 @@ export interface IAddSponsorPayload {
 
 
 const learner = {
-    username: String,
-    name: String,
+    user_id: Schema.Types.ObjectId,
     date_added: {
         type: Date,
         default: Date.now
