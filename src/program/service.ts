@@ -118,7 +118,7 @@ export const programService = {
 
         if (!sponsor) throw new handleError(400, 'User not eligible to enroll a candidate for this program');
 
-        const addedLearnerIds = sponsor.learners.map((learner: IAddLearner) => String(learner.user_id));
+        const addedLearnerIds = program.learners.map((learner: IAddLearner) => String(learner.user_id));
 
         const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
             return User.findById(learner.user_id);
@@ -126,11 +126,10 @@ export const programService = {
 
         const learnersToAdd = validatedLearners.filter((learner: any) => {
             return learner && !addedLearnerIds.includes(String(learner._id));
-        }).map(learner => ({ user_id: learner?._id }));
+        }).map(learner => ({ user_id: learner?._id, sponsor_id: sponsorId }));
 
         // @ts-ignore
-        sponsor.learners = [...sponsor.learners, ...learnersToAdd];
-        program.sponsors?.push(sponsor);
+        program.learners = [...program.learners, ...learnersToAdd];
         await program.save();
 
         //

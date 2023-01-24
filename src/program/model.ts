@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IAddLearner {
     user_id: string,
+    sponsor_id: string
 }
 
 export interface IProgramSponsor {
@@ -18,6 +19,7 @@ export interface IProgram extends Document {
     category: String;
     location: String;
     sponsors?: Types.DocumentArray<IProgramSponsor>;
+    learners: IAddLearner[];
     courses?: String[];
     hasJoined?: Boolean;
     start_date?: Date;
@@ -34,6 +36,7 @@ export interface IAddSponsorPayload {
 
 const learner = {
     user_id: Schema.Types.ObjectId,
+    sponsor_id: Schema.Types.ObjectId,
     date_added: {
         type: Date,
         default: Date.now
@@ -63,6 +66,7 @@ const programSchema = new Schema({
         default: 'all'
     },
     sponsors: [sponsor],
+    learners: [learner],
     courses: [],
     start_date: Date,
     end_date: Date,
