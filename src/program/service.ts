@@ -13,18 +13,20 @@ export const programService = {
         return Program.create({ ...program, start_date: new Date(program.start_date), end_date: new Date(program.end_date) });
     },
 
-    async view(criteria: object | string, sponsorId = ''): Promise<IProgram | null> {
+    async view(criteria: object | string, user: { id: string, role: string }): Promise<IProgram | null> {
         let program;
         if (typeof criteria == "object")
             program = await Program.findOne(criteria);
         else {
             program = await Program.findById(criteria);
         }
-        const hasJoined = this.hasSponsorJoinedProgram(program, sponsorId);
-        if (program && sponsorId) {
+        const hasJoined = this.hasSponsorJoinedProgram(program, user.id);
+        if (program && user.id) {
             program = program.toJSON();
             program.hasJoined = hasJoined;
         }
+        // fetch full learner details
+        program.learners = await this.listProgramLearners(program.learners || [], user);
         return program;
     },
 
@@ -141,26 +143,17 @@ export const programService = {
         // Detect and return learners already added to program
     },
 
-    async listAllProgramLearners(programId: string) {
-        const program = await this.view(programId);
-        return program?.learners?.map(learner => learner.user_id);
-    },
 
-    async listSponsorLearners(programId: string, sponsorId: ObjectId) {
-        const program = await this.view(programId);
-        const sponsorLearners = program?.learners.filter(learner => String(learner.sponsor_id) == String(sponsorId));
-        return sponsorLearners?.map(learner => learner.user_id);
-    },
-
-    async listProgramLearners(programId: string, userType: string, userId: ObjectId): Promise<IUserView[] | []> {
+    async listProgramLearners(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
         let learnerIds;
-        switch (userType) {
+        switch (user.role) {
             case USER_TYPES.admin:
-                learnerIds = await this.listAllProgramLearners(programId);
+                learnerIds = learners.map(learner => learner.user_id);
                 break;
             case USER_TYPES.school:
             case USER_TYPES.parent:
-                learnerIds = await this.listSponsorLearners(programId, userId);
+                const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.id));
+                learnerIds = sponsorLearners?.map(learner => learner.user_id);
                 break;
             default:
         }
