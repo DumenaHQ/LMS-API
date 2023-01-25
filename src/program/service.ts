@@ -26,7 +26,7 @@ export const programService = {
             program.hasJoined = hasJoined;
         }
         // fetch full learner details
-        program.learners = await this.listProgramLearners(program.learners || [], user);
+        program.learners = await this.fetchLearnerDetails(program.learners || [], user);
         return program;
     },
 
@@ -144,7 +144,7 @@ export const programService = {
     },
 
 
-    async listProgramLearners(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
+    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
         let learnerIds;
         switch (user.role) {
             case USER_TYPES.admin:
