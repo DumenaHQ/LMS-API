@@ -2,7 +2,8 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 
 export interface IAddLearner {
-    user_id: string,
+    user_id?: string,
+    username?: string,
     sponsor_id: string
 }
 
@@ -10,7 +11,6 @@ export interface IProgramSponsor {
     user_id: Types.ObjectId;
     name: String;
     sponsor_type: String;
-    learners: Types.DocumentArray<IAddLearner>
 }
 
 export interface IProgram extends Document {
@@ -47,7 +47,6 @@ const sponsor = {
     user_id: Schema.Types.ObjectId,
     name: String,
     sponsor_type: String,
-    learners: [learner]
 };
 
 

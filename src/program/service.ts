@@ -4,6 +4,8 @@ import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
+import { userService } from '../user/service';
+import { IUserView } from '../user/models';
 import { USER_TYPES } from '../config/constants';
 
 export const programService = {
@@ -110,10 +112,8 @@ export const programService = {
             throw new handleError(400, 'Invalid program ID');
         }
 
-        const sponsor = program.sponsors?.find((spon: IProgramSponsor, index) => {
-            if (String(spon.user_id) === String(sponsorId)) {
-                return program.sponsors?.splice(index, 1)[0];
-            }
+        const sponsor = program.sponsors?.find((spon: IProgramSponsor) => {
+            return String(spon.user_id) === String(sponsorId);
         });
 
         if (!sponsor) throw new handleError(400, 'User not eligible to enroll a candidate for this program');
@@ -121,7 +121,10 @@ export const programService = {
         const addedLearnerIds = program.learners.map((learner: IAddLearner) => String(learner.user_id));
 
         const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
-            return User.findById(learner.user_id);
+            const criteria = learner.user_id
+                ? { _id: new mongoose.Types.ObjectId(learner.user_id) }
+                : { username: learner.username };
+            return User.findOne(criteria);
         }));
 
         const learnersToAdd = validatedLearners.filter((learner: any) => {
@@ -140,29 +143,28 @@ export const programService = {
 
     async listAllProgramLearners(programId: string) {
         const program = await this.view(programId);
-        return program?.sponsors?.reduce((learners, sponsor) => {
-            return learners.concat(sponsor?.learners);
-        }, []);
+        return program?.learners?.map(learner => learner.user_id);
     },
 
     async listSponsorLearners(programId: string, sponsorId: ObjectId) {
         const program = await this.view(programId);
-        const sponsorData = program?.sponsors?.find(sponsor => String(sponsor.user_id) == String(sponsorId));
-        return sponsorData?.learners;
+        const sponsorLearners = program?.learners.filter(learner => String(learner.sponsor_id) == String(sponsorId));
+        return sponsorLearners?.map(learner => learner.user_id);
     },
 
-    async listProgramLearners(programId: string, userType: string, userId: ObjectId): Promise<any[] | null> {
-        let learners;
+    async listProgramLearners(programId: string, userType: string, userId: ObjectId): Promise<IUserView[] | []> {
+        let learnerIds;
         switch (userType) {
             case USER_TYPES.admin:
-                learners = await this.listAllProgramLearners(programId);
+                learnerIds = await this.listAllProgramLearners(programId);
                 break;
-            case USER_TYPES.school || USER_TYPES.parent:
-                learners = await this.listSponsorLearners(programId, userId);
+            case USER_TYPES.school:
+            case USER_TYPES.parent:
+                learnerIds = await this.listSponsorLearners(programId, userId);
                 break;
             default:
         }
-        return learners;
+        return userService.list({ 'user._id': { $in: learnerIds } }, 'learner');
     },
 
     hasSponsorJoinedProgram(program: IProgram, sponsorId: ObjectId | string): boolean {
