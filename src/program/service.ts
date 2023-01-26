@@ -13,20 +13,31 @@ export const programService = {
         return Program.create({ ...program, start_date: new Date(program.start_date), end_date: new Date(program.end_date) });
     },
 
-    async view(criteria: object | string, user: { id: string, role: string }): Promise<IProgram | null> {
-        let program;
+    async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {
+        let program: any;
         if (typeof criteria == "object")
             program = await Program.findOne(criteria);
         else {
             program = await Program.findById(criteria);
         }
-        const hasJoined = this.hasSponsorJoinedProgram(program, user.id);
-        if (program && user.id) {
-            program = program.toJSON();
+        program = program.toJSON();
+        if (program && user && (user.role == USER_TYPES.parent || user?.role == USER_TYPES.school)) {
+            const hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
             program.hasJoined = hasJoined;
         }
+
+        // fetch schools
+        const schools = program?.sponsors?.filter((sp: IAddSponsorPayload) => sp.sponsor_type == 'school')!;
+        program.schools = schools.map((sch: IProgramSponsor) => {
+            const schoolLearners = program.learners.filter((learner: IAddLearner) => String(learner.sponsor_id) == String(sch.user_id));
+            return { id: sch.user_id, name: sch.name, student_count: schoolLearners.length }
+        });
+
         // fetch full learner details
+        program.learner_count = program.learners && program.learners.length;
         program.learners = await this.fetchLearnerDetails(program.learners || [], user);
+
+        delete program.sponsors;
         return program;
     },
 
@@ -37,12 +48,11 @@ export const programService = {
 
 
     async addSponsors(programId: string, sponsorData: [IAddSponsorPayload]): Promise<void> {
-        const program = await this.view(programId);
+        const program = await Program.findById(programId);
 
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
-
         const addedSponsorIds = program.sponsors?.map(sd => String(sd.user_id));
         const filteredSponors: any = sponsorData.filter((spons: IAddSponsorPayload) => (addedSponsorIds?.includes(spons.user_id) === false));
         program.sponsors = [...program.sponsors || [], ...filteredSponors];
@@ -51,7 +61,7 @@ export const programService = {
 
 
     async addCourses(programId: string, courseIds: [string]): Promise<void> {
-        const program = await this.view(programId);
+        const program = await Program.findById(programId);
 
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
@@ -63,7 +73,7 @@ export const programService = {
     },
 
     async listCourses(programId: string): Promise<ICourseView[] | []> {
-        const program = await this.view(programId);
+        const program = await Program.findById(programId);
         if (!program) throw new handleError(400, 'Program not found');
 
         return courseService.list({ _id: { $in: program.courses } });
@@ -102,14 +112,14 @@ export const programService = {
 
 
     async listEnrolledSchools(programId: string): Promise<object | []> {
-        const program = await this.view(programId);
+        const program = await Program.findById(programId);
         const schools = program?.sponsors?.filter(sp => sp.sponsor_type == 'school')!;
         return schools.map(sch => ({ school_id: sch.user_id, name: sch.name, student_count: sch.learners.length }));
     },
 
 
     async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
-        const program = await this.view(programId);
+        const program = await Program.findById(programId);
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
