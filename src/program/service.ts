@@ -42,8 +42,19 @@ export const programService = {
     },
 
 
-    async list(criteria: object): Promise<IProgram[] | []> {
-        return Program.find(criteria).lean();
+    async list(criteria: object): Promise<any[] | []> {
+        const programs = await Program.find(criteria);
+        return programs.map((prog: IProgram) => {
+            const program = prog.toJSON();
+            program.learner_count = prog.learners.length;
+            program.school_count = prog?.sponsors?.filter((spon: IAddSponsorPayload) => String(spon.sponsor_type) == String(USER_TYPES.school)).length;
+            program.course_count = prog?.courses?.length;
+            delete program.learners;
+            delete program.schools;
+            delete program.sponsors;
+            delete program.courses;
+            return program;
+        });
     },
 
 

@@ -8,7 +8,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 
         verify(token, process.env.JWT_SECRET, (err: any, payload: any) => {
             if (err) {
-                //return res.sendStatus(403); // forbidden
+                err.statusCode = 401;
                 next(err);
             }
             req.user = payload;
