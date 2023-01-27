@@ -37,6 +37,9 @@ export const programService = {
         program.learner_count = program.learners && program.learners.length;
         program.learners = await this.fetchLearnerDetails(program.learners || [], user);
 
+        // fetch course details
+        program.courses = await courseService.list({ _id: { $in: program.courses } });
+
         delete program.sponsors;
         return program;
     },
