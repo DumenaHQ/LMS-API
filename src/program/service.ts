@@ -1,5 +1,5 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
-import User from '../user/models';
+import User, { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
@@ -21,9 +21,10 @@ export const programService = {
             program = await Program.findById(criteria);
         }
         program = program.toJSON();
+
+        // refactor please!
         if (program && user && (user.role == USER_TYPES.parent || user?.role == USER_TYPES.school)) {
-            const hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
-            program.hasJoined = hasJoined;
+            program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
         }
 
         // fetch schools
@@ -54,7 +55,7 @@ export const programService = {
             program.course_count = prog?.courses?.length;
             delete program.learners;
             delete program.schools;
-            delete program.sponsors;
+            // delete program.sponsors;
             delete program.courses;
             return program;
         });
@@ -147,10 +148,11 @@ export const programService = {
         const addedLearnerIds = program.learners.map((learner: IAddLearner) => String(learner.user_id));
 
         const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
-            const criteria = learner.user_id
-                ? { _id: new mongoose.Types.ObjectId(learner.user_id) }
-                : { username: learner.username };
-            return User.findOne(criteria);
+            if (learner.user_id) {
+                const foundLearner = await Learner.findById(learner.user_id).populate({ path: 'user' });
+                return foundLearner.user;
+            }
+            return User.findOne({ username: learner.username });
         }));
 
         const learnersToAdd = validatedLearners.filter((learner: any) => {

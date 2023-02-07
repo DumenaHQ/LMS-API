@@ -218,7 +218,7 @@ export const userService = {
                 }
             }
         ]);
-        return users.map(learner => this.sanitizeLearner(learner));
+        return users.map(user => this.sanitizeLearner(user));
     },
 
     async listSchoolStudents(schoolId: string): Promise<{}[]> {
