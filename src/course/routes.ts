@@ -15,4 +15,4 @@ router.get('/:id', isAuthenticated, viewCourse);
 
 router.post('/:id/modules', isAuthenticated, isAdmin, createCourseModule);
 
-router.post('/:id/lessons', isAuthenticated, isAdmin, addLesson);
+router.post('/:id/modules/:moduleId/lessons', isAuthenticated, isAdmin, addLesson);

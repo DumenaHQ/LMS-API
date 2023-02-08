@@ -51,19 +51,24 @@ export const courseService = {
 
 
     async createModule(courseId: string, title: string) {
-        const course = await this.findOne({ _id: new mongoose.Types.ObjectId(courseId) });
+        const course = await Course.findOneAndUpdate(
+            { _id: courseId },
+            {
+                $push: {
+                    "modules": { title }
+                }
+            }, { new: true });
+
         if (!course) throw new handleError(400, 'Course not found');
 
-        course.modules?.push({ title });
-        await course.save();
-        const newModule = course.modules?.find(mod => String(mod.title) === String(title));
-        return { id: newModule?._id, title: newModule?.title ?? '' };
+        const newModule = course.modules?.find((mod: IModule) => String(mod.title) === String(title));
+        return { id: newModule._id, title: newModule.title };
     },
 
 
-    async addLesson(courseId: String, lesson: ILesson): Promise<ILesson> {
-        const course = await this.view({ _id: courseId });
-        if (!course) throw new handleError(404, 'Course not found');
+    async addLesson(courseId: string, moduleId: string, lesson: ILesson): Promise<Boolean> {
+        const course = await this.view({ _id: courseId, "modules._id": moduleId });
+        if (!course) throw new handleError(404, 'Course or module not found');
 
         // upload lesson video
         let video_url: String;
@@ -75,9 +80,15 @@ export const courseService = {
             lesson.duration = Math.round(duration);
         }
 
-        course?.lessons?.push(lesson);
-        await course.save();
-        return lesson;
+        await Course.updateOne(
+            { _id: new mongoose.Types.ObjectId(courseId), "modules._id": new mongoose.Types.ObjectId(moduleId) },
+            {
+                $push: {
+                    "modules.$.lessons": lesson
+                }
+            }
+        );
+        return true;
     },
 
 
