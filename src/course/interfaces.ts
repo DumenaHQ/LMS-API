@@ -1,5 +1,5 @@
 import { ObjectId, Document } from 'mongoose';
-import { lesson } from './model';
+import { module, lesson } from './model';
 import Quiz from '../quiz/models';
 
 export interface ICourseCreate {
@@ -9,13 +9,14 @@ export interface ICourseCreate {
     tags: [];
     difficult_level: String;
     course_quadant: String;
-    access_scopes: [];
+    access_scopes: String[];
     thumb_photo: any;
     thumb_url: String
 }
 
 export interface ICourseEdit {
     id: ObjectId;
+    access_scopes: [];
     thumb_photo?: String;
     thumb_url: String;
 }
@@ -29,10 +30,16 @@ export interface ICourseView extends Document {
     thumb_url: String;
     lesson_count: Number;
     duration?: String;
-    lessons?: [typeof lesson];
+    modules?: [typeof module];
     quizzes: [typeof Quiz];
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface IModule {
+    id?: ObjectId;
+    title: String;
+    lessons?: [typeof lesson]
 }
 
 export interface ILesson {

@@ -21,6 +21,17 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+export const createCourseModule = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: courseId } = req.params;
+        const { title = '' } = req.body;
+        const module = await courseService.createModule(courseId, title);
+        sendResponse(res, 201, 'Course Module Created', { module });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const addLesson = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId } = req.params;

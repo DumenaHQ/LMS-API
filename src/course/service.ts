@@ -1,5 +1,5 @@
 import Course from './model';
-import { ICourseCreate, ICourseEdit, ICourseView, ILesson } from './interfaces';
+import { ICourseCreate, ICourseEdit, ICourseView, ILesson, IModule } from './interfaces';
 import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
 import { UPLOADS } from '../config/constants';
@@ -25,7 +25,14 @@ export const courseService = {
     },
 
 
-    async view(criteria: object | ObjectId): Promise<ICourseView | null> {
+    async view(criteria: object): Promise<ICourseView> {
+        const course = await this.findOne(criteria);
+        if (!course) throw new handleError(404, 'Course not found');
+
+        return course;
+    },
+
+    async findOne(criteria: object): Promise<ICourseView | null> {
         return Course.findOne(criteria);
     },
 
@@ -40,6 +47,17 @@ export const courseService = {
         }
         if (!course.access_scopes) course.access_scopes = ['free'];
         return courseId ? Course.findByIdAndUpdate(courseId, course, { new: true }) : Course.create(course);
+    },
+
+
+    async createModule(courseId: string, title: string) {
+        const course = await this.findOne({ _id: new mongoose.Types.ObjectId(courseId) });
+        if (!course) throw new handleError(400, 'Course not found');
+
+        course.modules?.push({ title });
+        await course.save();
+        const newModule = course.modules?.find(mod => String(mod.title) === String(title));
+        return { id: newModule?._id, title: newModule?.title ?? '' };
     },
 
 

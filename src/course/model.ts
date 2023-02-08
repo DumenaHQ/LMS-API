@@ -15,6 +15,15 @@ export const lesson = {
 }
 
 
+export const module = {
+    title: {
+        type: String,
+        required: true
+    },
+    lessons: [lesson]
+}
+
+
 const courseSchema = new Schema({
     title: {
         type: String,
@@ -29,7 +38,7 @@ const courseSchema = new Schema({
     course_quadrant: String,
     thumb_url: String,
     access_scopes: [],
-    lessons: [lesson],
+    modules: [module],
     deleted: {
         type: Boolean,
         default: false
