@@ -12,24 +12,35 @@ import { Learner } from '../user/models';
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
-        const foundCourses = await Course.find(criteria).select({ quizzes: 0 });
+        const foundCourses = await Course.find(criteria);
 
         const courses = foundCourses.map(course => {
-            const courseDuration = course.lessons?.reduce((totalDuration: number, lesson: ILesson) => totalDuration + (lesson.duration ?? 0), 0);
-            const lesson_count = course.lessons?.length;
-            course.lessons = undefined;
-            return { ...course.toJSON(), lesson_count, duration: formatTimestamp(courseDuration) };
+            const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules);
+
+            return {
+                ...course.toJSON(),
+                modules,
+                lesson_count,
+                duration: formatTimestamp(duration)
+            };
         });
 
         return courses;
     },
 
 
-    async view(criteria: object): Promise<ICourseView> {
+    async view(criteria: object) {
         const course = await this.findOne(criteria);
         if (!course) throw new handleError(404, 'Course not found');
 
-        return course;
+        const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules!);
+
+        return {
+            ...course.toJSON(),
+            modules,
+            lesson_count,
+            duration: formatTimestamp(duration)
+        };
     },
 
     async findOne(criteria: object): Promise<ICourseView | null> {
@@ -89,6 +100,29 @@ export const courseService = {
             }
         );
         return true;
+    },
+
+
+    getDetailsForCourseModules(courseModules: IModule[]) {
+        let courseModuleDetails = {
+            lesson_count: 0,
+            duration: 0
+        };
+        const modules = courseModules.map((module: IModule) => {
+            const lesson_count = module.lessons?.length ?? 0;
+            const lessonDuration = module.lessons?.reduce((totalDuration: number, lesson: ILesson) => totalDuration + (lesson.duration ?? 0), 0) as unknown as number;
+
+            courseModuleDetails.lesson_count += lesson_count;
+            courseModuleDetails.duration += lessonDuration;
+
+            return {
+                title: module.title,
+                lesson_count,
+                duration: formatTimestamp(lessonDuration),
+            }
+        });
+
+        return { modules, courseModuleDetails };
     },
 
 

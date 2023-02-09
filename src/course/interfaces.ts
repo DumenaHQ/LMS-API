@@ -30,7 +30,7 @@ export interface ICourseView extends Document {
     thumb_url: String;
     lesson_count: Number;
     duration?: String;
-    modules?: [typeof module];
+    modules?: IModule[];
     quizzes: [typeof Quiz];
     createdAt: Date;
     updatedAt: Date;
