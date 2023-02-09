@@ -34,8 +34,7 @@ export const createCourseModule = async (req: Request, res: Response, next: Next
 
 export const addLesson = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: courseId } = req.params;
-        const { moduleId } = req.params;
+        const { id: courseId, moduleId } = req.params;
         const lesson_video = req.files && req.files.lesson_video || undefined;
         const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body, lesson_video });
         sendResponse(res, 200, 'Lesson added');
@@ -59,6 +58,16 @@ export const viewCourse = async (req: Request, res: Response, next: NextFunction
         const { id: courseId } = req.params;
         const course = await courseService.view({ _id: courseId });
         sendResponse(res, 200, 'Course fetched', { course });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const listModuleCourses = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: courseId, moduleId } = req.params;
+        const module = await courseService.listModuleLessons(courseId, moduleId);
+        sendResponse(res, 200, 'Module Lessons fetched', { module });
     } catch (err) {
         next(err);
     }

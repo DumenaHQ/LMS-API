@@ -6,7 +6,7 @@ import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
 import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 import { formatTimestamp } from '../helpers/utility';
 import { Learner } from '../user/models';
 
@@ -92,7 +92,7 @@ export const courseService = {
         }
 
         await Course.updateOne(
-            { _id: new mongoose.Types.ObjectId(courseId), "modules._id": new mongoose.Types.ObjectId(moduleId) },
+            { _id: courseId, "modules._id": moduleId },
             {
                 $push: {
                     "modules.$.lessons": lesson
@@ -100,6 +100,14 @@ export const courseService = {
             }
         );
         return true;
+    },
+
+
+    async listModuleLessons(courseId: string, moduleId: string) {
+        const course = await this.findOne({ _id: courseId, "modules._id": moduleId });
+        if (!course) throw new handleError(404, 'Course or module not found');
+
+        return course.modules?.find((module: IModule) => String(module._id) === String(moduleId));
     },
 
 
@@ -116,6 +124,7 @@ export const courseService = {
             courseModuleDetails.duration += lessonDuration;
 
             return {
+                id: module._id,
                 title: module.title,
                 lesson_count,
                 duration: formatTimestamp(lessonDuration),

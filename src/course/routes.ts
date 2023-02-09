@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createCourse, updateCourse, addLesson, viewCourse, listCourses, createCourseModule } from './controller';
+import { createCourse, updateCourse, addLesson, viewCourse, listCourses, createCourseModule, listModuleCourses } from './controller';
 import validate, { courseCreationRules } from '../middleware/validators/courseValidators';
 import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
 
@@ -16,3 +16,5 @@ router.get('/:id', isAuthenticated, viewCourse);
 router.post('/:id/modules', isAuthenticated, isAdmin, createCourseModule);
 
 router.post('/:id/modules/:moduleId/lessons', isAuthenticated, isAdmin, addLesson);
+
+router.get('/:id/modules/:moduleId/lessons', isAuthenticated, isAdmin, listModuleCourses);
