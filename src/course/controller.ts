@@ -63,7 +63,7 @@ export const viewCourse = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-export const listModuleCourses = async (req: Request, res: Response, next: NextFunction) => {
+export const listModuleLessons = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId, moduleId } = req.params;
         const module = await courseService.listModuleLessons(courseId, moduleId);
