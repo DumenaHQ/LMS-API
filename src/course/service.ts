@@ -4,10 +4,10 @@ import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
 import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
-import { getVideoDurationInSeconds } from 'get-video-duration';
+// import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
 import mongoose from 'mongoose';
-import { formatTimestamp } from '../helpers/utility';
+import { formatTimestamp, getVideoDurationInSeconds } from '../helpers/utility';
 import { Learner } from '../user/models';
 
 export const courseService = {

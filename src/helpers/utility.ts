@@ -1,4 +1,5 @@
 const chance = require('chance').Chance();
+const ffmpeg = require('fluent-ffmpeg');
 
 export const generateId = (prefix: string = '', length = 15, num = false) => {
     const pool = num ? '0123456789' : 'abcdefghijklmnopqrstuvwxyz1234567890';
@@ -16,6 +17,18 @@ export const getValidModelFields = (model: any, rawData: Record<string, any>) =>
         }
     });
     return validFields;
+}
+
+export const getVideoDurationInSeconds = async (url: string): Promise<Number> => {
+    return await new Promise((resolve, reject) => {
+
+        ffmpeg.ffprobe(url, function (err: any, metadata: { format: { duration: number; }; }) {
+            if (err) return reject(err)
+            return resolve(metadata.format.duration);
+
+        });
+
+    });
 }
 
 
