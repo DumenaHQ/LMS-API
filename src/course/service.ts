@@ -64,11 +64,16 @@ export const courseService = {
 
 
     async createModule(courseId: string, module: IModule) {
+
         const course = await Course.findOneAndUpdate(
             { _id: courseId },
             {
                 $push: {
-                    "modules": module
+                    "modules": {
+                        ...module,
+                        objectives: JSON.stringify(module.objectives),
+                        class_activities: JSON.stringify(module.class_activities)
+                    }
                 }
             }, { new: true });
 

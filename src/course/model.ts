@@ -16,12 +16,17 @@ export const module = {
         type: String,
         required: true
     },
+    objectives: String,
     further_reading: String,
     duration: Number,
-    class_activity: String,
+    class_activities: String,
     code_example: String,
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' },
-    lessons: [lesson]
+    lessons: [lesson],
+    date_added: {
+        type: Date,
+        default: Date.now
+    }
 }
 
 

@@ -39,9 +39,10 @@ export interface ICourseView extends Document {
 export interface IModule {
     id?: ObjectId;
     title: String;
+    objectives: String;
     further_reading: String;
     duration: Number;
-    class_activity: String;
+    class_activities: String;
     code_example: String;
     instructor: ObjectId
     lessons?: [typeof lesson]
