@@ -31,13 +31,14 @@ export const courseService = {
 
 
     async view(criteria: object) {
-        const course = await this.findOne(criteria);
-        if (!course) throw new handleError(404, 'Course not found');
+        const rawCourse = await this.findOne(criteria);
+        if (!rawCourse) throw new handleError(404, 'Course not found');
 
+        const course = rawCourse.toJSON();
         const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules!);
 
         return {
-            ...course.toJSON(),
+            ...course,
             modules,
             lesson_count,
             duration: formatTimestamp(duration)
@@ -91,6 +92,8 @@ export const courseService = {
         //     const duration = await getVideoDurationInSeconds(String(video_url));
         //     lesson.duration = Math.round(duration);
         // }
+        const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
+        lesson.duration = Math.round(duration);
 
         await Course.updateOne(
             { _id: courseId, "modules._id": moduleId },
