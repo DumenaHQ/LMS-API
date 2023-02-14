@@ -14,11 +14,12 @@ export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
         const foundCourses = await Course.find(criteria);
 
-        const courses = foundCourses.map(course => {
+        const courses = foundCourses.map(rawCourse => {
+            const course = rawCourse.toJSON();
             const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules);
 
             return {
-                ...course.toJSON(),
+                ...course,
                 modules,
                 lesson_count,
                 duration: formatTimestamp(duration)
@@ -61,19 +62,19 @@ export const courseService = {
     },
 
 
-    async createModule(courseId: string, title: string) {
+    async createModule(courseId: string, module: IModule) {
         const course = await Course.findOneAndUpdate(
             { _id: courseId },
             {
                 $push: {
-                    "modules": { title }
+                    "modules": module
                 }
             }, { new: true });
 
         if (!course) throw new handleError(400, 'Course not found');
 
-        const newModule = course.modules?.find((mod: IModule) => String(mod.title) === String(title));
-        return { id: newModule._id, title: newModule.title };
+        const newModule = course.modules?.find((mod: IModule) => String(mod.title) === String(module.title));
+        return { ...newModule.toJSON() };
     },
 
 
@@ -83,13 +84,13 @@ export const courseService = {
 
         // upload lesson video
         let video_url: String;
-        if (lesson.lesson_video) {
-            const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
-            video_url = await uploadFile(lesson.lesson_video, key);
-            lesson.lesson_video = video_url;
-            const duration = await getVideoDurationInSeconds(String(video_url));
-            lesson.duration = Math.round(duration);
-        }
+        // if (lesson.lesson_video) {
+        //     const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
+        //     video_url = await uploadFile(lesson.lesson_video, key);
+        //     lesson.lesson_video = video_url;
+        //     const duration = await getVideoDurationInSeconds(String(video_url));
+        //     lesson.duration = Math.round(duration);
+        // }
 
         await Course.updateOne(
             { _id: courseId, "modules._id": moduleId },
@@ -123,9 +124,10 @@ export const courseService = {
             courseModuleDetails.lesson_count += lesson_count;
             courseModuleDetails.duration += lessonDuration;
 
+            // module.id = module._id;
+            // delete module._id;
             return {
-                id: module._id,
-                title: module.title,
+                ...module,
                 lesson_count,
                 duration: formatTimestamp(lessonDuration),
             }

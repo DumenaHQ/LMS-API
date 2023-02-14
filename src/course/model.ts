@@ -6,12 +6,8 @@ export const lesson = {
         type: String,
         required: true
     },
-    further_reading: String,
-    lesson_video: String,
     duration: Number,
-    class_activity: String,
-    code_example: String,
-    instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' }
+    lesson_video: String,
 }
 
 
@@ -20,6 +16,11 @@ export const module = {
         type: String,
         required: true
     },
+    further_reading: String,
+    duration: Number,
+    class_activity: String,
+    code_example: String,
+    instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' },
     lessons: [lesson]
 }
 

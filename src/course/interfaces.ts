@@ -39,16 +39,17 @@ export interface ICourseView extends Document {
 export interface IModule {
     id?: ObjectId;
     title: String;
+    further_reading: String;
+    duration: Number;
+    class_activity: String;
+    code_example: String;
+    instructor: ObjectId
     lessons?: [typeof lesson]
 }
 
 export interface ILesson {
     id?: ObjectId;
     title: String;
-    further_reading: String;
+    duration?: Number;
     lesson_video: any;
-    duration: Number;
-    class_activity: String;
-    code_example: String;
-    instructor: ObjectId
 }

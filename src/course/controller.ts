@@ -24,8 +24,7 @@ export const updateCourse = async (req: Request, res: Response, next: NextFuncti
 export const createCourseModule = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId } = req.params;
-        const { title = '' } = req.body;
-        const module = await courseService.createModule(courseId, title);
+        const module = await courseService.createModule(courseId, req.body);
         sendResponse(res, 201, 'Course Module Created', { module });
     } catch (err) {
         next(err);
@@ -36,7 +35,7 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
     try {
         const { id: courseId, moduleId } = req.params;
         const lesson_video = req.files && req.files.lesson_video || undefined;
-        const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body, lesson_video });
+        const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body });
         sendResponse(res, 200, 'Lesson added');
     } catch (err) {
         next(err);
