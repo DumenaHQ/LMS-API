@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { programService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
+import { USER_TYPES } from "../config/constants";
+import { School } from "../user/models";
 
 export const createProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -73,7 +75,12 @@ export const listCourses = async (req: Request, res: Response, next: NextFunctio
 export const addLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
-        const { id: sponsorId } = req.user;
+        const { role } = req.user;
+        let sponsorId = req.user.id;
+        if (role == USER_TYPES.school) {
+            const school = await School.findOne({ user: req.user.id });
+            sponsorId = school._id;
+        }
         const { learners } = req.body;
         await programService.addLearners(programId, learners, sponsorId);
         sendResponse(res, 200, 'Learners Added');
