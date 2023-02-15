@@ -191,6 +191,8 @@ export const programService = {
     async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
         let learnerIds;
         switch (user.role) {
+            case USER_TYPES.learner:
+                return [];
             case USER_TYPES.admin:
                 learnerIds = learners.map(learner => learner.user_id);
                 break;
