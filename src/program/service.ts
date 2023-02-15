@@ -26,13 +26,8 @@ export const programService = {
         program = program.toJSON();
 
         // refactor please!
-        if (user) {
-            if (user.role == USER_TYPES.parent) {
-                program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
-            } else if (user?.role == USER_TYPES.school) {
-                const schoolUser = await School.findOne({ user: user?.id });
-                program.hasJoined = this.hasSponsorJoinedProgram(program, schoolUser._id);
-            }
+        if (user && user.role == USER_TYPES.parent || user?.role == USER_TYPES.school) {
+            program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
         }
 
         // fetch schools
