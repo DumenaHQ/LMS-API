@@ -1,5 +1,5 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
-import User, { Learner } from '../user/models';
+import User, { Learner, School } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
@@ -68,8 +68,21 @@ export const programService = {
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
-        const addedSponsorIds = program.sponsors?.map(sd => String(sd.user_id));
-        const filteredSponors: any = sponsorData.filter((spons: IAddSponsorPayload) => (addedSponsorIds?.includes(spons.user_id) === false));
+
+        const validatedSponsors = await Promise.all(sponsorData.map(async (sponsor: IAddSponsorPayload) => {
+            const { sponsor_type, user_id } = sponsor;
+            const invalidSponsor = { user_id: null, name: '', sponsor_type: '' };
+            if (sponsor_type === 'school') {
+                const foundSchool = await School.findOne({ user: user_id });
+                return foundSchool ? { user_id: foundSchool._id, name: foundSchool.school, sponsor_type } : invalidSponsor;
+            } else {
+                const foundParent = await User.findOne({ _id: user_id });
+                return foundParent ? { user_id: foundParent._id, name: foundParent.fullname, sponsor_type } : invalidSponsor;
+            }
+        }));
+
+        const addedSponsorIds = program.sponsors?.map((sd: IAddSponsorPayload) => String(sd.user_id));
+        const filteredSponors: any = validatedSponsors.filter((spons: IAddSponsorPayload) => (addedSponsorIds?.includes(spons.user_id) === false));
         program.sponsors = [...program.sponsors || [], ...filteredSponors];
         await program.save();
     },
