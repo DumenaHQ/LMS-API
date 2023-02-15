@@ -76,6 +76,8 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role } = req.user;
+
+        // fix asap!
         let sponsorId = req.user.id;
         if (role == USER_TYPES.school) {
             const school = await School.findOne({ user: req.user.id });
@@ -116,7 +118,13 @@ export const listPrograms = async (req: Request, res: Response, next: NextFuncti
 export const viewProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
-        const { user } = req;
+        const { role, id } = req.user;
+        let user = { role, id };
+        // fix asap!
+        if (role == USER_TYPES.school) {
+            const school = await School.findOne({ user: req.user.id });
+            user.id = school._id;
+        }
         const program = await programService.view(programId, user);
         sendResponse(res, 200, 'Program fetched', { program });
     } catch (err) {
