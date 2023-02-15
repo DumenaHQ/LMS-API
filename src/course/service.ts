@@ -132,10 +132,10 @@ export const courseService = {
             courseModuleDetails.lesson_count += lesson_count;
             courseModuleDetails.duration += lessonDuration;
 
-            // module.id = module._id;
-            // delete module._id;
             return {
                 ...module,
+                objectives: JSON.parse(module.objectives as string),
+                class_activities: JSON.parse(module.class_activities as string),
                 lesson_count,
                 duration: formatTimestamp(lessonDuration),
             }
