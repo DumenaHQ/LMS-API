@@ -126,8 +126,8 @@ export const programService = {
     async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
         switch (userType) {
             case USER_TYPES.school:
-                const schoolUser = await School.findById(userId);
-                return this.listSponsorPrograms(schoolUser.user);
+                const schoolUser = await School.findOne({ user: userId });
+                return this.listSponsorPrograms(schoolUser._id);
             case USER_TYPES.parent:
                 return this.listSponsorPrograms(userId);
             default:
