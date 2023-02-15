@@ -20,11 +20,19 @@ export const programService = {
         else {
             program = await Program.findById(criteria);
         }
+        if (!program) {
+            throw new handleError(404, 'Program no found');
+        }
         program = program.toJSON();
 
         // refactor please!
-        if (program && user && (user.role == USER_TYPES.parent || user?.role == USER_TYPES.school)) {
-            program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
+        if (user) {
+            if (user.role == USER_TYPES.parent) {
+                program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
+            } else if (user?.role == USER_TYPES.school) {
+                const schoolUser = await School.findOne({ user: user?.id });
+                program.hasJoined = this.hasSponsorJoinedProgram(program, schoolUser._id);
+            }
         }
 
         // fetch schools
