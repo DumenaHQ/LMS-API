@@ -283,7 +283,9 @@ export const userService = {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
 
-    async preventDuplicates({ fullname, school, parent_email }: IUserCreate) {
+    async preventDuplicates({ fullname, school, parent_email, user_type }: IUserCreate) {
+        if (user_type != USER_TYPES.learner) return true;
+
         const criteria = {
             school: new mongoose.Types.ObjectId(school),
             'user.fullname': fullname,
