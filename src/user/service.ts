@@ -66,22 +66,7 @@ export const userService = {
 
 
     async signUpToEvent(data: IUserCreate, userId: ObjectId): Promise<void> {
-        switch (data.event) {
-            case 'championship':
-                // const programId = '6360eede66f1f1f40ddca01c';
-                const programId = '6344433ab9c51e6999e5f8af';
-                const sponsor_name = data.user_type == USER_TYPES.school ? data.school : data.fullname;
-                const sponsorData: IAddSponsorPayload = {
-                    user_id: String(userId),
-                    name: sponsor_name,
-                    sponsor_type: data.user_type
-                };
-
-                programService.addSponsors(programId, [sponsorData]);
-                break;
-            default:
-                break;
-        }
+        
     },
 
 
