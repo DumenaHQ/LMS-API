@@ -5,6 +5,14 @@ enum EQuiztype {
     Essay = 'essay'
 }
 
+enum EQuizLevel {
+    Course = 'course',
+    Module = 'module',
+    Lesson = 'lesson'
+}
+
+export type QuizLevelType = Record<EQuizLevel, string>;
+
 const quizQuestion = {
     question: String,
     optA: String,
@@ -20,7 +28,10 @@ const quizResult = {
     answers: [],
     num_of_questions: Number,
     school_id: Schema.Types.ObjectId,
-    date_created: Date
+    date_created: {
+        type: Date,
+        default: Date.now
+    }
 }
 
 const quizSchema = new Schema({
@@ -29,8 +40,12 @@ const quizSchema = new Schema({
     tags: [],
     difficulty_level: String,
     course_quadrant: String,
-    level: String,
-    level_id: Schema.Types.ObjectId,
+    quiz_level: {
+        type: String,
+        default: EQuizLevel.Module,
+        enum: EQuizLevel
+    },
+    quiz_level_id: Schema.Types.ObjectId,
     quiz_type: {
         type: String,
         default: EQuiztype.Multichoice,

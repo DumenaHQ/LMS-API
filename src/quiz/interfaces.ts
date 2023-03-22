@@ -7,6 +7,8 @@ export interface IQuiz extends Document {
     tags: [],
     difficulty_level: String,
     course_quadrant: String,
+    quiz_level?: String,
+    quiz_level_id?: ObjectId,
     settings: {},
     questions?: []
 }
@@ -28,7 +30,6 @@ export interface IQuizQuestions {
 export interface IQuizResult {
     learner: ObjectId;
     answers: [];
-    course_id: ObjectId;
-    lesson_id: ObjectId
+    school_id: ObjectId;
     num_of_questions: Number;
 }

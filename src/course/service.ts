@@ -4,7 +4,6 @@ import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
 import { UPLOADS } from '../config/constants';
 import { randomUUID } from 'crypto';
-// import { getVideoDurationInSeconds } from 'get-video-duration';
 import path from 'path';
 import mongoose from 'mongoose';
 import { formatTimestamp, getVideoDurationInSeconds } from '../helpers/utility';
@@ -134,8 +133,8 @@ export const courseService = {
 
             return {
                 ...module,
-                objectives: JSON.parse(module.objectives as string),
-                class_activities: JSON.parse(module.class_activities as string),
+                objectives: JSON.parse(module.objectives as string || "{}"),
+                class_activities: JSON.parse(module.class_activities as string || "{}"),
                 lesson_count,
                 duration: formatTimestamp(lessonDuration),
             }
