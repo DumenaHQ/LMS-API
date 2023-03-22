@@ -23,6 +23,7 @@ export const module = {
     code_example: String,
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' },
     lessons: [lesson],
+    quiz_link: String,
     date_added: {
         type: Date,
         default: Date.now
