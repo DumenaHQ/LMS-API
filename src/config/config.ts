@@ -1,3 +1,5 @@
+import { LMS_BUCKET_NAME, DEV_LMS_BUCKET_NAME } from './constants';
+
 export const env: string = process.env.NODE_ENV || 'development';
 
 type envKeys = {
@@ -47,6 +49,19 @@ const s3BucketKeys = {
     },
 }
 export const s3Config = s3BucketKeys[env as keyof envKeys];
+
+const lmsBucket = {
+    test: {
+        BUCKET_NAME: DEV_LMS_BUCKET_NAME
+    },
+    development: {
+        BUCKET_NAME: DEV_LMS_BUCKET_NAME
+    },
+    production: {
+        BUCKET_NAME: LMS_BUCKET_NAME
+    }
+}
+export const lmsBucketName = lmsBucket[env as keyof envKeys]
 
 
 const paystack_config = {

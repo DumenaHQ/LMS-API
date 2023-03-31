@@ -39,7 +39,7 @@ export const putObject = async (bucketName: string, key: string, body: Buffer, C
     });
 };
 
-export const upload = async (bucketName: string, key: string, body: Buffer): Promise<Object> => {
+export const upload = async (bucketName: string, key: string, body: Buffer): Promise<{ Location: string }> => {
     const params = {
         Bucket: bucketName,
         Key: key,

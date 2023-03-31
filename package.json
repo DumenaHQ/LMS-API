@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-mediaconvert": "^3.299.0",
+    "@aws-sdk/node-http-handler": "^3.296.0",
+    "@aws-sdk/types": "^3.296.0",
     "@types/bcrypt": "^5.0.0",
     "@types/chai-as-promised": "^7.1.5",
     "@types/jsonwebtoken": "^8.5.8",

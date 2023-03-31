@@ -19,7 +19,7 @@ export const getValidModelFields = (model: any, rawData: Record<string, any>) =>
     return validFields;
 }
 
-export const getVideoDurationInSeconds = async (url: string): Promise<Number> => {
+export const getVideoDurationInSeconds = async (url: string): Promise<number> => {
     return await new Promise((resolve, reject) => {
 
         ffmpeg.ffprobe(url, function (err: any, metadata: { format: { duration: number; }; }) {

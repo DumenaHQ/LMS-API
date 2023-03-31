@@ -18,4 +18,7 @@ export const
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
     ORDER_TYPES = ['sub', 'item'],
     PAYSTACK_API_URL = 'https://api.paystack.co',
-    TEMPLATE_FILE_PATH = 'downloads/templates'
+    TEMPLATE_FILE_PATH = 'downloads/templates',
+    AWS_S3_REGION = 'us-east-1',
+    LMS_BUCKET_NAME = 'lms.raw-files',
+    DEV_LMS_BUCKET_NAME = 'lms.videos'
