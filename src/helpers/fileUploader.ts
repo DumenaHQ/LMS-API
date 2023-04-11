@@ -1,9 +1,6 @@
 import { upload } from './awsHelper';
-import { lmsBucketName } from '../config/config';
 
-const { BUCKET_NAME } = lmsBucketName;
-
-export const uploadFile = async ({ data: fileData }: any, key: string): Promise<String> => {
-    const { Location } = await upload(BUCKET_NAME, key, fileData);
+export const uploadFile = async (bucketName: string, { data: fileData }: any, key: string): Promise<String> => {
+    const { Location } = await upload(bucketName, key, fileData);
     return Location;
 }

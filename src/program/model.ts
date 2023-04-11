@@ -18,6 +18,8 @@ export interface IProgram extends Document {
     description: String;
     category: String;
     location: String;
+    thumbnail?: String;
+    header_photo?: String;
     sponsors?: Types.DocumentArray<IProgramSponsor>;
     learners: IAddLearner[];
     courses?: String[];
@@ -64,6 +66,8 @@ const programSchema = new Schema({
         type: String,
         default: 'all'
     },
+    thumbnail: String,
+    header_photo: String,
     sponsors: [sponsor],
     learners: [learner],
     courses: [],

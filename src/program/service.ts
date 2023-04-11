@@ -6,11 +6,25 @@ import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
 import { IUserView } from '../user/models';
-import { USER_TYPES } from '../config/constants';
+import { USER_TYPES, UPLOADS } from '../config/constants';
+import { uploadFile } from '../helpers/fileUploader';
+import { lmsBucketName } from '../config/config';
+const { BUCKET_NAME: lmsBucket } = lmsBucketName;
+import path from 'path';
 
 export const programService = {
-    async create(program: IProgram): Promise<IProgram> {
-        return Program.create({ ...program, start_date: new Date(program.start_date), end_date: new Date(program.end_date) });
+    async create(program: IProgram, { thumbnail, header_photo }: { thumbnail: File, header_photo: File }): Promise<IProgram> {
+        if (thumbnail) {
+            const thumbKey = `${UPLOADS.program_thumbs}/${program.name.split(' ').join('-')}${path.extname(thumbnail.name)}`;
+            program.thumbnail = await uploadFile(lmsBucket, thumbnail, thumbKey);
+        }
+        if (header_photo) {
+            const photoKey = `${UPLOADS.program_header_photos}/${program.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
+            program.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
+        }
+        if (program.start_date) program.start_date = new Date(program.start_date);
+        if (program.end_date) program.end_date = new Date(program.end_date);
+        return Program.create(program);
     },
 
     async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {

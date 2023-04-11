@@ -12,7 +12,9 @@ export const
     SALT_ROUNDS = 10,
     UPLOADS = {
         course_thumbs: 'course_thumbs',
-        lesson_videos: 'lessons'
+        lesson_videos: 'lessons',
+        program_thumbs: 'program_thumbs',
+        program_header_photos: 'program_header_photos'
     },
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],

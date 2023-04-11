@@ -8,6 +8,8 @@ import path from 'path';
 import mongoose from 'mongoose';
 import { formatTimestamp, getVideoDurationInSeconds } from '../helpers/utility';
 import { Learner } from '../user/models';
+import { lmsBucketName } from '../config/config';
+const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
@@ -54,7 +56,7 @@ export const courseService = {
 
         if (course.thumb_photo) {
             const key = `${UPLOADS.course_thumbs}/${randomUUID()}${path.extname(course.thumb_photo.name)}`;
-            thumb_url = await uploadFile(course.thumb_photo, key);
+            thumb_url = await uploadFile(lmsBucket, course.thumb_photo, key);
             course.thumb_url = thumb_url;
         }
         if (!course.access_scopes) course.access_scopes = ['free'];
@@ -91,7 +93,7 @@ export const courseService = {
 
         // upload lesson video
         const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
-        const video_url = await uploadFile(lesson.lesson_video, key);
+        const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
         lesson.lesson_video = video_url;
         const duration = await getVideoDurationInSeconds(String(video_url));
         lesson.duration = Math.round(duration);

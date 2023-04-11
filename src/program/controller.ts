@@ -6,7 +6,7 @@ import { School } from "../user/models";
 
 export const createProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const program = await programService.create(req.body);
+        const program = await programService.create(req.body, req.files);
         sendResponse(res, 201, 'Program created', { program });
     } catch (err) {
         next(err);
