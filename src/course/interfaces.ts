@@ -41,6 +41,7 @@ export interface IModule {
     title: String;
     objectives: String;
     further_reading: String;
+    further_reading_links: String;
     duration: Number;
     class_activities: String;
     code_example: String;

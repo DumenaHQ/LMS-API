@@ -17,7 +17,7 @@ export const module = {
         required: true
     },
     objectives: String,
-    further_reading: String,
+    further_reading_links: String,
     duration: Number,
     class_activities: String,
     code_example: String,

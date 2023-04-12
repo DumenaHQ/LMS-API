@@ -66,14 +66,25 @@ export const courseService = {
 
     async createModule(courseId: string, module: IModule) {
 
+        function parseData(module: IModule) {
+            return {
+                objectives: JSON.stringify(module.objectives),
+                class_activities: JSON.stringify(module.class_activities),
+                further_reading_links: JSON.stringify(module.further_reading_links)
+            }
+        }
+
+        const { objectives, class_activities, further_reading_links } = parseData(module);
+
         const course = await Course.findOneAndUpdate(
             { _id: courseId },
             {
                 $push: {
                     "modules": {
                         ...module,
-                        objectives: JSON.stringify(module.objectives),
-                        class_activities: JSON.stringify(module.class_activities)
+                        objectives,
+                        class_activities,
+                        further_reading_links
                     }
                 }
             }, { new: true });
@@ -81,7 +92,12 @@ export const courseService = {
         if (!course) throw new handleError(400, 'Course not found');
 
         const newModule = course.modules?.find((mod: IModule) => String(mod.title) === String(module.title));
-        return { ...newModule.toJSON() };
+        return {
+            ...newModule.toJSON(),
+            objectives,
+            class_activities,
+            further_reading_links
+        };
     },
 
 
@@ -134,6 +150,7 @@ export const courseService = {
                 ...module,
                 objectives: JSON.parse(module.objectives as string || "{}"),
                 class_activities: JSON.parse(module.class_activities as string || "{}"),
+                further_reading_links: JSON.parse(module.further_reading_links as string || "{}"),
                 lesson_count,
                 duration: formatTimestamp(lessonDuration),
             }
@@ -144,7 +161,6 @@ export const courseService = {
 
 
     async listByUserType(userType: string, userId: string): Promise<ICourseView[]> {
-        const criteria = { deleted: false };
         let queryCriteria = {};
 
         switch (userType) {
@@ -154,7 +170,7 @@ export const courseService = {
             case 'admin':
             default:
         }
-        return this.list({ ...criteria, ...queryCriteria });
+        return this.list({ ...queryCriteria, deleted: false });
     },
 
 
