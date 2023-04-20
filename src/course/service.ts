@@ -111,8 +111,8 @@ export const courseService = {
         // const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
         // const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
         // lesson.lesson_video = video_url;
-        const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
-        lesson.duration = Math.round(duration);
+        //const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
+        lesson.duration = Math.round(0.10);
 
         await Course.updateOne(
             { _id: courseId, "modules._id": moduleId },
