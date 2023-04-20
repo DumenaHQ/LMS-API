@@ -21,6 +21,7 @@ export const module = {
     duration: Number,
     class_activities: String,
     code_example: String,
+    // author: { type: Schema.Types.ObjectId, ref: 'Instructor '},
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' },
     lessons: [lesson],
     quiz_link: String,
