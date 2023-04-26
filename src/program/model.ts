@@ -14,6 +14,7 @@ export interface IProgramSponsor {
 }
 
 export interface IProgram extends Document {
+    id?: Types.ObjectId;
     name: String;
     description: String;
     category: String;
