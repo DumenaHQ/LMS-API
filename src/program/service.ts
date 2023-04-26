@@ -13,7 +13,8 @@ const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 
 export const programService = {
-    async create(program: IProgram, { thumbnail, header_photo }: { thumbnail: File, header_photo: File }): Promise<IProgram> {
+    async saveProgram(program: IProgram, files: File): Promise<IProgram | null> {
+        const { thumbnail, header_photo }: any = files || {};
         if (thumbnail) {
             const thumbKey = `${UPLOADS.program_thumbs}/${program.name.split(' ').join('-')}${path.extname(thumbnail.name)}`;
             program.thumbnail = await uploadFile(lmsBucket, thumbnail, thumbKey);
@@ -24,6 +25,13 @@ export const programService = {
         }
         if (program.start_date) program.start_date = new Date(program.start_date);
         if (program.end_date) program.end_date = new Date(program.end_date);
+
+        if (program.id) {
+            const programId = program.id;
+            delete program.id;
+            await Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, program);
+            return null;
+        }
         return Program.create(program);
     },
 
@@ -225,11 +233,7 @@ export const programService = {
         return hasJoined ? true : false;
     },
 
-    async update(programId: string, data: object): Promise<void> {
-        Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, data);
-    },
-
     async delete(programId: string): Promise<void> {
-        Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, { deleted: true });
+        await Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, { deleted: true });
     }
 }

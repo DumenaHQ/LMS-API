@@ -6,7 +6,7 @@ import { School } from "../user/models";
 
 export const createProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const program = await programService.create(req.body, req.files);
+        const program = await programService.saveProgram(req.body, req.files);
         sendResponse(res, 201, 'Program created', { program });
     } catch (err) {
         next(err);
@@ -135,9 +135,9 @@ export const viewProgram = async (req: Request, res: Response, next: NextFunctio
 
 export const updateProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: programId } = req.params;
-        const program = await programService.update(programId, req.body);
-        sendResponse(res, 200, 'Program updated', { program });
+        const { id } = req.params;
+        await programService.saveProgram({ ...req.body, id }, req.files);
+        sendResponse(res, 200, 'Program updated');
     } catch (err) {
         next(err);
     }
