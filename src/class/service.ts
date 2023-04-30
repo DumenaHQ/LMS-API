@@ -1,11 +1,10 @@
 import Class, { IClass, IAddLearner } from './model';
-import User, { Learner, School } from '../user/models';
+import User, { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
-import mongoose, { ObjectId, Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { IUserView } from '../user/models';
 import { USER_TYPES, UPLOADS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
@@ -26,7 +25,7 @@ export const classService = {
         return Class.create(classData);
     },
 
-    async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IClass | null> {
+    async view(criteria: object | string): Promise<IClass | null> {
         let classroom: any;
         if (typeof criteria == "object")
             classroom = await Class.findOne(criteria);
@@ -40,22 +39,41 @@ export const classService = {
 
         // fetch full learner details
         classroom.learner_count = classroom.learners && classroom.learners.length;
-        classroom.learners = await this.fetchLearnerDetails(classroom.learners || [], user);
+        classroom.learners = await userService.list({ 'user._id': { $in: classroom.learners } }, 'learner');
 
         // fetch course details
+        classroom.course_count = classroom.courses.length;
         classroom.courses = await courseService.list({ _id: { $in: classroom.courses } });
 
         return classroom;
     },
 
+    async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
+        let criteria: any = { _id: classId };
+
+        switch (role) {
+            case USER_TYPES.admin:
+                criteria = { ...criteria };
+                break;
+            case USER_TYPES.school:
+                criteria = { ...criteria, school_id: id };
+                break;
+            case USER_TYPES.learner:
+            default:
+                criteria = {};
+        }
+        return this.view(criteria);
+    },
+
 
     async list(criteria: object): Promise<any[] | []> {
-        const classes = await Class.find(criteria);
+        const classes = await Class.find({ ...criteria, status: 'active', deleted: false });
         return classes.map((klas: IClass) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
             _class.course_count = klas?.courses?.length;
             delete _class.learners;
+            delete _class.courses;
             return _class;
         });
     },
@@ -115,19 +133,16 @@ export const classService = {
         // Detect and return learners already added to class
     },
 
-
-    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
-        let learnerIds;
-        switch (user.role) {
+    async listClassesForRoles(userId: string, role: string) {
+        switch (role) {
             case USER_TYPES.learner:
-                return [];
-            case USER_TYPES.admin:
-                learnerIds = learners.map(learner => learner.user_id);
-                break;
+
             case USER_TYPES.school:
+                return this.list({ school_id: userId });
+            case USER_TYPES.admin:
+                return this.list({});
             default:
         }
-        return userService.list({ 'user._id': { $in: learnerIds } }, 'learner');
     },
 
     async update(classId: string, data: object): Promise<void> {

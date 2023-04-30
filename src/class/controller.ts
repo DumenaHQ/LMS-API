@@ -75,7 +75,8 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
 export const viewClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-        const _class = await classService.view(classId,);
+        const { id, role } = req.user;
+        const _class = await classService.viewClass(classId, { id, role });
         sendResponse(res, 200, 'Class fetched', { class: _class });
     } catch (err) {
         next(err);

@@ -1,5 +1,9 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
+enum EStatus {
+    Active = 'active',
+    Archived = 'archived'
+}
 
 export interface IAddLearner {
     user_id?: string,
@@ -44,7 +48,8 @@ const classSchema = new Schema({
     },
     status: {
         type: String,
-        default: 'active'
+        default: EStatus.Active,
+        enum: EStatus
     }
 }, { timestamps: true });
 
