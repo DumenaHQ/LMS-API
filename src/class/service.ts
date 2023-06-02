@@ -1,4 +1,4 @@
-import Class, { IClass, IAddLearner } from './model';
+import Class, { IClass, IAddLearner, EStatus } from './model';
 import User, { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
@@ -25,12 +25,18 @@ export const classService = {
         return Class.create(classData);
     },
 
+
+    async findOne(criteria: object): Promise<IClass | null> {
+        return Class.findOne({ ...criteria, deleted: false, status: EStatus.Active });
+    },
+
+
     async view(criteria: object | string): Promise<IClass | null> {
         let classroom: any;
         if (typeof criteria == "object")
-            classroom = await Class.findOne(criteria);
+            classroom = await this.findOne(criteria);
         else {
-            classroom = await Class.findById(criteria);
+            classroom = await this.findOne({ _id: criteria });
         }
         if (!classroom) {
             throw new handleError(404, 'Class not found');
@@ -67,7 +73,7 @@ export const classService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const classes = await Class.find({ ...criteria, status: 'active', deleted: false });
+        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false });
         return classes.map((klas: IClass) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
@@ -104,25 +110,22 @@ export const classService = {
     },
 
 
-    async addLearners(classId: string, learners: [IAddLearner]): Promise<void> {
-        const _class = await Class.findById(classId);
+    async addLearners(classId: string, learners: IAddLearner[]): Promise<void> {
+        const _class = await this.findOne({ _id: classId });
         if (!_class) {
             throw new handleError(400, 'Invalid class ID');
         }
 
         const addedLearnerIds = _class.learners.map((learner: IAddLearner) => String(learner.user_id));
 
-        const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
-            if (learner.user_id) {
-                const foundLearner = await Learner.findById(learner.user_id).populate({ path: 'user' });
-                return foundLearner.user;
-            }
-            return User.findOne({ username: learner.username });
+        const validatedLearners = await Promise.all(learners.filter(async (learner: IAddLearner) => {
+            const foundLearner = await Learner.findById(learner.user_id).populate({ path: 'user' });
+            return foundLearner;
         }));
 
         const learnersToAdd = validatedLearners.filter((learner: any) => {
-            return learner && !addedLearnerIds.includes(String(learner._id));
-        }).map(learner => ({ user_id: learner?._id }));
+            return !addedLearnerIds.includes(String(learner.user_id));
+        });
 
         _class.learners = [..._class.learners, ...learnersToAdd];
         await _class.save();

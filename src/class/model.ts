@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-enum EStatus {
+export enum EStatus {
     Active = 'active',
     Archived = 'archived'
 }
 
 export interface IAddLearner {
     user_id?: string,
-    username?: string
+    date_added?: Date
 }
 
 
