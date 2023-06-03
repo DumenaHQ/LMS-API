@@ -73,7 +73,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const programs = await Program.find(criteria);
+        const programs = await Program.find({ ...criteria, deleted: true });
         return programs.map((prog: IProgram) => {
             const program = prog.toJSON();
             program.learner_count = prog.learners.length;
