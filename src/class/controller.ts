@@ -39,7 +39,6 @@ export const listCourses = async (req: Request, res: Response, next: NextFunctio
 export const addLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-
         const { learners } = req.body;
         await classService.addLearners(classId, learners);
         sendResponse(res, 200, 'Learners Added');

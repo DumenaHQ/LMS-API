@@ -1,4 +1,5 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
+import Course from '../course/model';
 import User, { Learner, School } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
@@ -120,7 +121,13 @@ export const programService = {
             throw new handleError(400, 'Invalid program ID');
         }
 
-        const courses = new Set([...program.courses, ...courseIds]);
+        const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
+            const foundCourse = await Course.findById(courseId).select('_id');
+            return foundCourse ? String(foundCourse._id) : null;
+        }));
+        const validatedCourseIds = validatedCourses.filter((course) => course);
+
+        const courses = new Set([...program.courses, ...validatedCourseIds]);
         program.courses = Array.from(courses);
         await program.save();
     },

@@ -1,4 +1,5 @@
 import Class, { IClass, IAddLearner, EStatus } from './model';
+import Course from '../course/model';
 import User, { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
@@ -92,7 +93,12 @@ export const classService = {
             throw new handleError(400, 'Invalid class ID');
         }
 
-        const courses = new Set([..._class.courses, ...courseIds]);
+        const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
+            const foundCourse = await Course.findById(courseId).select('_id');
+            return foundCourse ? String(foundCourse._id) : null;
+        }));
+        const validatedCourseIds = validatedCourses.filter((course) => course);
+        const courses = new Set([..._class.courses, ...validatedCourseIds]);
         _class.courses = Array.from(courses);
         await _class.save();
     },
