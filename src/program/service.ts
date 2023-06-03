@@ -39,7 +39,7 @@ export const programService = {
     async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {
         let program: any;
         if (typeof criteria == "object")
-            program = await Program.findOne(criteria);
+            program = await Program.findOne({ ...criteria, deleted: false });
         else {
             program = await Program.findById(criteria);
         }
@@ -73,7 +73,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const programs = await Program.find({ ...criteria, deleted: true });
+        const programs = await Program.find({ ...criteria, deleted: false });
         return programs.map((prog: IProgram) => {
             const program = prog.toJSON();
             program.learner_count = prog.learners.length;
