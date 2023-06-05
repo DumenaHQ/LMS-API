@@ -216,10 +216,17 @@ export const programService = {
         // Detect and return learners already added to program
     },
 
+    async fetchLearners(programId: string, user: { id: string, userType: string }) {
+        const program = await Program.findById(programId);
+        if (!program) throw new handleError(400, 'Program not found');
 
-    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
+        return this.fetchLearnerDetails(program.learners, user);
+    },
+
+
+    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, userType: string }): Promise<IUserView[] | []> {
         let learnerIds;
-        switch (user.role) {
+        switch (user.userType) {
             case USER_TYPES.learner:
                 return [];
             case USER_TYPES.admin:
