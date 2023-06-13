@@ -48,16 +48,16 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 }
 
 
-export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id: classId } = req.params;
-        const { user: { id: userId, role: userType } } = req;
-        const learners = await classService.fetchLearnerDetails(classId, userType, userId);
-        sendResponse(res, 200, 'Learners Fetched', { learners });
-    } catch (err) {
-        next(err)
-    }
-}
+// export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const { id: classId } = req.params;
+//         const { user: { id, role: userType } } = req;
+//         const learners = await classService.fetchLearners(classId, { id, userType });
+//         sendResponse(res, 200, 'Learners Fetched', { learners });
+//     } catch (err) {
+//         next(err)
+//     }
+// }
 
 
 export const listClasses = async (req: Request, res: Response, next: NextFunction) => {

@@ -46,7 +46,9 @@ export const classService = {
 
         // fetch full learner details
         classroom.learner_count = classroom.learners && classroom.learners.length;
-        classroom.learners = await userService.list({ 'user._id': { $in: classroom.learners } }, 'learner');
+        classroom.learners = await userService.list({
+            'user._id': { $in: classroom.learners.map((learner: { user_id: any; }) => learner.user_id) }
+        }, 'learner');
 
         // fetch course details
         classroom.course_count = classroom.courses.length;
@@ -125,7 +127,9 @@ export const classService = {
         const addedLearnerIds = _class.learners.map((learner: IAddLearner) => String(learner.user_id));
 
         const validatedLearners = await Promise.all(learners.filter(async (learner: IAddLearner) => {
-            const foundLearner = await Learner.findById(learner.user_id).populate({ path: 'user' });
+            const foundLearner = await Learner.findOne({
+                $or: [{ _id: learner.user_id }, { 'user.id': learner.user_id }]
+            }).populate({ path: 'user' });
             return foundLearner;
         }));
 
