@@ -105,14 +105,14 @@ export const courseService = {
         const course = await this.view({ _id: courseId, "modules._id": moduleId });
         if (!course) throw new handleError(404, 'Course or module not found');
 
-        // if (!lesson.lesson_video) throw new handleError(400, 'No video file specified')
+        if (!lesson.lesson_video) throw new handleError(400, 'No video file specified')
 
         // upload lesson video
-        // const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
-        // const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
-        // lesson.lesson_video = video_url;
-        //const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
-        lesson.duration = Math.round(0.10);
+        const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
+        const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
+        lesson.lesson_video = video_url;
+        const duration = await getVideoDurationInSeconds(String(video_url));
+        lesson.duration = Math.round(duration);
 
         await Course.updateOne(
             { _id: courseId, "modules._id": moduleId },
