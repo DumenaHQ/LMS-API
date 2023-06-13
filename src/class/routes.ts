@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAuthenticated, isSchoolOrAdmin } from "../middleware/verifyToken";
 
-import { addCourses, addLearners, createClass, deleteClass, listClasses, listCourses, listLearners, updateClass, viewClass } from './controller';
+import { addCourses, addLearners, createClass, deleteClass, listClasses, listCourses, updateClass, viewClass } from './controller';
 
 export const router = Router();
 
@@ -19,7 +19,7 @@ router.get('/:id/courses', isAuthenticated, listCourses);
 
 router.patch('/:id/learners', isAuthenticated, isSchoolOrAdmin, addLearners);
 
-router.get('/:id/learners', isAuthenticated, listLearners);
+// router.get('/:id/learners', isAuthenticated, listLearners);
 
 router.delete('/:id', isAuthenticated, isSchoolOrAdmin, deleteClass);
 

@@ -39,7 +39,7 @@ export const programService = {
     async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {
         let program: any;
         if (typeof criteria == "object")
-            program = await Program.findOne(criteria);
+            program = await Program.findOne({ ...criteria, deleted: false });
         else {
             program = await Program.findById(criteria);
         }
@@ -73,7 +73,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const programs = await Program.find(criteria);
+        const programs = await Program.find({ ...criteria, deleted: false });
         return programs.map((prog: IProgram) => {
             const program = prog.toJSON();
             program.learner_count = prog.learners.length;
@@ -216,10 +216,17 @@ export const programService = {
         // Detect and return learners already added to program
     },
 
+    async fetchLearners(programId: string, user: { id: string, userType: string }) {
+        const program = await Program.findById(programId);
+        if (!program) throw new handleError(400, 'Program not found');
 
-    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, role: string }): Promise<IUserView[] | []> {
+        return this.fetchLearnerDetails(program.learners, user);
+    },
+
+
+    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, userType: string }): Promise<IUserView[] | []> {
         let learnerIds;
-        switch (user.role) {
+        switch (user.userType) {
             case USER_TYPES.learner:
                 return [];
             case USER_TYPES.admin:

@@ -66,7 +66,7 @@ export const userService = {
 
 
     async signUpToEvent(data: IUserCreate, userId: ObjectId): Promise<void> {
-        
+
     },
 
 
@@ -203,7 +203,7 @@ export const userService = {
                 }
             }
         ]);
-        return users.map(user => this.sanitizeLearner(user));
+        return users.map((user: object) => this.sanitizeLearner(user));
     },
 
     async listSchoolStudents(schoolId: string): Promise<{}[]> {

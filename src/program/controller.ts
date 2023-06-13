@@ -95,8 +95,8 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
-        const { user: { id: userId, role: userType } } = req;
-        const learners = await programService.fetchLearnerDetails(programId, userType, userId);
+        const { user: { id, role: userType } } = req.user;
+        const learners = await programService.fetchLearners(programId, { id, userType });
         sendResponse(res, 200, 'Learners Fetched', { learners });
     } catch (err) {
         next(err)
