@@ -13,6 +13,7 @@ export interface IAddLearner {
 
 export interface IClass extends Document {
     name: String;
+    template?: Schema.Types.ObjectId;
     description: String;
     school_id: Schema.Types.ObjectId;
     thumbnail?: String;
@@ -20,6 +21,12 @@ export interface IClass extends Document {
     learners: IAddLearner[];
     courses?: String[];
     status: String;
+}
+
+export interface ITemplate extends Document {
+    title: String;
+    syllabus: String;
+    courses?: String[];
 }
 
 const learner = {
@@ -32,6 +39,10 @@ const learner = {
 
 
 const classSchema = new Schema({
+    template: {
+        type: Schema.Types.ObjectId,
+        ref: 'ClassTemplate'
+    },
     name: {
         type: String,
         unique: true
@@ -54,3 +65,23 @@ const classSchema = new Schema({
 }, { timestamps: true });
 
 export default mongoose.model('Class', classSchema);
+
+const classTemplate = new Schema({
+    title: {
+        type: String,
+        unique: true
+    },
+    syllabus: String,
+    courses: [],
+    status: {
+        type: String,
+        default: EStatus.Active,
+        enum: EStatus
+    },
+    deleted: {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
+
+export const ClassTemplate = mongoose.model('ClassTemplate', classTemplate);

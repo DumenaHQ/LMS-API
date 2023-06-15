@@ -1,4 +1,4 @@
-import Class, { IClass, IAddLearner, EStatus } from './model';
+import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
 import Course from '../course/model';
 import User, { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -11,6 +11,11 @@ import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
+
+const classOrTemplateModel = {
+    'class': Class,
+    'template': ClassTemplate
+}
 
 export const classService = {
     async create(classData: IClass, files: File): Promise<IClass> {
@@ -27,8 +32,29 @@ export const classService = {
     },
 
 
-    async findOne(criteria: object): Promise<IClass | null> {
-        return Class.findOne({ ...criteria, deleted: false, status: EStatus.Active });
+    async createTemplate(templateData: ITemplate): Promise<ITemplate> {
+        return ClassTemplate.create(templateData);
+    },
+
+    async listTemplates(criteria: object): Promise<ITemplate[]> {
+        const templates = await ClassTemplate.find({ deleted: false, status: EStatus.Active, ...criteria });
+        return templates.map((template: any) => {
+            return { ...template.toJSON(), course_count: template.courses.length };
+        });
+    },
+
+    async viewTemplate(criteria: object): Promise<ITemplate> {
+        const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
+        template.course_count = template.courses.length;
+        template.courses = await courseService.list({
+            _id: { $in: template.courses.map((course: string) => course) }
+        });
+        return template;
+    },
+
+
+    async findOne(criteria: object) {
+        return Class.findOne({ deleted: false, status: EStatus.Active, ...criteria }).populate({ path: 'template' });
     },
 
 
@@ -51,8 +77,9 @@ export const classService = {
         }, 'learner');
 
         // fetch course details
-        classroom.course_count = classroom.courses.length;
-        classroom.courses = await courseService.list({ _id: { $in: classroom.courses } });
+        const courses = classroom.template ? classroom.template.courses : classroom.courses;
+        classroom.course_count = courses.length;
+        classroom.courses = await courseService.list({ _id: { $in: courses } });
 
         return classroom;
     },
@@ -76,23 +103,28 @@ export const classService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false });
+        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false }).populate({ path: 'template' });
         return classes.map((klas: IClass) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
-            _class.course_count = klas?.courses?.length;
+            if (klas.template) {
+                _class.course_count = _class.template.courses?.length;
+            } else {
+                _class.course_count = klas?.courses?.length;
+            }
             delete _class.learners;
             delete _class.courses;
+            delete _class.template;
             return _class;
         });
     },
 
 
-    async addCourses(ClassId: string, courseIds: [string]): Promise<void> {
-        const _class = await Class.findById(ClassId);
+    async addCourses(model: 'class' | 'template', modelId: string, courseIds: [string]): Promise<void> {
+        const classOrTemplate = await classOrTemplateModel[model].findById(modelId);
 
-        if (!_class) {
-            throw new handleError(400, 'Invalid class ID');
+        if (!classOrTemplate) {
+            throw new handleError(400, `Invalid ${model} ID`);
         }
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
@@ -100,9 +132,9 @@ export const classService = {
             return foundCourse ? String(foundCourse._id) : null;
         }));
         const validatedCourseIds = validatedCourses.filter((course) => course);
-        const courses = new Set([..._class.courses, ...validatedCourseIds]);
-        _class.courses = Array.from(courses);
-        await _class.save();
+        const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
+        classOrTemplate.courses = Array.from(courses);
+        await classOrTemplate.save();
     },
 
     async listCourses(classId: string): Promise<ICourseView[] | []> {

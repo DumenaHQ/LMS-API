@@ -103,3 +103,31 @@ export const deleteClass = async (req: Request, res: Response, next: NextFunctio
         next(err);
     }
 }
+
+export const createTemplate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const classTemplate = await classService.createTemplate(req.body);
+        sendResponse(res, 201, 'Class Template Created', { classTemplate });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const listClassTemplates = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const classTemplates = await classService.listTemplates({});
+        sendResponse(res, 200, 'Class Templates Fetched', { classTemplates });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const viewClassTemplate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: templateId } = req.params;
+        const classTemplate = await classService.viewTemplate({ _id: templateId });
+        sendResponse(res, 200, 'Class Template fetched', { classTemplate });
+    } catch (err) {
+        next(err);
+    }
+}
