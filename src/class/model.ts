@@ -44,8 +44,7 @@ const classSchema = new Schema({
         ref: 'ClassTemplate'
     },
     name: {
-        type: String,
-        unique: true
+        type: String
     },
     description: String,
     school_id: Schema.Types.ObjectId,

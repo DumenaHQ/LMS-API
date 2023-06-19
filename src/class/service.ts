@@ -19,6 +19,9 @@ const classOrTemplateModel = {
 
 export const classService = {
     async create(classData: IClass, files: File): Promise<IClass> {
+        const template = await ClassTemplate.findById(new mongoose.Types.ObjectId(classData.template));
+        if (!template) throw new handleError(400, 'Invalid template ID');
+
         const { thumbnail, header_photo }: any = files || {};
         if (thumbnail) {
             const thumbKey = `${UPLOADS.class_thumbs}/${classData.name.split(' ').join('-')}${path.extname(thumbnail.name)}`;
