@@ -17,7 +17,18 @@ export const addCourses = async (req: Request, res: Response, next: NextFunction
     try {
         const { id: classId } = req.params;
         const { courses: courseIds } = req.body;
-        await classService.addCourses(classId, courseIds);
+        await classService.addCourses('class', classId, courseIds);
+        sendResponse(res, 200, 'Course(s) added to class');
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const addTemplateCourses = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: templateId } = req.params;
+        const { courses: courseIds } = req.body;
+        await classService.addCourses('template', templateId, courseIds);
         sendResponse(res, 200, 'Course(s) added to class');
     } catch (err) {
         next(err)

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated, isSchoolOrAdmin } from "../middleware/verifyToken";
 
-import { addCourses, addLearners, createClass, createTemplate, deleteClass, listClassTemplates, listClasses, listCourses, updateClass, viewClass, viewClassTemplate } from './controller';
+import { addCourses, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, listClassTemplates, listClasses, listCourses, updateClass, viewClass, viewClassTemplate } from './controller';
 
 export const router = Router();
 
@@ -14,6 +14,8 @@ router.post('/templates', isAuthenticated, isAdmin, createTemplate);
 router.get('/templates', isAuthenticated, isSchoolOrAdmin, listClassTemplates);
 
 router.get('/templates/:id', isAuthenticated, isSchoolOrAdmin, viewClassTemplate);
+
+router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCourses);
 
 router.get('/:id', isAuthenticated, viewClass);
 
