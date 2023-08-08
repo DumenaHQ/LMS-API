@@ -88,26 +88,20 @@ export const classService = {
     },
 
     async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
-        let criteria: any = { _id: classId };
+        const defaultParam: any = { _id: classId };
 
-        switch (role) {
-            case USER_TYPES.admin:
-                criteria = { ...criteria };
-                break;
-            case USER_TYPES.school:
-                criteria = { ...criteria, school_id: id };
-                break;
-            case USER_TYPES.learner:
-            default:
-                criteria = {};
-        }
-        return this.view(criteria);
+        const criteria = {
+            [USER_TYPES.learner]: { ...defaultParam, "learners.user_id": id },
+            [USER_TYPES.school]: { ...defaultParam, school_id: id },
+            [USER_TYPES.admin]: defaultParam
+        };
+        return this.view(criteria[role]);
     },
 
 
     async list(criteria: object): Promise<any[] | []> {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false }).populate({ path: 'template' });
-        return classes.map((klas: IClass) => {
+        return classes.map((klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
             if (klas.template) {
@@ -182,15 +176,12 @@ export const classService = {
     },
 
     async listClassesForRoles(userId: string, role: string) {
-        switch (role) {
-            case USER_TYPES.learner:
-
-            case USER_TYPES.school:
-                return this.list({ school_id: userId });
-            case USER_TYPES.admin:
-                return this.list({});
-            default:
-        }
+        const criteria = {
+            [USER_TYPES.learner]: { "learners.user_id": userId },
+            [USER_TYPES.school]: { school_id: userId },
+            [USER_TYPES.admin]: {}
+        };
+        return this.list(criteria[role]);
     },
 
     async update(classId: string, data: object): Promise<void> {
