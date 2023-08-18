@@ -1,5 +1,5 @@
 import { ObjectId, Document } from 'mongoose';
-import { module, lesson } from './model';
+import { lesson } from './model';
 import Quiz from '../quiz/models';
 
 export interface ICourseCreate {
@@ -52,6 +52,7 @@ export interface IModule {
 export interface ILesson {
     id?: ObjectId;
     title: String;
+    note: String;
     duration?: Number;
     lesson_video: any;
 }

@@ -13,7 +13,7 @@ const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 
 export const courseService = {
     async list(criteria: object): Promise<ICourseView[]> {
-        const foundCourses = await Course.find(criteria);
+        const foundCourses = await Course.find(criteria).sort({ createdAt: 'desc' });
 
         const courses = foundCourses.map(rawCourse => {
             const course = rawCourse.toJSON();
@@ -142,10 +142,12 @@ export const courseService = {
         };
         const modules = courseModules.map((module: IModule) => {
             const lesson_count = module.lessons?.length ?? 0;
-            const lessonDuration = module.lessons?.reduce((totalDuration: number, lesson: ILesson) => totalDuration + (lesson.duration ?? 0), 0) as unknown as number;
+            const lessonDuration = module.lessons?.reduce((totalDuration: number, lesson) => {
+                return totalDuration + Number(lesson.duration || 0);
+            }, 0);
 
             courseModuleDetails.lesson_count += lesson_count;
-            courseModuleDetails.duration += lessonDuration;
+            courseModuleDetails.duration += lessonDuration || 0;
 
             return {
                 ...module,
@@ -153,7 +155,7 @@ export const courseService = {
                 class_activities: JSON.parse(module.class_activities as string || "{}"),
                 further_reading_links: JSON.parse(module.further_reading_links as string || "{}"),
                 lesson_count,
-                duration: formatTimestamp(lessonDuration),
+                duration: formatTimestamp(lessonDuration || 0),
             }
         });
 

@@ -6,6 +6,7 @@ export const lesson = {
         type: String,
         required: true
     },
+    note: String,
     duration: Number,
     lesson_video: String,
 }
@@ -17,6 +18,7 @@ export const module = {
         required: true
     },
     objectives: String,
+    further_reading: String,
     further_reading_links: String,
     duration: Number,
     class_activities: String,
