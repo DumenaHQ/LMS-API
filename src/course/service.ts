@@ -108,10 +108,11 @@ export const courseService = {
         if (!lesson.lesson_video) throw new handleError(400, 'No video file specified')
 
         // upload lesson video
-        const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
-        const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
-        lesson.lesson_video = video_url;
-        const duration = await getVideoDurationInSeconds(String(video_url));
+        // const key = `${UPLOADS.lesson_videos}/${courseId}-${lesson.title.split(' ').join('-')}${path.extname(lesson.lesson_video.name)}`;
+        // const video_url = await uploadFile(lmsBucket, lesson.lesson_video, key);
+        // lesson.lesson_video = video_url;
+        // const duration = await getVideoDurationInSeconds(String(video_url));
+        const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
         lesson.duration = Math.round(duration);
 
         await Course.updateOne(

@@ -34,8 +34,8 @@ export const createCourseModule = async (req: Request, res: Response, next: Next
 export const addLesson = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId, moduleId } = req.params;
-        const lesson_video = req.files && req.files.lesson_video || undefined;
-        const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body, lesson_video });
+        // const lesson_video = req.files && req.files.lesson_video || undefined;
+        const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body });
         sendResponse(res, 200, 'Lesson added');
     } catch (err) {
         next(err);
