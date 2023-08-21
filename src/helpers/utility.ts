@@ -25,7 +25,6 @@ export const getVideoDurationInSeconds = async (url: string): Promise<number> =>
         ffmpeg.ffprobe(url, function (err: any, metadata: { format: { duration: number; }; }) {
             if (err) return reject(err)
             return resolve(metadata.format.duration);
-
         });
 
     });

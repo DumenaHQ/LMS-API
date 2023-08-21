@@ -7,6 +7,7 @@ export const lesson = {
         required: true
     },
     note: String,
+    has_video: Boolean,
     duration: Number,
     lesson_video: String,
 }

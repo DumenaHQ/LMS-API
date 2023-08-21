@@ -53,6 +53,7 @@ export interface ILesson {
     id?: ObjectId;
     title: String;
     note: String;
+    has_video: Boolean;
     duration?: Number;
     lesson_video: any;
 }
