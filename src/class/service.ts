@@ -184,11 +184,11 @@ export const classService = {
         return this.list(criteria[role]);
     },
 
-    async update(classId: string, data: object): Promise<void> {
-        Class.updateOne({ _id: new mongoose.Types.ObjectId(classId) }, data);
+    async update(classId: string, data: object): Promise<any> {
+        return Class.findByIdAndUpdate(classId, data, { new: true });
     },
 
     async delete(classId: string): Promise<void> {
-        Class.updateOne({ _id: new mongoose.Types.ObjectId(classId) }, { deleted: true });
+        Class.findByIdAndUpdate(classId, { deleted: true }, { new: true });
     }
 }
