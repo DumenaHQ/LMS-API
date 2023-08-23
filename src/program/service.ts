@@ -61,8 +61,8 @@ export const programService = {
         });
 
         // fetch full learner details
-        program.learner_count = program.learners && program.learners.length;
         program.learners = await this.fetchLearnerDetails(program.learners || [], user);
+        program.learner_count = program.learners && program.learners.length || 0;
 
         // fetch course details
         program.courses = await courseService.list({ _id: { $in: program.courses } });
@@ -239,7 +239,7 @@ export const programService = {
                 break;
             default:
         }
-        return userService.list({ 'user._id': { $in: learnerIds } }, 'learner');
+        return userService.list({ 'user._id': { $in: learnerIds }, 'user.deleted': false }, 'learner');
     },
 
     hasSponsorJoinedProgram(program: IProgram, sponsorId: ObjectId | string): boolean {

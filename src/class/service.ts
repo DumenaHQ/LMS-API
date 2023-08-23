@@ -40,7 +40,7 @@ export const classService = {
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
-        const templates = await ClassTemplate.find({ deleted: false, status: EStatus.Active, ...criteria });
+        const templates = await ClassTemplate.find({ deleted: false, status: EStatus.Active, ...criteria }).sort({ createdAt: 'desc' });
         return templates.map((template: any) => {
             return { ...template.toJSON(), course_count: template.courses.length };
         });
@@ -74,10 +74,11 @@ export const classService = {
         classroom = classroom.toJSON();
 
         // fetch full learner details
-        classroom.learner_count = classroom.learners && classroom.learners.length;
         classroom.learners = await userService.list({
-            'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) }
+            'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
+            'user.deleted': false
         }, 'learner');
+        classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
         // fetch course details
         const courses = classroom.template ? classroom.template.courses : classroom.courses;
@@ -100,7 +101,8 @@ export const classService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false }).populate({ path: 'template' });
+        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
+            .populate({ path: 'template' }).sort({ createdAt: 'desc' });
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
