@@ -142,3 +142,13 @@ export const viewClassTemplate = async (req: Request, res: Response, next: NextF
         next(err);
     }
 }
+
+export const updateClassTemplate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: templateId } = req.params;
+        const template = await classService.updateTemplate(templateId, req.body);
+        sendResponse(res, 200, 'Class updated', { classTemplate: template });
+    } catch (err) {
+        next(err);
+    }
+}

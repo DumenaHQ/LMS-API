@@ -150,7 +150,8 @@ export const addSchoolStudents = async (req: Request, res: Response, next: NextF
 export const listSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: schoolId } = req.user;
-        const students = await userService.listSchoolStudents(schoolId);
+        const queryParams = req.query;
+        const students = await userService.listSchoolStudents(schoolId, queryParams);
         sendResponse(res, 200, 'Students Fetched', { students });
     } catch (err) {
         next(err);

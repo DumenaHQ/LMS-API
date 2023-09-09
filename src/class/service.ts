@@ -1,6 +1,6 @@
 import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
 import Course from '../course/model';
-import User, { Learner } from '../user/models';
+import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
@@ -188,6 +188,10 @@ export const classService = {
 
     async update(classId: string, data: object): Promise<any> {
         return Class.findByIdAndUpdate(classId, data, { new: true });
+    },
+
+    async updateTemplate(tempateId: string, data: object): Promise<any> {
+        return ClassTemplate.findByIdAndUpdate(tempateId, data, { new: true });
     },
 
     async delete(classId: string): Promise<void> {

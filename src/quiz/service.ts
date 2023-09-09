@@ -58,5 +58,9 @@ export const quizService = {
 
         quiz.questions?.push(...questions);
         await quiz.save();
+    },
+
+    async saveAnswers(quizId: string, learnerId: string, selectedOpts: []) {
+
     }
 }

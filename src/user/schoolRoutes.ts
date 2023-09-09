@@ -4,9 +4,9 @@ import { addSchoolStudents, downloadSchoolStudents, listSchoolStudents, removeCh
 
 export const router = Router();
 
-router.get('/:id/learners', isAuthenticated, isSchool, listSchoolStudents);
+router.get('/:id/learners', isAuthenticated, isSchoolOrAdmin, listSchoolStudents);
 
-router.post('/:id/learners', isAuthenticated, isSchool, addSchoolStudents);
+router.post('/:id/learners', isAuthenticated, isSchoolOrAdmin, addSchoolStudents);
 
 router.delete('/:id/learners/:learnerid', isAuthenticated, isSchool, removeChild);
 

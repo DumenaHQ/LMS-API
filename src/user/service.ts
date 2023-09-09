@@ -206,12 +206,19 @@ export const userService = {
         return users.map((user: object) => this.sanitizeLearner(user));
     },
 
-    async listSchoolStudents(schoolId: string): Promise<{}[]> {
+    async listSchoolStudents(schoolId: string, queryParams: object): Promise<{}[]> {
+        const validParams = ['grade'];
+        let validQueryParams: Record<string, any> = {};
+        for (const [key, value] of Object.entries(queryParams)) {
+            if (validParams.includes(key)) {
+                validQueryParams[key] = value;
+            }
+        }
         const criteria = {
             school: new mongoose.Types.ObjectId(schoolId),
-            'user.deleted': false
+            'user.deleted': false,
+            ...validQueryParams
         };
-
         return this.list(criteria, 'learner');
     },
 
