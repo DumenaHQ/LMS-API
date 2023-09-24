@@ -1,10 +1,10 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner } from './models';
+import User, { IUserView, IUserCreate, Parent, School, Learner, EUserStatus } from './models';
 import { sign } from "jsonwebtoken";
 import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { Buffer } from 'buffer';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
@@ -32,7 +32,7 @@ export const userService = {
         const match = await bcrypt.compare(password, foundUser.password);
         if (!match) throw new handleError(400, 'Email and password doesn\'t match');
 
-        if (foundUser.status == 'inactive') throw new handleError(422, 'User account is inactive.');
+        if (foundUser.status == EUserStatus.Inactive) throw new handleError(422, 'User account is inactive.');
 
         const payload: any = {
             id: foundUser.id,
@@ -42,24 +42,21 @@ export const userService = {
             isUserOnboarded: foundUser.isUserOnboarded
         };
 
-        if (foundUser.phone) {
-            payload.phone = foundUser.phone;
-        }
-
-        if (foundUser.role === 'learner') {
-            const learner = await Learner.findOne({ user: foundUser.id });
-            payload.username = foundUser.username;
-            payload.avatar = learner.avatar;
-            payload.content_access = learner.content_access;
-        }
-
+        if (foundUser.phone) payload.phone = foundUser.phone;
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
 
-        const token: string = sign(payload, process.env.JWT_SECRET as string, {
+        let user_type;
+        if (foundUser.role != USER_TYPES.admin) {
+            user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
+        }
+        const userType = user_type ? user_type.toJSON() : {};
+
+        const token: string = sign({ id: foundUser.id }, process.env.JWT_SECRET as string, {
             expiresIn: "24h",
         });
         return {
             ...payload,
+            ...userType,
             token
         };
     },
@@ -99,7 +96,7 @@ export const userService = {
         // for learners added by parents/schools
         if (user_type === USER_TYPES.learner && (parent || school)) {
             data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
-            data.status = 'active';
+            data.status = EUserStatus.Active;
         }
         const newUser = await User.create(data);
         return newUser.id;
@@ -112,17 +109,7 @@ export const userService = {
         const userTypeData = getValidModelFields(userModel[user_type], userData);
         userTypeData.user = user;
 
-        switch (user_type) {
-            case 'parent':
-                await Parent.create(userTypeData);
-                break;
-            case 'school':
-                await School.create(userTypeData);
-                break;
-            case 'learner':
-                await Learner.create(userTypeData);
-                break;
-        }
+        await userModel[user_type].create(userTypeData);
         return this.view({ _id: user });
     },
 
@@ -139,7 +126,7 @@ export const userService = {
         if (hash_string !== hash) {
             throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
         }
-        user.status = 'active';
+        user.status = EUserStatus.Active;
         await user.save();
         return this.view({ _id: user.id });
     },
@@ -166,13 +153,16 @@ export const userService = {
         return User.updateOne({ _id: user_id }, { password: passwordHash });
     },
 
-    async view(criteria: object): Promise<IUserView | null> {
-        const user = await User.findOne(criteria).select(USER_FIELDS);
-        if (!user) return null;
+    async view(criteria: object): Promise<IUserView> {
+        const user = await User.findOne({ ...criteria, deleted: false }).select({ password: 0 });
+        if (!user) throw new handleError(404, 'User not found');
 
-        let userType = { toJSON: () => { } };
-        userType = await userModel[user?.role].findOne({ user: new mongoose.Types.ObjectId(user?.id) }).select({ user: 0 });
-        return { ...user?.toJSON(), ...userType.toJSON(), id: user?.id };
+        let user_type;
+        if (user.role != USER_TYPES.admin) {
+            user_type = await userModel[user.role].findOne({ user: user._id }).select({ user: 0 });
+        }
+        const userType = user_type ? user_type.toJSON() : {};
+        return { ...user.toJSON(), ...userType };
     },
 
     async list(match = {}, user_type: string): Promise<IUserView[] | []> {
@@ -203,7 +193,7 @@ export const userService = {
                 }
             }
         ]);
-        return users.map((user: object) => this.sanitizeLearner(user));
+        return users.map((user: object) => this.sanitizeUser(user));
     },
 
     async listSchoolStudents(schoolId: string, queryParams: object): Promise<{}[]> {
@@ -288,15 +278,15 @@ export const userService = {
     },
 
 
-    sanitizeLearner(learner: object) {
-        const user = { ...learner.user };
-        delete learner.user;
-        if (learner._id) {
-            learner.id = learner._id;
-            delete learner._id;
+    sanitizeUser(rawUser: any) {
+        const user = { ...rawUser.user };
+        delete rawUser.user;
+        if (rawUser._id) {
+            rawUser.id = rawUser._id;
+            delete rawUser._id;
         }
         return {
-            ...learner,
+            ...rawUser,
             ...user
         };
     },

@@ -10,7 +10,8 @@ export interface IQuiz extends Document {
     quiz_level?: String,
     quiz_level_id?: ObjectId,
     settings: {},
-    questions?: []
+    questions?: [],
+    answers?: []
 }
 
 export interface IQuizQuestion {
@@ -27,9 +28,8 @@ export interface IQuizQuestions {
     [key: number]: IQuizQuestion;
 }
 
-export interface IQuizResult {
+export interface IQuizAnswes {
     learner: ObjectId;
     answers: [];
     school_id: ObjectId;
-    num_of_questions: Number;
 }

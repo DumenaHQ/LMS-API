@@ -21,7 +21,7 @@ export const courseService = {
 
             return {
                 ...course,
-                modules,
+                module_count: modules.length,
                 lesson_count,
                 duration: formatTimestamp(duration)
             };

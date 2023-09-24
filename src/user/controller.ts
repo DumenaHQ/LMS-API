@@ -111,6 +111,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
         const user = await userService.view({ _id: userId });
         sendResponse(res, 200, 'User fetched', { user });
     } catch (err) {
+        console.log(err)
         next(err);
     }
 }

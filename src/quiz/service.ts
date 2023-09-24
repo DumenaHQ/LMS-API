@@ -1,6 +1,6 @@
-import Quiz, { QuizLevelType } from './models';
+import Quiz, { QuizLevelType, quizAnswers } from './models';
 import Course from '../course/model';
-import { IQuiz, IQuizQuestion } from './interfaces';
+import { IQuiz, IQuizQuestion, IQuizAnswes } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 
@@ -37,7 +37,13 @@ export const quizService = {
     },
 
     async list(criteria: object): Promise<IQuiz[]> {
-        return Quiz.find().select('-questions -answers');
+        const quizes = await Quiz.find().select('-answers').sort({ createdAt: 'desc' });
+        return quizes.map(rawQuiz => {
+            const quiz = rawQuiz.toJSON();
+            const questions = quiz.questions;
+            delete quiz.questions;
+            return { ...quiz, question_count: questions.length }
+        });
     },
 
     async findOne(criteria: object): Promise<IQuiz | null> {
@@ -55,12 +61,22 @@ export const quizService = {
             }
         );
         if (!quiz) throw new handleError(400, 'Quiz not found');
-
-        quiz.questions?.push(...questions);
-        await quiz.save();
     },
 
-    async saveAnswers(quizId: string, learnerId: string, selectedOpts: []) {
-
+    async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: IQuizAnswes[]) {
+        const { school_id, userId: learner } = user;
+        const quiz = await Quiz.findOneAndUpdate(
+            { _id: new mongoose.Types.ObjectId(quizId) },
+            {
+                $push: {
+                    "answers": {
+                        learner,
+                        school_id,
+                        answers: selectedOpts
+                    }
+                }
+            }
+        );
+        if (!quiz) throw new handleError(400, 'Quiz not found');
     }
 }

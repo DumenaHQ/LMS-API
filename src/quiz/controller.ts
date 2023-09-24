@@ -55,8 +55,8 @@ export const addQuestions = async (req: Request, res: Response, next: NextFuncti
 export const submitQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
-        const { id: userId } = req.user;
-        await quizService.saveAnswers(quizId, userId, req.body);
+        const { id: userId, school: school_id } = req.user;
+        await quizService.saveAnswers(quizId, { userId, school_id }, req.body);
         sendResponse(res, 200, 'Quiz Submitted');
     } catch (err) {
         next(err);

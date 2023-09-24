@@ -23,10 +23,9 @@ const quizQuestion = {
     answer: String
 }
 
-const quizResult = {
+export const quizAnswers = {
     learner: Schema.Types.ObjectId,
     answers: [],
-    num_of_questions: Number,
     school_id: Schema.Types.ObjectId,
     date_created: {
         type: Date,
@@ -53,7 +52,7 @@ const quizSchema = new Schema({
     },
     settings: {},
     questions: [quizQuestion],
-    answers: [quizResult]
+    answers: [quizAnswers]
 }, { timestamps: true });
 
 export default mongoose.model('Quiz', quizSchema);

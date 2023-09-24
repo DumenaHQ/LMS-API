@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createQuiz, addQuestions, listQuizzes, viewQuiz, attachQuiz } from './controller';
+import { createQuiz, addQuestions, listQuizzes, viewQuiz, attachQuiz, submitQuiz } from './controller';
 import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
 
 export const router = Router();
@@ -13,3 +13,5 @@ router.get('/', isAuthenticated, isAdmin, listQuizzes);
 router.get('/:id', isAuthenticated, viewQuiz);
 
 router.put('/:id/attach', isAuthenticated, isAdmin, attachQuiz);
+
+router.patch('/:id/submit-answers', isAuthenticated, submitQuiz);

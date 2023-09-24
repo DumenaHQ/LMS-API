@@ -1,17 +1,18 @@
 import { verify } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { userService } from "../user/service";
 
-export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.sendStatus(401); // Unauthorized
 
-        verify(token, process.env.JWT_SECRET, (err: any, payload: any) => {
+        verify(token, process.env.JWT_SECRET, async (err: any, payload: any) => {
             if (err) {
                 err.statusCode = 401;
                 next(err);
             }
-            req.user = payload;
+            req.user = await userService.view({ _id: payload.id });
             next();
         });
     } catch (err) {

@@ -1,5 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
+export enum EUserStatus {
+    Active = 'active',
+    Inactive = 'inactive'
+}
+
 export interface IUserCreate {
     fullname: string;
     email: string;
@@ -90,7 +95,8 @@ const UserSchema: Schema = new Schema({
     role: String,
     status: {
         type: String,
-        default: 'inactive'
+        default: EUserStatus.Inactive,
+        enum: EUserStatus
     },
     deleted: {
         type: Boolean,
