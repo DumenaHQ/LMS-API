@@ -210,6 +210,10 @@ export const userService = {
             ...validQueryParams
         };
         return this.list(criteria, 'learner');
+        // const classes = learners.reduce((classes: [], learner: any) => {
+        //     return new Set([...classes, learner.grade]);
+        // }, []);
+        // console.log({ classes });
     },
 
 
