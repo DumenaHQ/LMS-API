@@ -175,8 +175,8 @@ export const courseService = {
             case 'admin':
             default:
         }
-        //return this.list({ ...queryCriteria, deleted: false });
-        return [];
+        return this.list({ ...queryCriteria, deleted: false });
+        //return [];
     },
 
 
