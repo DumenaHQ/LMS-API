@@ -140,7 +140,7 @@ export const addSchoolStudents = async (req: Request, res: Response, next: NextF
         const { id: schoolId } = req.user;
         const { learners } = req.body;
         const [resp] = await userService.addSchoolStudents(schoolId, learners);
-        if (resp.status) throw new Error(resp.message)
+        //if (resp.status) throw new Error(resp.message)
         sendResponse(res, 200, 'Students Added');
     } catch (err) {
         next(err);
