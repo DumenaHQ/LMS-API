@@ -1,8 +1,9 @@
 import Quiz, { QuizLevelType, quizAnswers } from './models';
 import Course from '../course/model';
-import { IQuiz, IQuizQuestion, IQuizAnswes } from './interfaces';
+import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
+import { userService } from '../user/service';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
@@ -63,7 +64,7 @@ export const quizService = {
         if (!quiz) throw new handleError(400, 'Quiz not found');
     },
 
-    async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: IQuizAnswes[]) {
+    async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
@@ -78,5 +79,53 @@ export const quizService = {
             }
         );
         if (!quiz) throw new handleError(400, 'Quiz not found');
+    },
+
+    async markQuiz(quizId: string) {
+
+    },
+
+    async computeLearnerResult(quizId: string, learnerId: string) {
+        const quiz = await this.view({ _id: quizId });
+        const learnerAnswers = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == learnerId);
+        if (!learnerAnswers) throw new handleError(400, 'This Learner hasn\'t taken the quiz yet');
+
+        const { answers }: any = learnerAnswers;
+        const score = quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
+            const questAns = answers.find((answer: any) => answer.question_id == question.id);
+            if (questAns && questAns.selected_ans == question.answer) {
+                return ++score;
+            }
+            return score;
+        }, 0);
+    },
+
+    async computeQuizResult(questions: IQuizQuestion[], learnerAns: []) {
+        return questions.reduce((score: number, question: IQuizQuestion) => {
+            const questAns: any = learnerAns.find((answer: any) => answer.question_id == question.id);
+            if (questAns && questAns.selected_ans == question.answer) {
+                return ++score;
+            }
+            return score;
+        }, 0);
+    },
+
+    async listLearnersResult(quizId: string, learnerIds: []) {
+        const [quiz, learners] = await Promise.all([
+            this.findOne({ _id: quizId }),
+            userService.list({
+                'user._id': { $in: learnerIds },
+                'user.deleted': false
+            }, 'learner')
+        ]);
+        if (!quiz) throw new handleError(404, 'Quiz not found');
+
+        learners.map((learner) => {
+            const learnerAns: any = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == String(learner.id));
+            if (!learnerAns) {
+                return { ...learner, score: 'NIL' };
+            }
+            return { ...learner, score: this.computeQuizResult(quiz.questions!, learnerAns.answers) };
+        });
     }
 }

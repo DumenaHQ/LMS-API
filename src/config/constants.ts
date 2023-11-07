@@ -25,4 +25,4 @@ export const
     TEMPLATE_FILE_PATH = 'downloads/templates',
     AWS_S3_REGION = 'us-east-1',
     LMS_BUCKET_NAME = 'lms.raw-files',
-    DEV_LMS_BUCKET_NAME = 'lms.videos'
+    DEV_LMS_BUCKET_NAME = 'lms-vids'

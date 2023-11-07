@@ -152,3 +152,13 @@ export const updateClassTemplate = async (req: Request, res: Response, next: Nex
         next(err);
     }
 }
+
+export const getClassQuizResults = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: classId, quizId } = req.params;
+        const quizResult = await classService.getClassQuizResults(classId, quizId);
+        sendResponse(res, 200, 'Quiz Result fetched', { quizResult });
+    } catch (err) {
+        next(err);
+    }
+}

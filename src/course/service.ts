@@ -8,6 +8,7 @@ import path from 'path';
 import mongoose from 'mongoose';
 import { formatTimestamp, getVideoDurationInSeconds } from '../helpers/utility';
 import { Learner } from '../user/models';
+import { quizService } from '../quiz/service';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 
@@ -31,18 +32,22 @@ export const courseService = {
     },
 
 
-    async view(criteria: object) {
+    async view(criteria: object, quiz: boolean = false) {
         const rawCourse = await this.findOne(criteria);
         if (!rawCourse) throw new handleError(404, 'Course not found');
 
         const course = rawCourse.toJSON();
         const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules!);
 
+        // check for quiz
+        const quizzes = quiz ? await this.fetchCourseQuizzes(course.id) : null;
+
         return {
             ...course,
             modules,
             lesson_count,
-            duration: formatTimestamp(duration)
+            duration: formatTimestamp(duration),
+            quizzes
         };
     },
 
@@ -162,6 +167,10 @@ export const courseService = {
         });
 
         return { modules, courseModuleDetails };
+    },
+
+    async fetchCourseQuizzes(courseId: string) {
+        return quizService.list({ course_id: courseId });
     },
 
 

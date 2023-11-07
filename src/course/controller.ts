@@ -55,7 +55,8 @@ export const listCourses = async (req: Request, res: Response, next: NextFunctio
 export const viewCourse = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: courseId } = req.params;
-        const course = await courseService.view({ _id: courseId });
+        const { with_quiz: withQuiz } = req.query;
+        const course = await courseService.view({ _id: courseId }, withQuiz == '1' ? true : false);
         sendResponse(res, 200, 'Course fetched', { course });
     } catch (err) {
         next(err);

@@ -14,6 +14,7 @@ enum EQuizLevel {
 export type QuizLevelType = Record<EQuizLevel, string>;
 
 const quizQuestion = {
+    // id: Schema.Types.ObjectId,
     question: String,
     optA: String,
     optB: String,

@@ -15,6 +15,7 @@ export interface IQuiz extends Document {
 }
 
 export interface IQuizQuestion {
+    id: ObjectId;
     question: String;
     optA: String;
     optB: String;
@@ -28,7 +29,7 @@ export interface IQuizQuestions {
     [key: number]: IQuizQuestion;
 }
 
-export interface IQuizAnswes {
+export interface IQuizAnswer {
     learner: ObjectId;
     answers: [];
     school_id: ObjectId;

@@ -11,6 +11,7 @@ import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
+import { quizService } from '../quiz/service';
 
 const classOrTemplateModel = {
     'class': Class,
@@ -56,8 +57,11 @@ export const classService = {
     },
 
 
-    async findOne(criteria: object) {
-        return Class.findOne({ deleted: false, status: EStatus.Active, ...criteria }).populate({ path: 'template' });
+    async findOne(criteria: object, includeTemplate: boolean = true) {
+        const params = { deleted: false, status: EStatus.Active, ...criteria };
+        return includeTemplate
+            ? Class.findOne(params).populate({ path: 'template' })
+            : Class.findOne(params);
     },
 
 
@@ -150,7 +154,7 @@ export const classService = {
 
 
     async addLearners(classId: string, learners: IAddLearner[]): Promise<void> {
-        const _class = await this.findOne({ _id: classId });
+        const _class = await this.findOne({ _id: classId }, false);
         if (!_class) {
             throw new handleError(400, 'Invalid class ID');
         }
@@ -196,5 +200,14 @@ export const classService = {
 
     async delete(classId: string): Promise<void> {
         Class.findByIdAndUpdate(classId, { deleted: true }, { new: true });
+    },
+
+    async getClassQuizResults(classId: string, quizId: string) {
+        const klass = await this.findOne({ _id: classId }, false);
+        if (!klass) {
+            throw new handleError(400, 'Class not found');
+        }
+        const classLearnerIds = klass.learners.map((learner: IAddLearner) => String(learner.user_id));
+        return quizService.listLearnersResult(quizId, classLearnerIds);
     }
 }
