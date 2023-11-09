@@ -207,7 +207,7 @@ export const classService = {
         if (!klass) {
             throw new handleError(400, 'Class not found');
         }
-        const classLearnerIds = klass.learners.map((learner: IAddLearner) => String(learner.user_id));
+        const classLearnerIds = klass.learners.map((learner: IAddLearner) => learner.user_id);
         return quizService.listLearnersResult(quizId, classLearnerIds);
     }
 }

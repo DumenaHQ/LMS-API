@@ -159,10 +159,10 @@ export const userService = {
 
         let user_type;
         if (user.role != USER_TYPES.admin) {
-            user_type = await userModel[user.role].findOne({ user: user._id }).select({ user: 0 });
+            user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
         }
         const userType = user_type ? user_type.toJSON() : {};
-        return { ...user.toJSON(), ...userType };
+        return { ...userType, ...user.toJSON() };
     },
 
     async list(match = {}, user_type: string): Promise<IUserView[] | []> {
@@ -182,14 +182,20 @@ export const userService = {
                 $match: match
             },
             {
+                $set: {
+                    id: '$user._id',
+                }
+            },
+            {
                 $project: {
                     __v: 0,
+                    _id: 0,
                     'user._id': 0,
                     'user.__v': 0,
                     'user.role': 0,
                     'user.deleted': 0,
                     'user.password': 0,
-                    'user.status': 0
+                    'user.status': 0,
                 }
             }
         ]);

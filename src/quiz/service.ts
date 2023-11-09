@@ -100,10 +100,10 @@ export const quizService = {
         }, 0);
     },
 
-    async computeQuizResult(questions: IQuizQuestion[], learnerAns: []) {
+    computeQuizResult(questions: IQuizQuestion[], learnerAns: []) {
         return questions.reduce((score: number, question: IQuizQuestion) => {
-            const questAns: any = learnerAns.find((answer: any) => answer.question_id == question.id);
-            if (questAns && questAns.selected_ans == question.answer) {
+            const questAns: any = learnerAns.find((answer: any) => String(answer.question_id) == String(question._id));
+            if (questAns && String(questAns.selected_ans) == String(question.answer)) {
                 return ++score;
             }
             return score;
@@ -114,13 +114,13 @@ export const quizService = {
         const [quiz, learners] = await Promise.all([
             this.findOne({ _id: quizId }),
             userService.list({
-                'user._id': { $in: learnerIds },
+                'user._id': { $in: learnerIds.map((learnerUserId: string) => new mongoose.Types.ObjectId(learnerUserId)) },
                 'user.deleted': false
             }, 'learner')
         ]);
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
-        learners.map((learner) => {
+        return learners.map((learner) => {
             const learnerAns: any = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == String(learner.id));
             if (!learnerAns) {
                 return { ...learner, score: 'NIL' };
