@@ -20,8 +20,10 @@ const classOrTemplateModel = {
 
 export const classService = {
     async create(classData: IClass, files: File): Promise<IClass> {
-        const template = await ClassTemplate.findById(new mongoose.Types.ObjectId(classData.template));
-        if (!template) throw new handleError(400, 'Invalid template ID');
+        if (classData.template) {
+            const template = await ClassTemplate.findById(new mongoose.Types.ObjectId(classData.template));
+            if (!template) throw new handleError(400, 'Invalid template ID');
+        }
 
         const { thumbnail, header_photo }: any = files || {};
         if (thumbnail) {
@@ -185,6 +187,7 @@ export const classService = {
         const criteria = {
             [USER_TYPES.learner]: { "learners.user_id": userId },
             [USER_TYPES.school]: { school_id: userId },
+            [USER_TYPES.parent]: { parent_id: userId },
             [USER_TYPES.admin]: {}
         };
         return this.list(criteria[role]);

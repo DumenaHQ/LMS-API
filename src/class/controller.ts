@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { classService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
+import { USER_TYPES } from "../config/constants";
 
 
 export const createClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: school_id } = req.user;
-        const _class = await classService.create({ ...req.body, school_id }, req.files);
+        const { id, role } = req.user;
+        if (role == USER_TYPES.school) req.body.school_id = id;
+        else if (role == USER_TYPES.parent) req.body.parent_id = id;
+        const _class = await classService.create({ ...req.body }, req.files);
         sendResponse(res, 201, 'Class created', { class: _class });
     } catch (err) {
         next(err);
