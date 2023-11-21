@@ -3,6 +3,7 @@ import { userService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
 import { handleError } from "../helpers/handleError";
 import { emailService } from "../helpers/email";
+import mongoose from 'mongoose';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {

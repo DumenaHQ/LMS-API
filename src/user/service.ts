@@ -25,6 +25,7 @@ const userModel = {
 export const userService = {
     async authenticate(emailOrUsername: string, password: string): Promise<object> {
         const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
+
         if (!foundUser) throw new handleError(404, 'Email or password is incorrect');
 
         if (foundUser.deleted) throw new handleError(404, 'This user has been deleted');
@@ -50,7 +51,7 @@ export const userService = {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
         }
         const userType = user_type ? user_type.toJSON() : {};
-
+        delete userType.id;
         const token: string = sign({ id: foundUser.id }, process.env.JWT_SECRET as string, {
             expiresIn: "24h",
         });
@@ -162,6 +163,7 @@ export const userService = {
             user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
         }
         const userType = user_type ? user_type.toJSON() : {};
+        delete userType.id;
         return { ...userType, ...user.toJSON() };
     },
 

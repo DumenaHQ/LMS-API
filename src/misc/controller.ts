@@ -31,11 +31,11 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
                 permissions: []
             },
             {
-                role: 'parent',
+                role: 'instructor',
                 permissions: []
             },
             {
-                role: 'instructor',
+                role: 'admin',
                 permissions: []
             }
         ];
