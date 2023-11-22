@@ -5,7 +5,7 @@ import { addCourses, addLearners, addTemplateCourses, createClass, createTemplat
 
 export const router = Router();
 
-router.post('/', isAuthenticated, isSchoolOrAdmin, createClass);
+router.post('/', isAuthenticated, createClass);
 
 router.get('/', isAuthenticated, listClasses);
 
