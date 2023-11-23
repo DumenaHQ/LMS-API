@@ -11,9 +11,9 @@ router.get('/', isAuthenticated, listClasses);
 
 router.post('/templates', isAuthenticated, isAdmin, createTemplate);
 
-router.get('/templates', isAuthenticated, isSchoolOrAdmin, listClassTemplates);
+router.get('/templates', isAuthenticated, listClassTemplates);
 
-router.get('/templates/:id', isAuthenticated, isSchoolOrAdmin, viewClassTemplate);
+router.get('/templates/:id', isAuthenticated, viewClassTemplate);
 
 router.put('/templates/:id', isAuthenticated, isAdmin, updateClassTemplate);
 
@@ -21,15 +21,15 @@ router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCour
 
 router.get('/:id', isAuthenticated, viewClass);
 
-router.put('/:id', isAuthenticated, isSchoolOrAdmin, updateClass);
+router.put('/:id', isAuthenticated, updateClass);
 
 router.patch('/:id/courses', isAuthenticated, isSchoolOrAdmin, addCourses);
 
 router.get('/:id/courses', isAuthenticated, listCourses);
 
-router.patch('/:id/learners', isAuthenticated, isSchoolOrAdmin, addLearners);
+router.patch('/:id/learners', isAuthenticated, addLearners);
 
-router.delete('/:id', isAuthenticated, isSchoolOrAdmin, deleteClass);
+router.delete('/:id', isAuthenticated, deleteClass);
 
 router.get('/:id/quizes/:quizId/result', isAuthenticated, getClassQuizResults);
 
