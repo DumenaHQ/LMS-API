@@ -222,9 +222,7 @@ export const classService = {
         const klass = await this.findOne({ _id: classId });
         const orderItems = learners.map((learnerId: any) => {
             return { slug: 'class-sub', user_id: learnerId, order_type: 'sub' };
-            //return { user_id: learnerId, order_type_id: classSub.id, order_type: 'class', title: classSub.title, amount: classSub.amount };
         });
-        console.log({ orderItems });
         return orderService.create({ items: orderItems, userId });
     }
 }
