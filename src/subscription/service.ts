@@ -5,6 +5,14 @@ import { Learner } from '../user/models';
 import Subscription from './model'
 
 export const subscriptionService = {
+    async create(data: object) {
+        return Subscription.create(data);
+    },
+
+    async findOne(criteria: object) {
+        return Subscription.findOne(criteria);
+    },
+
     async list() {
         return Subscription.find();
     },

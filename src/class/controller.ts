@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { classService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
 import { USER_TYPES } from "../config/constants";
+import { subscriptionService } from '../subscription/service';
 
 
 export const createClass = async (req: Request, res: Response, next: NextFunction) => {
@@ -161,6 +162,18 @@ export const getClassQuizResults = async (req: Request, res: Response, next: Nex
         const { id: classId, quizId } = req.params;
         const quizResult = await classService.getClassQuizResults(classId, quizId);
         sendResponse(res, 200, 'Quiz Result fetched', { quizResult });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: classId } = req.params;
+        const { id: userId } = req.user;
+        const { learners } = req.body;
+        const order = await classService.subscribe(classId, userId, learners);
+        sendResponse(res, 200, 'Class sub', { order });
     } catch (err) {
         next(err);
     }

@@ -10,3 +10,12 @@ export const listSubcriptions = async (req: Request, res: Response, next: NextFu
         next(err);
     }
 }
+
+export const create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const subscription = await subscriptionService.create(req.body);
+        sendResponse(res, 201, 'Subscription Created', { subscription });
+    } catch (err) {
+        next(err);
+    }
+}

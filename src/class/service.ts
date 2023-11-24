@@ -12,6 +12,8 @@ import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 import { quizService } from '../quiz/service';
+import { subscriptionService } from '../subscription/service';
+import { orderService } from '../order/service';
 
 const classOrTemplateModel = {
     'class': Class,
@@ -110,6 +112,7 @@ export const classService = {
     async list(criteria: object): Promise<any[] | []> {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
             .populate({ path: 'template' }).sort({ createdAt: 'desc' });
+
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
@@ -213,5 +216,15 @@ export const classService = {
         }
         const classLearnerIds = klass.learners.map((learner: IAddLearner) => learner.user_id);
         return quizService.listLearnersResult(quizId, classLearnerIds);
+    },
+
+    async subscribe(classId: string, userId: string, learners: []) {
+        const klass = await this.findOne({ _id: classId });
+        const orderItems = learners.map((learnerId: any) => {
+            return { slug: 'class-sub', user_id: learnerId, order_type: 'sub' };
+            //return { user_id: learnerId, order_type_id: classSub.id, order_type: 'class', title: classSub.title, amount: classSub.amount };
+        });
+        console.log({ orderItems });
+        return orderService.create({ items: orderItems, userId });
     }
 }

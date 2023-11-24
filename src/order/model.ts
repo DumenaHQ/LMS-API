@@ -17,7 +17,7 @@ export interface IOrder {
     status?: String;
     items: [
         {
-            title: String;
+            title?: String;
             order_type: String;
             order_type_id?: Schema.Types.ObjectId;
             ordered_item?: String;
