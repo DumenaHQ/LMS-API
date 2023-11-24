@@ -18,7 +18,7 @@ export const orderService = {
                 user_id: item.user_id
             };
         }));
-        console.log({ orderItems })
+
         return Order.create({
             ...orderData,
             total_amount,
