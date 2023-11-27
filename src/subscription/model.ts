@@ -12,6 +12,7 @@ const subscriptionSchema = new Schema({
         type: String,
         unique: true
     },
+    item_id: Schema.Types.ObjectId,
     months: {
         type: Number
     }

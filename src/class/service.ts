@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_ITEMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -220,9 +220,10 @@ export const classService = {
 
     async subscribe(classId: string, userId: string, learners: []) {
         const klass = await this.findOne({ _id: classId });
+        const meta_data = { classId };
         const orderItems = learners.map((learnerId: any) => {
-            return { slug: 'class-sub', user_id: learnerId, order_type: 'sub' };
+            return { order_type_id: klass.template, user_id: learnerId, order_type: 'sub', meta_data };
         });
-        return orderService.create({ items: orderItems, userId });
+        return orderService.create({ items: orderItems, userId, item_type: ORDER_ITEMS.class });
     }
 }
