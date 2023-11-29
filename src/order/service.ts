@@ -10,12 +10,11 @@ export const orderService = {
             const orderDetails = await Subscription.findOne({ $or: [{ item_id: item.order_type_id }, { slug: item.slug }] });
             total_amount += orderDetails.amount;
             return {
+                ...item,
                 title: orderDetails.title,
                 amount: orderDetails.amount,
                 order_type_id: orderDetails.item_id,
-                order_type: item.order_type,
-                slug: orderDetails.slug,
-                user_id: item.user_id
+                slug: orderDetails.slug
             };
         }));
 
