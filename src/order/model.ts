@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { ORDER_TYPES } from '../config/constants';
 
-enum EOrderStatus {
+export enum EOrderStatus {
     Pending = 'pending',
     Confirmed = 'confirmed',
     InProgress = 'in progess',

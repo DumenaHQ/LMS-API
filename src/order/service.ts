@@ -34,7 +34,7 @@ export const orderService = {
         return Order.find(criteria);
     },
 
-    async update() {
+    async update(orderId: string, orderStatus: object) {
 
     }
 }
