@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { ORDER_TYPES } from '../config/constants';
 
 export enum EOrderStatus {
+    Active = 'active',
     Pending = 'pending',
     Confirmed = 'confirmed',
     InProgress = 'in progess',
@@ -69,7 +70,7 @@ const orderSchema = new Schema({
     status: {
         type: String,
         enum: EOrderStatus,
-        default: EOrderStatus.Pending
+        default: EOrderStatus.Active
     }
 }, { timestamps: true });
 

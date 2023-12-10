@@ -37,3 +37,7 @@ export const formatTimestamp = (time: number): String => {
     const time_diff_secs = Math.floor(time % 60);
     return `${time_diff_hrs}:${time_diff_mins}:${time_diff_secs}`;
 }
+
+export const capitalizeFirstLetter = (word: string): String => {
+    return word[0].toUpperCase() + word.slice(1);
+}   

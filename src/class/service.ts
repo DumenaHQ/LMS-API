@@ -12,7 +12,6 @@ import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 import { quizService } from '../quiz/service';
-import { subscriptionService } from '../subscription/service';
 import { orderService } from '../order/service';
 
 const classOrTemplateModel = {
@@ -225,6 +224,6 @@ export const classService = {
             const { user_id, name } = learner;
             return { order_type_id: klass.template, user_id, name, order_type: 'sub', meta_data };
         });
-        return orderService.create({ items: orderItems, userId, item_type: ORDER_ITEMS.class });
+        return orderService.create({ items: orderItems, user: userId, item_type: ORDER_ITEMS.class });
     }
 }

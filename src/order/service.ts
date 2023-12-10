@@ -1,4 +1,4 @@
-import Order, { IOrder } from './model';
+import Order, { IOrder, EOrderStatus } from './model';
 import Subscription from '../subscription/model';
 import { generateId } from '../helpers/utility';
 
@@ -17,6 +17,8 @@ export const orderService = {
                 slug: orderDetails.slug
             };
         }));
+
+        Order.findOneAndUpdate({ user: orderData.user, status: EOrderStatus.Active }, { status: EOrderStatus.Pending });
 
         return Order.create({
             ...orderData,
