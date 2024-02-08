@@ -35,7 +35,7 @@ export const quizAnswers = {
 }
 
 const quizSchema = new Schema({
-    course_id: Schema.Types.ObjectId,
+    // course_id: Schema.Types.ObjectId,
     title: String,
     tags: [],
     difficulty_level: String,
@@ -45,7 +45,7 @@ const quizSchema = new Schema({
         default: EQuizLevel.Module,
         enum: EQuizLevel
     },
-    quiz_level_id: Schema.Types.ObjectId,
+    // quiz_level_id: Schema.Types.ObjectId,
     quiz_type: {
         type: String,
         default: EQuiztype.Multichoice,

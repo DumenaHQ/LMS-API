@@ -31,7 +31,7 @@ export interface ICourseView extends Document {
     lesson_count: Number;
     duration?: String;
     modules?: IModule[];
-    quizzes: [typeof Quiz];
+    quiz?: typeof Quiz;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -45,8 +45,10 @@ export interface IModule {
     duration: Number;
     class_activities: String;
     code_example: String;
-    instructor: ObjectId
-    lessons?: [typeof lesson]
+    instructor: ObjectId;
+    lessons?: [typeof lesson];
+    quiz_id?: ObjectId;
+    quiz?: typeof Quiz;
 }
 
 export interface ILesson {
@@ -56,4 +58,6 @@ export interface ILesson {
     has_video: Boolean;
     duration?: Number;
     lesson_video: any;
+    quiz_id?: ObjectId;
+    quiz?: typeof Quiz;
 }

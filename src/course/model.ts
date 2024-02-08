@@ -10,6 +10,7 @@ export const lesson = {
     has_video: Boolean,
     duration: Number,
     lesson_video: String,
+    quiz_link: Schema.Types.ObjectId
 }
 
 
@@ -27,6 +28,7 @@ export const module = {
     // author: { type: Schema.Types.ObjectId, ref: 'Instructor '},
     instructor: { type: Schema.Types.ObjectId, ref: 'Instructor' },
     lessons: [lesson],
+    quiz_id: Schema.Types.ObjectId,
     quiz_link: String,
     date_added: {
         type: Date,
@@ -50,6 +52,7 @@ const courseSchema = new Schema({
     thumb_url: String,
     access_scopes: [],
     modules: [module],
+    quiz_id: Schema.Types.ObjectId,
     deleted: {
         type: Boolean,
         default: false

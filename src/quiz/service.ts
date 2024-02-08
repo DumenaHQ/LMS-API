@@ -4,6 +4,7 @@ import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 import { userService } from '../user/service';
+import { IModule } from '../course/interfaces';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
@@ -21,12 +22,21 @@ export const quizService = {
         if (!quiz) throw new handleError(400, 'Quiz not found');
         if (!course) throw new handleError(400, 'Course not found');
 
-        const quizUpdateData: any = { course_id: courseId };
-        if (quiz_level) {
-            quizUpdateData.quiz_level = quiz_level;
-            quizUpdateData.quiz_level_id = quiz_level_id;
-        }
-        await Quiz.updateOne({ _id: new mongoose.Types.ObjectId(quizId) }, quizUpdateData);
+        const filter = {
+            course: { _id: courseId },
+            module: { _id: courseId, "modules._id": quiz_level_id },
+            lesson: { _id: courseId }
+        };
+        const updateData = {
+            course: { quiz_id: quiz_level_id },
+            module: { "modules.$.quiz_id": quizId },
+            lesson: {}
+        };
+
+        await Course.findOneAndUpdate(
+            filter[quiz_level],
+            { $set: updateData[quiz_level] }
+        );
     },
 
 
@@ -48,7 +58,7 @@ export const quizService = {
     },
 
     async findOne(criteria: object): Promise<IQuiz | null> {
-        return Quiz.findOne(criteria);
+        return Quiz.findOne(criteria).select('-answers');
     },
 
 

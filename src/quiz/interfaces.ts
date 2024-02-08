@@ -22,7 +22,6 @@ export interface IQuizQuestion {
     optC?: String;
     optD?: String;
     optE?: String;
-    answer: String;
 }
 
 export interface IQuizQuestions {

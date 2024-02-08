@@ -32,7 +32,7 @@ export const courseService = {
     },
 
 
-    async view(criteria: object, quiz: boolean = false) {
+    async view(criteria: object, fetch_quiz: boolean = false) {
         const rawCourse = await this.findOne(criteria);
         if (!rawCourse) throw new handleError(404, 'Course not found');
 
@@ -40,14 +40,14 @@ export const courseService = {
         const { modules, courseModuleDetails: { lesson_count, duration } } = this.getDetailsForCourseModules(course.modules!);
 
         // check for quiz
-        const quizzes = quiz ? await this.fetchCourseQuizzes(course.id) : null;
+        const quiz = (fetch_quiz && course.quiz_id) ? await quizService.findOne({ _id: course.quiz_id }) : null;
 
         return {
             ...course,
             modules,
             lesson_count,
             duration: formatTimestamp(duration),
-            quizzes
+            quiz
         };
     },
 
@@ -167,10 +167,6 @@ export const courseService = {
         });
 
         return { modules, courseModuleDetails };
-    },
-
-    async fetchCourseQuizzes(courseId: string) {
-        return quizService.list({ course_id: courseId });
     },
 
 
