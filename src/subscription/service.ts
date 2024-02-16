@@ -56,10 +56,11 @@ export const subscriptionService = {
 
     async addLearnersToClass(order: IOrder) {
         const items = order.items;
+        let learnerIds: any = [];
         items.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
-            const learnerId = [user_id];
-            await classService.addLearners(classId, learnerId);
+            learnerIds.push({ user_id });
+            await classService.addLearners(classId, learnerIds);
         });
     }
 }

@@ -28,7 +28,7 @@ export const quizService = {
             lesson: { _id: courseId }
         };
         const updateData = {
-            course: { quiz_id: quiz_level_id },
+            course: { quiz_id: quizId },
             module: { "modules.$.quiz_id": quizId },
             lesson: {}
         };
