@@ -7,7 +7,7 @@ export const orderService = {
         // get order item details
         let total_amount = 0;
         const orderItems = await Promise.all(items.map(async item => {
-            const orderDetails = await Subscription.findOne({ $or: [{ item_id: item.order_type_id }, { slug: item.slug }] });
+            const orderDetails = await Subscription.findOne({ item_id: item.order_type_id });
             total_amount += orderDetails.amount;
             return {
                 ...item,
