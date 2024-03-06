@@ -16,6 +16,7 @@ export interface IUserCreate {
     phone?: string,
     resident_state?: string;
     address?: string;
+    school_id?: string;
 };
 
 export interface IUserModel {
@@ -177,7 +178,7 @@ const InstructorSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    school: {
+    school_id: {
         type: Schema.Types.ObjectId,
         ref: 'school',
     },

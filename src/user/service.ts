@@ -1,4 +1,4 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner, EUserStatus } from './models';
+import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, IUserModel } from './models';
 import { sign } from "jsonwebtoken";
 import { handleError } from "../helpers/handleError";
 import * as bcrypt from "bcrypt";
@@ -18,7 +18,8 @@ const userModel = {
     [USER_TYPES.learner]: Learner,
     [USER_TYPES.parent]: Parent,
     [USER_TYPES.school]: School,
-    [USER_TYPES.user]: User
+    [USER_TYPES.user]: User,
+    [USER_TYPES.instructor]: Instructor
 };
 
 
@@ -51,6 +52,7 @@ export const userService = {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
         }
         const userType = user_type ? user_type.toJSON() : {};
+        userType[`${foundUser.role}_id`] = userType.id;
         delete userType.id;
         const token: string = sign({ id: foundUser.id }, process.env.JWT_SECRET as string, {
             expiresIn: "24h",
@@ -68,8 +70,10 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate): Promise<IUserView | { status: string, message: string, data: {} }> {
+    async create(userData: IUserCreate, user: { school_id: string; role: string; } | undefined): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type } = userData;
+
+        if (user && user.role == 'school') userData.school_id = user.school_id;
 
         try {
             await this.preventDuplicates(userData);
@@ -106,7 +110,6 @@ export const userService = {
 
     async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView> {
         const { user_type } = userData;
-
         const userTypeData = getValidModelFields(userModel[user_type], userData);
         userTypeData.user = user;
 
@@ -163,6 +166,7 @@ export const userService = {
             user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
         }
         const userType = user_type ? user_type.toJSON() : {};
+        userType[`${user.role}_id`] = userType.id;
         delete userType.id;
         return { ...userType, ...user.toJSON() };
     },
