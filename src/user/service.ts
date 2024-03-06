@@ -8,8 +8,6 @@ import mongoose, { Model, ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
-import { programService } from '../program/service';
-import { IAddSponsorPayload } from '../program/model';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
