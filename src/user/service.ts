@@ -206,7 +206,7 @@ export const userService = {
         return users.map((user: object) => this.sanitizeUser(user));
     },
 
-    async listSchoolStudents(schoolId: string, queryParams: object): Promise<{}[]> {
+    async listSchoolStudents(schoolId: string, queryParams: object) {
         const validParams = ['grade'];
         let validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
@@ -219,11 +219,12 @@ export const userService = {
             'user.deleted': false,
             ...validQueryParams
         };
-        return this.list(criteria, 'learner');
-        // const classes = learners.reduce((classes: [], learner: any) => {
-        //     return new Set([...classes, learner.grade]);
-        // }, []);
-        // console.log({ classes });
+        const learners = await this.list(criteria, 'learner');
+        const grades: any = [];
+        learners.forEach((learner: any) => {
+            learner.grade && grades.push(learner.grade);
+        });
+        return { learners, grades: new Set(grades) };
     },
 
 
