@@ -17,6 +17,7 @@ export interface IClass extends Document {
     description: String;
     school_id: Schema.Types.ObjectId;
     parent_id: Schema.Types.ObjectId;
+    teacher_id?: Schema.Types.ObjectId,
     thumbnail?: String;
     header_photo?: String;
     learners: IAddLearner[];
@@ -50,6 +51,7 @@ const classSchema = new Schema({
     description: String,
     school_id: Schema.Types.ObjectId,
     parent_id: Schema.Types.ObjectId,
+    teacher_id: Schema.Types.ObjectId,
     thumbnail: String,
     header_photo: String,
     learners: [learner],

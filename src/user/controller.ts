@@ -3,13 +3,13 @@ import { userService } from './service';
 import { send as sendResponse } from "../helpers/httpResponse";
 import { handleError } from "../helpers/handleError";
 import { emailService } from "../helpers/email";
-import mongoose from 'mongoose';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userData = req.body;
-        const user = await userService.create(userData);
+        const { role, school_id } = req.user;  // for school creating a teacher
+        const user = await userService.create(userData, { school_id, role });
         if (user.status == 'error') throw new Error(user.message);
         await userService.signUpToEvent(userData, user.id);
         sendResponse(res, 201, 'User Created', { user });
@@ -153,8 +153,8 @@ export const listSchoolStudents = async (req: Request, res: Response, next: Next
     try {
         const { id: schoolId } = req.user;
         const queryParams = req.query;
-        const students = await userService.listSchoolStudents(schoolId, queryParams);
-        sendResponse(res, 200, 'Students Fetched', { students });
+        const { learners: students, grades } = await userService.listSchoolStudents(schoolId, queryParams);
+        sendResponse(res, 200, 'Students Fetched', { students, grades: [...grades] });
     } catch (err) {
         next(err);
     }

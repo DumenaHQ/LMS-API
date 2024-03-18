@@ -16,6 +16,7 @@ export interface IUserCreate {
     phone?: string,
     resident_state?: string;
     address?: string;
+    school_id?: string;
 };
 
 export interface IUserModel {
@@ -173,18 +174,17 @@ export const School = mongoose.model("School", SchoolSchema);
 
 
 const InstructorSchema: Schema = new Schema({
-    fullname: String,
-    email: {
-        type: String,
-        unique: true
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
-    phone: {
-        type: String,
-        unique: true
-    }
+    school_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'school',
+    },
 }, { timestamps: true });
 
-export const Instructor = mongoose.model("Instructor", SchoolSchema);
+export const Instructor = mongoose.model("Instructor", InstructorSchema);
 
 
 export default mongoose.model<IUserModel>("User", UserSchema);

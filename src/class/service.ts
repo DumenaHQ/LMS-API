@@ -218,11 +218,11 @@ export const classService = {
     },
 
     async subscribe(classId: string, userId: string, learners: []) {
-        const klass = await this.findOne({ _id: classId });
+        const klass = await this.findOne({ _id: classId }, false);
         const meta_data = { classId };
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
-            return { order_type_id: klass.template, user_id, name, order_type: 'sub', meta_data };
+            return { order_type_id: klass.template, user_id, name, order_type: 'class', meta_data };
         });
         return orderService.create({ items: orderItems, user: userId, item_type: ORDER_ITEMS.class });
     }
