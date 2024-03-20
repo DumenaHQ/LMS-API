@@ -2,7 +2,7 @@ import Course from './model';
 import { ICourseCreate, ICourseEdit, ICourseView, ILesson, IModule } from './interfaces';
 import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
-import { UPLOADS } from '../config/constants';
+import { UPLOADS, USER_TYPES } from '../config/constants';
 import { randomUUID } from 'crypto';
 import path from 'path';
 import mongoose from 'mongoose';
@@ -174,14 +174,13 @@ export const courseService = {
         let queryCriteria = {};
 
         switch (userType) {
-            case 'learner':
+            case USER_TYPES.learner:
                 queryCriteria = await this.prepareUserCoursesCriteria(userId);
                 break;
-            case 'admin':
+            case USER_TYPES.admin:
             default:
         }
         return this.list({ ...queryCriteria, deleted: false });
-        //return [];
     },
 
 

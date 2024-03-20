@@ -22,11 +22,14 @@ router.get('/exportdata', downloadUserData);
 
 router.put('/', isAuthenticated, updateUser);
 
+router.post('/teacher', isAuthenticated, isSchool, userCreationRules(), validate, createUser);
+
 router.get('/:id', isAuthenticated, getUser);
 
 router.get('/', isAuthenticated, getUsers);
 
 router.get('/:id/payments', isAuthenticated, getUserPayments);
+
 
 
 // parents routes
