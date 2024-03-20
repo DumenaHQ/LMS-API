@@ -8,8 +8,12 @@ import { emailService } from "../helpers/email";
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userData = req.body;
-        const { role, school_id } = req.user;  // for school creating a teacher
-        const user = await userService.create(userData, { school_id, role });
+        let userType = undefined;
+        if (req.user) {
+            const { role, school_id } = req.user;
+            userType = { school_id, role };
+        }
+        const user = await userService.create(userData, userType);
         if (user.status == 'error') throw new Error(user.message);
         await userService.signUpToEvent(userData, user.id);
         sendResponse(res, 201, 'User Created', { user });

@@ -45,7 +45,7 @@ export interface IModule {
     duration: Number;
     class_activities: String;
     code_example: String;
-    instructor: ObjectId;
+    instructor?: ObjectId;
     lessons?: [typeof lesson];
     quiz_id?: ObjectId;
     quiz?: typeof Quiz;
