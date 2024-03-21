@@ -159,6 +159,17 @@ export const listSchoolStudents = async (req: Request, res: Response, next: Next
     }
 };
 
+export const listSchoolTeachers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: schoolId } = req.user;
+        // const queryParams = req.query;
+        const teachers = await userService.listSchoolTeachers(schoolId);
+        sendResponse(res, 200, 'Teachers Fetched', { teachers });
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
     try {
