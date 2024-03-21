@@ -192,7 +192,6 @@ export const classService = {
         if (!query) {
             throw new handleError(400, 'Invalid class ID');
         }
-        await query.save();
     },
 
     async listClassesForRoles(userId: string, role: string) {
