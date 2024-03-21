@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { quizService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
+import { send as sendResponse } from '../helpers/httpResponse';
 
 
 export const createQuiz = async (req: Request, res: Response, next: NextFunction) => {
@@ -50,7 +50,7 @@ export const addQuestions = async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const submitQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -61,4 +61,4 @@ export const submitQuiz = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-}
+};

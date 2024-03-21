@@ -9,4 +9,4 @@ export const enrollLearnerRules = () => {
         check('lastname').not().isEmpty().withMessage('Lastname must be specified'),
         check('password').not().isEmpty().withMessage('password must be specified')
     ];
-}
+};

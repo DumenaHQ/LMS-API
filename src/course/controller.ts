@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { courseService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
+import { send as sendResponse } from '../helpers/httpResponse';
 
 export const createCourse = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -40,7 +40,7 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {

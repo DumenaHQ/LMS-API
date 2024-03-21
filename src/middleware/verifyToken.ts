@@ -1,10 +1,10 @@
-import { verify } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
-import { userService } from "../user/service";
+import { verify } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import { userService } from '../user/service';
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.headers.authorization?.split(" ")[1];
+        const token = req.headers.authorization?.split(' ')[1];
         if (!token) return res.sendStatus(401); // Unauthorized
 
         verify(token, process.env.JWT_SECRET, async (err: any, payload: any) => {
@@ -20,7 +20,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && req.user.role === 'admin') {
@@ -28,7 +28,7 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     } else {
         return res.sendStatus(403);
     }
-}
+};
 
 export const isSchool = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && req.user.role === 'school') {
@@ -36,7 +36,7 @@ export const isSchool = (req: Request, res: Response, next: NextFunction) => {
     } else {
         return res.sendStatus(403);
     }
-}
+};
 
 export const isSchoolOrAdmin = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && (req.user.role === 'school' || req.user.role === 'admin')) {
@@ -44,7 +44,7 @@ export const isSchoolOrAdmin = (req: Request, res: Response, next: NextFunction)
     } else {
         return res.sendStatus(403);
     }
-}
+};
 
 export const isParent = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && req.user.role === 'parent') {
@@ -52,7 +52,7 @@ export const isParent = (req: Request, res: Response, next: NextFunction) => {
     } else {
         return res.sendStatus(403);
     }
-}
+};
 
 export const isLearner = (req: Request, res: Response, next: NextFunction) => {
     if (req.user && req.user.role === 'learner') {
@@ -60,4 +60,4 @@ export const isLearner = (req: Request, res: Response, next: NextFunction) => {
     } else {
         return res.sendStatus(403);
     }
-}
+};

@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { userService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
-import { handleError } from "../helpers/handleError";
-import { emailService } from "../helpers/email";
+import { send as sendResponse } from '../helpers/httpResponse';
+import { handleError } from '../helpers/handleError';
+import { emailService } from '../helpers/email';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,12 +11,11 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         const userType = req.user ? req.user : undefined;
         const user = await userService.create(userData, userType);
         if (user.status == 'error') throw new Error(user.message);
-        await userService.signUpToEvent(userData, user.id);
         sendResponse(res, 201, 'User Created', { user });
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const enrollLearner = async (req: Request, res: Response, next: NextFunction) => {
@@ -42,7 +41,7 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,7 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -63,7 +62,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const resendVerificationEmail = async (req: Request, res: Response, next: NextFunction) => {
@@ -77,7 +76,7 @@ export const resendVerificationEmail = async (req: Request, res: Response, next:
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const sendPasswordResetEmail = async (req: Request, res: Response, next: NextFunction) => {
@@ -91,7 +90,7 @@ export const sendPasswordResetEmail = async (req: Request, res: Response, next: 
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
@@ -103,7 +102,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -112,10 +111,10 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
         const user = await userService.view({ _id: userId });
         sendResponse(res, 200, 'User fetched', { user });
     } catch (err) {
-        console.log(err)
+        console.log(err);
         next(err);
     }
-}
+};
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -124,7 +123,7 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -134,19 +133,19 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const addSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: schoolId } = req.user;
         const { learners } = req.body;
-        const [resp] = await userService.addSchoolStudents(schoolId, learners);
+        await userService.addSchoolStudents(schoolId, learners);
         //if (resp.status) throw new Error(resp.message)
         sendResponse(res, 200, 'Students Added');
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const listSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
@@ -158,7 +157,7 @@ export const listSchoolStudents = async (req: Request, res: Response, next: Next
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
@@ -169,7 +168,7 @@ export const getParentChildren = async (req: Request, res: Response, next: NextF
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const removeChild = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -179,7 +178,7 @@ export const removeChild = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const getUserPayments = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -189,41 +188,41 @@ export const getUserPayments = async (req: Request, res: Response, next: NextFun
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const downloadUserData = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const dataFile = await userService.downloadUserData('parent');
         res.writeHead(200, {
-            "Content-Type": "application/octet-stream",
-            "Content-disposition": "attachment; filename=parents_mailing_list.xlsx",
-        })
+            'Content-Type': 'application/octet-stream',
+            'Content-disposition': 'attachment; filename=parents_mailing_list.xlsx',
+        });
         res.end(dataFile);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const downloadSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: schoolId } = req.params;
         const dataFile = await userService.generateSchoolStudentsData(schoolId);
         res.writeHead(200, {
-            "Content-Type": "application/octet-stream",
-            "Content-disposition": "attachment; filename=students_list.xlsx",
-        })
+            'Content-Type': 'application/octet-stream',
+            'Content-disposition': 'attachment; filename=students_list.xlsx',
+        });
         res.end(dataFile);
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.params;
         await userService.deleteUser(email);
-        sendResponse(res, 200, 'User Deleted')
+        sendResponse(res, 200, 'User Deleted');
     } catch (err) {
         next(err);
     }
-}
+};

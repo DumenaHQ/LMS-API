@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { couponService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
+import { send as sendResponse } from '../helpers/httpResponse';
 
 export const listCoupons = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -9,4 +9,4 @@ export const listCoupons = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};

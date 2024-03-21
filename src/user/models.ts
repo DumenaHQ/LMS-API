@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 export enum EUserStatus {
     Active = 'active',
@@ -17,7 +17,7 @@ export interface IUserCreate {
     resident_state?: string;
     address?: string;
     school_id?: string;
-};
+}
 
 export interface IUserModel {
     fullname: string;
@@ -52,7 +52,7 @@ const contentAccess = {
     access_type_id: Schema.Types.ObjectId,
     slug: String,
     expiry_date: Date
-}
+};
 
 
 const UserSchema: Schema = new Schema({
@@ -111,7 +111,7 @@ const RoleSchema: Schema = new Schema({
     permissions: [String]
 }, { timestamps: true });
 
-export const Role = mongoose.model("Role", RoleSchema);
+export const Role = mongoose.model('Role', RoleSchema);
 
 
 const ParentSchema: Schema = new Schema({
@@ -122,7 +122,7 @@ const ParentSchema: Schema = new Schema({
     }
 }, { timestamps: true });
 
-export const Parent = mongoose.model("Parent", ParentSchema);
+export const Parent = mongoose.model('Parent', ParentSchema);
 
 
 export const LearnerSchema: Schema = new Schema({
@@ -154,7 +154,7 @@ export const LearnerSchema: Schema = new Schema({
     resident_state: String,
 }, { timestamps: true });
 
-export const Learner = mongoose.model("Learner", LearnerSchema);
+export const Learner = mongoose.model('Learner', LearnerSchema);
 
 
 const SchoolSchema: Schema = new Schema({
@@ -170,7 +170,7 @@ const SchoolSchema: Schema = new Schema({
     }
 }, { timestamps: true });
 
-export const School = mongoose.model("School", SchoolSchema);
+export const School = mongoose.model('School', SchoolSchema);
 
 
 const InstructorSchema: Schema = new Schema({
@@ -184,7 +184,7 @@ const InstructorSchema: Schema = new Schema({
     },
 }, { timestamps: true });
 
-export const Instructor = mongoose.model("Instructor", InstructorSchema);
+export const Instructor = mongoose.model('Instructor', InstructorSchema);
 
 
-export default mongoose.model<IUserModel>("User", UserSchema);
+export default mongoose.model<IUserModel>('User', UserSchema);

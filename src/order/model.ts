@@ -12,18 +12,18 @@ export enum EOrderStatus {
 export interface IOrder {
     id: Schema.Types.ObjectId;
     user: Schema.Types.ObjectId;
-    item_type: String;
+    item_type: string;
     total_amount: number;
     coupon: Schema.Types.ObjectId;
-    reference: String;
-    status?: String;
+    reference: string;
+    status?: string;
     items: [
         {
-            title?: String;
-            order_type: String;
+            title?: string;
+            order_type: string;
             order_type_id?: Schema.Types.ObjectId;
-            ordered_item?: String;
-            slug?: String;
+            ordered_item?: string;
+            slug?: string;
             amount: number;
             user_id: Schema.Types.ObjectId;
             meta_data: Object;
@@ -49,7 +49,7 @@ const orderItems = {
     slug: String,
     user_id: Schema.Types.ObjectId,
     meta_data: {}
-}
+};
 
 const orderSchema = new Schema({
     user: {

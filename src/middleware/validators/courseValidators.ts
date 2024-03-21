@@ -1,4 +1,4 @@
-const { check } = require("express-validator");
+const { check } = require('express-validator');
 import { DIFFICULTY_LEVEL, COURSE_QUADRANT } from '../../config/constants';
 import { validate } from './validate';
 
@@ -17,4 +17,4 @@ export const courseCreationRules = () => {
             if (!COURSE_QUADRANT.includes(quadrant)) throw new Error('Invalid course quadrant');
         })
     ];
-}
+};

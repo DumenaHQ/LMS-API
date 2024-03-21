@@ -17,12 +17,12 @@ import { orderService } from '../order/service';
 const classOrTemplateModel = {
     'class': Class,
     'template': ClassTemplate
-}
+};
 
 export const classService = {
     async create(classData: IClass, files: File): Promise<IClass> {
         if (classData.template) {
-            const template = await ClassTemplate.findById(new mongoose.Types.ObjectId(classData.template));
+            const template = await ClassTemplate.findById(classData.template);
             if (!template) throw new handleError(400, 'Invalid template ID');
         }
 
@@ -70,7 +70,7 @@ export const classService = {
 
     async view(criteria: object | string): Promise<IClass | null> {
         let classroom: any;
-        if (typeof criteria == "object")
+        if (typeof criteria == 'object')
             classroom = await this.findOne(criteria);
         else {
             classroom = await this.findOne({ _id: criteria });
@@ -99,7 +99,7 @@ export const classService = {
         const defaultParam: any = { _id: classId };
 
         const criteria = {
-            [USER_TYPES.learner]: { ...defaultParam, "learners.user_id": id },
+            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': id },
             [USER_TYPES.school]: { ...defaultParam, school_id: id },
             [USER_TYPES.parent]: { ...defaultParam, parent_id: id },
             [USER_TYPES.admin]: defaultParam
@@ -188,7 +188,7 @@ export const classService = {
 
     async listClassesForRoles(userId: string, role: string) {
         const criteria = {
-            [USER_TYPES.learner]: { "learners.user_id": userId },
+            [USER_TYPES.learner]: { 'learners.user_id': userId },
             [USER_TYPES.school]: { school_id: userId },
             [USER_TYPES.parent]: { parent_id: userId },
             [USER_TYPES.admin]: {}
@@ -224,6 +224,6 @@ export const classService = {
             const { user_id, name } = learner;
             return { order_type_id: klass.template, user_id, name, order_type: 'class', meta_data };
         });
-        return orderService.create({ items: orderItems, user: userId, item_type: ORDER_ITEMS.class });
+        return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     }
-}
+};

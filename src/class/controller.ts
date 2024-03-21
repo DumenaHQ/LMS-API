@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { classService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
-import { USER_TYPES } from "../config/constants";
-import { subscriptionService } from '../subscription/service';
+import { send as sendResponse } from '../helpers/httpResponse';
+import { USER_TYPES } from '../config/constants';
 
 
 export const createClass = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +14,7 @@ export const createClass = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const addCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -24,9 +23,9 @@ export const addCourses = async (req: Request, res: Response, next: NextFunction
         await classService.addCourses('class', classId, courseIds);
         sendResponse(res, 200, 'Course(s) added to class');
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 export const addTemplateCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -35,9 +34,9 @@ export const addTemplateCourses = async (req: Request, res: Response, next: Next
         await classService.addCourses('template', templateId, courseIds);
         sendResponse(res, 200, 'Course(s) added to class');
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
@@ -46,9 +45,9 @@ export const listCourses = async (req: Request, res: Response, next: NextFunctio
         const courses = await classService.listCourses(classId);
         sendResponse(res, 200, 'Class Courses Fetched', { courses });
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const addLearners = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,9 +57,9 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
         await classService.addLearners(classId, learners);
         sendResponse(res, 200, 'Learners Added');
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 // export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
@@ -83,7 +82,7 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const viewClass = async (req: Request, res: Response, next: NextFunction) => {
@@ -95,7 +94,7 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const updateClass = async (req: Request, res: Response, next: NextFunction) => {
@@ -106,7 +105,7 @@ export const updateClass = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const deleteClass = async (req: Request, res: Response, next: NextFunction) => {
@@ -117,7 +116,7 @@ export const deleteClass = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const createTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -126,7 +125,7 @@ export const createTemplate = async (req: Request, res: Response, next: NextFunc
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const listClassTemplates = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -135,7 +134,7 @@ export const listClassTemplates = async (req: Request, res: Response, next: Next
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const viewClassTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -145,7 +144,7 @@ export const viewClassTemplate = async (req: Request, res: Response, next: NextF
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const updateClassTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -155,7 +154,7 @@ export const updateClassTemplate = async (req: Request, res: Response, next: Nex
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const getClassQuizResults = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -165,7 +164,7 @@ export const getClassQuizResults = async (req: Request, res: Response, next: Nex
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -177,4 +176,4 @@ export const subscribe = async (req: Request, res: Response, next: NextFunction)
     } catch (err) {
         next(err);
     }
-}
+};

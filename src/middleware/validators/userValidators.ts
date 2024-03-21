@@ -44,11 +44,11 @@ export const userCreationRules = () => {
             return true;
         }),
     ];
-}
+};
 
 export const loginRules = () => {
     return [
         check('email').exists().withMessage('Email/username field must be provided'),
         check('password').exists().withMessage('Password field must be provided')
-    ]
-}
+    ];
+};

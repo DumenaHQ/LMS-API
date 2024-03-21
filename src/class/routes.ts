@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAdmin, isAuthenticated, isSchoolOrAdmin } from "../middleware/verifyToken";
+import { isAdmin, isAuthenticated, isSchoolOrAdmin } from '../middleware/verifyToken';
 
 import { addCourses, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, getClassQuizResults, listClassTemplates, listClasses, listCourses, subscribe, updateClass, updateClassTemplate, viewClass, viewClassTemplate } from './controller';
 

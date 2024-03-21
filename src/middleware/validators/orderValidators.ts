@@ -1,4 +1,4 @@
-const { check } = require("express-validator");
+const { check } = require('express-validator');
 import { ORDER_TYPES } from '../../config/constants';
 import { validate } from './validate';
 import Coupon from '../../coupon/model';
@@ -33,4 +33,4 @@ export const orderValidationRules = () => {
             }
         })
     ];
-}
+};

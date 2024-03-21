@@ -9,32 +9,32 @@ export interface IAddLearner {
 
 export interface IProgramSponsor {
     user_id: Types.ObjectId;
-    name: String;
-    sponsor_type: String;
+    name: string;
+    sponsor_type: string;
 }
 
 export interface IProgram extends Document {
     id?: Types.ObjectId;
-    name: String;
-    description: String;
-    category: String;
-    location: String;
-    thumbnail?: String;
-    header_photo?: String;
+    name: string;
+    description: string;
+    category: string;
+    location: string;
+    thumbnail?: string;
+    header_photo?: string;
     sponsors?: Types.DocumentArray<IProgramSponsor>;
     learners: IAddLearner[];
-    courses?: String[];
-    hasJoined?: Boolean;
+    courses?: string[];
+    hasJoined?: boolean;
     start_date?: Date;
     end_date?: Date;
-    status: String;
+    status: string;
 }
 
 export interface IAddSponsorPayload {
     user_id: string;
     name: string;
     sponsor_type: string;
-};
+}
 
 
 const learner = {

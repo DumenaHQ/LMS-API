@@ -47,7 +47,7 @@ const sendMail = (to: string, subject: string, template: string, data: object) =
         }
         // console.log('Message sent: %s', info.messageId);
     });
-}
+};
 
 export const emailService = {
     sendVerificationEmail: function (user: any): void {
@@ -59,7 +59,7 @@ export const emailService = {
             url: BASE_URL + '#/activate/' + email_b64 + '/' + hash,
             base_url: BASE_URL
         };
-        const subject = "Verify your email address"
+        const subject = 'Verify your email address';
         const template = 'verifyAccount';
         sendMail(user.email, subject, template, data);
     },
@@ -70,7 +70,7 @@ export const emailService = {
             fullname,
             username,
             password
-        }
+        };
         const subject = `Login Details for ${fullname}`;
         const template = 'loginDetails';
         sendMail(email, subject, template, data);
@@ -89,7 +89,7 @@ export const emailService = {
         const data = {
             user: user.fullname
         };
-        const subject = `Thanks for Registering, Here's What's Next 🎉🎊`;
+        const subject = 'Thanks for Registering, Here\'s What\'s Next 🎉🎊';
         const template = 'summerSchool';
         sendMail(user.email, subject, template, data);
     },
@@ -104,7 +104,7 @@ export const emailService = {
             url: BASE_URL + '#/password-reset/' + email_b64 + '/' + hash,
             base_url: BASE_URL
         };
-        const subject = "DUMENA Password Reset Link";
+        const subject = 'DUMENA Password Reset Link';
         const template = 'passwordReset';
         sendMail(user.email, subject, template, data);
     },
@@ -136,4 +136,4 @@ export const emailService = {
             // console.log('Message sent: %s', info.messageId);
         });
     }
-}
+};

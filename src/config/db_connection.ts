@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { dbConfig, env } from "./config";
+import { dbConfig, env } from './config';
 
 const { host, port, user, password, name: dbname } = dbConfig;
 

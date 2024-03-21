@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAdmin, isAuthenticated, isParent, isSchoolOrAdmin } from "../middleware/verifyToken";
+import { isAdmin, isAuthenticated, isParent, isSchoolOrAdmin } from '../middleware/verifyToken';
 import { addCourses, addLearners, addParents, addSchools, createProgram, deleteProgram, listCourses, listLearners, listPrograms, listSchools, updateProgram, viewProgram } from './controller';
 
 export const router = Router();

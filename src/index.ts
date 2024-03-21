@@ -1,11 +1,11 @@
-import * as dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
+import * as dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
 const fileUpload = require('express-fileupload');
 dotenv.config();
-import { notFoundHandler } from "./middleware/notFound";
-import { errorHandler } from "./middleware/error";
+import { notFoundHandler } from './middleware/notFound';
+import { errorHandler } from './middleware/error';
 require('./config/db_connection');
 import { router as routes } from './routes/';
 
@@ -20,7 +20,7 @@ const PORT: number = parseInt(process.env.PORT as string, 10);
 const app = express();
 
 app.use(helmet());
-app.options('*', cors())
+app.options('*', cors());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

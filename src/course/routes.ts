@@ -1,7 +1,7 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { createCourse, updateCourse, addLesson, viewCourse, listCourses, createCourseModule, listModuleLessons } from './controller';
 import validate, { courseCreationRules } from '../middleware/validators/courseValidators';
-import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
+import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
 
 export const router = Router();
 

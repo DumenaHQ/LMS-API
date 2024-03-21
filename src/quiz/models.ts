@@ -22,7 +22,7 @@ const quizQuestion = {
     optD: String,
     optE: String,
     answer: String
-}
+};
 
 export const quizAnswers = {
     learner: Schema.Types.ObjectId,
@@ -32,7 +32,7 @@ export const quizAnswers = {
         type: Date,
         default: Date.now
     }
-}
+};
 
 const quizSchema = new Schema({
     // course_id: Schema.Types.ObjectId,

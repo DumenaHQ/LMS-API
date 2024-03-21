@@ -47,7 +47,7 @@ const s3BucketKeys = {
         SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
         REGION: process.env.AWS_REGION
     },
-}
+};
 export const s3Config = s3BucketKeys[env as keyof envKeys];
 
 const lmsBucket = {
@@ -60,8 +60,8 @@ const lmsBucket = {
     production: {
         BUCKET_NAME: LMS_BUCKET_NAME
     }
-}
-export const lmsBucketName = lmsBucket[env as keyof envKeys]
+};
+export const lmsBucketName = lmsBucket[env as keyof envKeys];
 
 
 const paystack_config = {
@@ -74,5 +74,5 @@ const paystack_config = {
     production: {
         SECRET_KEY: process.env.PAYSTACK_SECRET_KEY
     }
-}
+};
 export const paystackConfig = paystack_config[env as keyof envKeys];

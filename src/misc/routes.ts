@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAuthenticated, isSchoolOrAdmin } from "../middleware/verifyToken";
+import { isAuthenticated, isSchoolOrAdmin } from '../middleware/verifyToken';
 import { downloadTemplateFile, seedDatabase } from './controller';
 
 export const router = Router();

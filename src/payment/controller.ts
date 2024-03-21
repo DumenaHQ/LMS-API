@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { paymentService } from './service';
-import { subscriptionService } from "../subscription/service";
-import { send as sendResponse } from "../helpers/httpResponse";
+import { subscriptionService } from '../subscription/service';
+import { send as sendResponse } from '../helpers/httpResponse';
 
 export const verifyPayment = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,7 +15,7 @@ export const verifyPayment = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const fetchPayments = async (req: Request, res: Response, next: NextFunction) => {
@@ -25,4 +25,4 @@ export const fetchPayments = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};

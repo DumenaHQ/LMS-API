@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { isAuthenticated, isSchool, isSchoolOrAdmin } from "../middleware/verifyToken";
-import { addSchoolStudents, downloadSchoolStudents, listSchoolStudents, removeChild } from "./controller";
+import { Router } from 'express';
+import { isAuthenticated, isSchool, isSchoolOrAdmin } from '../middleware/verifyToken';
+import { addSchoolStudents, downloadSchoolStudents, listSchoolStudents, removeChild } from './controller';
 
 export const router = Router();
 

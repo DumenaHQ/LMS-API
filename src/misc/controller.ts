@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { send as sendResponse } from "../helpers/httpResponse";
-import { miscService } from "./miscService";
+import { Request, Response, NextFunction } from 'express';
+import { send as sendResponse } from '../helpers/httpResponse';
+import { miscService } from './miscService';
 import { Role, Instructor } from '../user/models';
 import Subscription from '../subscription/model';
 
@@ -13,7 +13,7 @@ export const downloadTemplateFile = (req: Request, res: Response, next: NextFunc
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const seedDatabase = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -70,4 +70,4 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
-}
+};

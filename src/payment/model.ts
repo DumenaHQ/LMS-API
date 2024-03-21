@@ -8,11 +8,11 @@ enum PaymentStatus {
 export interface IPayment {
     order: Schema.Types.ObjectId;
     user: Schema.Types.ObjectId;
-    amount: Number;
-    reference: String;
-    channel: String;
+    amount: number;
+    reference: string;
+    channel: string;
     currency: string;
-    status?: String;
+    status?: string;
 }
 
 const paymentSchema = new Schema({

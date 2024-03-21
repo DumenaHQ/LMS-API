@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { programService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
-import { USER_TYPES } from "../config/constants";
-import { School } from "../user/models";
+import { send as sendResponse } from '../helpers/httpResponse';
+import { USER_TYPES } from '../config/constants';
+import { School } from '../user/models';
 
 export const createProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -11,7 +11,7 @@ export const createProgram = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const addSchools = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +23,7 @@ export const addSchools = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const addParents = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,7 +35,7 @@ export const addParents = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const listSchools = async (req: Request, res: Response, next: NextFunction) => {
@@ -44,9 +44,9 @@ export const listSchools = async (req: Request, res: Response, next: NextFunctio
         const schools = await programService.listEnrolledSchools(programId);
         sendResponse(res, 200, 'Program schools fetched', { schools });
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const addCourses = async (req: Request, res: Response, next: NextFunction) => {
@@ -56,9 +56,9 @@ export const addCourses = async (req: Request, res: Response, next: NextFunction
         await programService.addCourses(programId, courseIds);
         sendResponse(res, 200, 'Course(s) added to program');
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
@@ -67,9 +67,9 @@ export const listCourses = async (req: Request, res: Response, next: NextFunctio
         const courses = await programService.listCourses(programId);
         sendResponse(res, 200, 'Program Courses Fetched', { program_id: programId, courses });
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const addLearners = async (req: Request, res: Response, next: NextFunction) => {
@@ -87,9 +87,9 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
         await programService.addLearners(programId, learners, sponsorId);
         sendResponse(res, 200, 'Learners Added');
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
@@ -99,9 +99,9 @@ export const listLearners = async (req: Request, res: Response, next: NextFuncti
         const learners = await programService.fetchLearners(programId, { id, userType });
         sendResponse(res, 200, 'Learners Fetched', { learners });
     } catch (err) {
-        next(err)
+        next(err);
     }
-}
+};
 
 
 export const listPrograms = async (req: Request, res: Response, next: NextFunction) => {
@@ -112,14 +112,14 @@ export const listPrograms = async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const viewProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
         const { role, id } = req.user;
-        let user = { role, id };
+        const user = { role, id };
         // fix asap!
         if (role == USER_TYPES.school) {
             const school = await School.findOne({ user: req.user.id });
@@ -130,7 +130,7 @@ export const viewProgram = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const updateProgram = async (req: Request, res: Response, next: NextFunction) => {
@@ -141,7 +141,7 @@ export const updateProgram = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const deleteProgram = async (req: Request, res: Response, next: NextFunction) => {
@@ -152,4 +152,4 @@ export const deleteProgram = async (req: Request, res: Response, next: NextFunct
     } catch (err) {
         next(err);
     }
-}
+};

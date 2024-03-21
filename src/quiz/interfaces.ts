@@ -1,27 +1,28 @@
-import { ObjectId, Document } from "mongoose";
+import { ObjectId, Document } from 'mongoose';
 
 export interface IQuiz extends Document {
     id?: ObjectId;
     course_id: ObjectId;
-    title: String,
+    title: string,
     tags: [],
-    difficulty_level: String,
-    course_quadrant: String,
-    quiz_level?: String,
+    difficulty_level: string,
+    course_quadrant: string,
+    quiz_level?: string,
     quiz_level_id?: ObjectId,
-    settings: {},
+    settings: object,
     questions?: [],
     answers?: []
 }
 
 export interface IQuizQuestion {
+    answer: any;
     id: ObjectId;
-    question: String;
-    optA: String;
-    optB: String;
-    optC?: String;
-    optD?: String;
-    optE?: String;
+    question: string;
+    optA: string;
+    optB: string;
+    optC?: string;
+    optD?: string;
+    optE?: string;
 }
 
 export interface IQuizQuestions {

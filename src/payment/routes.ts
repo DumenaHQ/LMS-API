@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
+import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
 import { verifyPayment, fetchPayments } from './controller';
 
 export const router = Router();

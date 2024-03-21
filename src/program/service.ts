@@ -38,7 +38,7 @@ export const programService = {
 
     async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {
         let program: any;
-        if (typeof criteria == "object")
+        if (typeof criteria == 'object')
             program = await Program.findOne({ ...criteria, deleted: false });
         else {
             program = await Program.findById(criteria);
@@ -57,7 +57,7 @@ export const programService = {
         const schools = program?.sponsors?.filter((sp: IAddSponsorPayload) => sp.sponsor_type == 'school')!;
         program.schools = schools.map((sch: IProgramSponsor) => {
             const schoolLearners = program.learners.filter((learner: IAddLearner) => String(learner.sponsor_id) == String(sch.user_id));
-            return { id: sch.user_id, name: sch.name, student_count: schoolLearners.length }
+            return { id: sch.user_id, name: sch.name, student_count: schoolLearners.length };
         });
 
         // fetch full learner details
@@ -157,13 +157,13 @@ export const programService = {
 
     async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
         switch (userType) {
-            case USER_TYPES.school:
-                const schoolUser = await School.findOne({ user: userId });
-                return this.listSponsorPrograms(schoolUser._id);
-            case USER_TYPES.parent:
-                return this.listSponsorPrograms(userId);
-            default:
-                return this.list({ status: 'active' });
+        case USER_TYPES.school:
+            const schoolUser = await School.findOne({ user: userId });
+            return this.listSponsorPrograms(schoolUser._id);
+        case USER_TYPES.parent:
+            return this.listSponsorPrograms(userId);
+        default:
+            return this.list({ status: 'active' });
         }
     },
 
@@ -227,17 +227,17 @@ export const programService = {
     async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, userType: string }): Promise<IUserView[] | []> {
         let learnerIds;
         switch (user.userType) {
-            case USER_TYPES.learner:
-                return [];
-            case USER_TYPES.admin:
-                learnerIds = learners.map(learner => learner.user_id);
-                break;
-            case USER_TYPES.school:
-            case USER_TYPES.parent:
-                const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.id));
-                learnerIds = sponsorLearners?.map(learner => learner.user_id);
-                break;
-            default:
+        case USER_TYPES.learner:
+            return [];
+        case USER_TYPES.admin:
+            learnerIds = learners.map(learner => learner.user_id);
+            break;
+        case USER_TYPES.school:
+        case USER_TYPES.parent:
+            const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.id));
+            learnerIds = sponsorLearners?.map(learner => learner.user_id);
+            break;
+        default:
         }
         return userService.list({ 'user._id': { $in: learnerIds }, 'user.deleted': false }, 'learner');
     },
@@ -250,4 +250,4 @@ export const programService = {
     async delete(programId: string): Promise<void> {
         await Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, { deleted: true });
     }
-}
+};

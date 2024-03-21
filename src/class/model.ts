@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export enum EStatus {
     Active = 'active',
@@ -12,23 +12,23 @@ export interface IAddLearner {
 
 
 export interface IClass extends Document {
-    name: String;
+    name: string;
     template?: Schema.Types.ObjectId;
-    description: String;
+    description: string;
     school_id: Schema.Types.ObjectId;
     parent_id: Schema.Types.ObjectId;
     teacher_id?: Schema.Types.ObjectId,
-    thumbnail?: String;
-    header_photo?: String;
+    thumbnail?: string;
+    header_photo?: string;
     learners: IAddLearner[];
-    courses?: String[];
-    status: String;
+    courses?: string[];
+    status: string;
 }
 
 export interface ITemplate extends Document {
-    title: String;
-    syllabus: String;
-    courses?: String[];
+    title: string;
+    syllabus: string;
+    courses?: string[];
 }
 
 const learner = {

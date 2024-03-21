@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { createQuiz, addQuestions, listQuizzes, viewQuiz, attachQuiz, submitQuiz } from './controller';
-import { isAdmin, isAuthenticated } from "../middleware/verifyToken";
+import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
 
 export const router = Router();
 

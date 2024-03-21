@@ -1,4 +1,4 @@
-import xlsx from "json-as-xlsx";
+import xlsx from 'json-as-xlsx';
 
 export const xlsxHelper = {
     write(columns: [], content: [], filename: string) {
@@ -6,8 +6,8 @@ export const xlsxHelper = {
             fileName: filename,
             extraLength: 3,
             writeOptions: {
-                type: "buffer",
-                bookType: "xlsx",
+                type: 'buffer',
+                bookType: 'xlsx',
             },
         };
 
@@ -21,4 +21,4 @@ export const xlsxHelper = {
 
         return xlsx(data, settings);
     }
-}
+};

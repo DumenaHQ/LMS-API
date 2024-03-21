@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { subscriptionService } from './service';
-import { send as sendResponse } from "../helpers/httpResponse";
+import { send as sendResponse } from '../helpers/httpResponse';
 
 export const listSubcriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -9,7 +9,7 @@ export const listSubcriptions = async (req: Request, res: Response, next: NextFu
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -18,4 +18,4 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     } catch (err) {
         next(err);
     }
-}
+};

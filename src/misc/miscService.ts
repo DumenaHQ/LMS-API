@@ -16,4 +16,4 @@ export const miscService = {
         }
         return path.join(__dirname, '../../', `${TEMPLATE_FILE_PATH}/${templateFiles[name]}`);
     }
-}
+};

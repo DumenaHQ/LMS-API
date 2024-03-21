@@ -39,4 +39,4 @@ export const orderService = {
     async update(orderId: string, orderStatus: object) {
 
     }
-}
+};

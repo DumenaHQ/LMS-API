@@ -1,10 +1,10 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, IUserModel } from './models';
-import { sign } from "jsonwebtoken";
-import { handleError } from "../helpers/handleError";
-import * as bcrypt from "bcrypt";
-import * as crypto from "crypto";
+import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus } from './models';
+import { sign } from 'jsonwebtoken';
+import { handleError } from '../helpers/handleError';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { Buffer } from 'buffer';
-import mongoose, { Model, ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
@@ -53,7 +53,7 @@ export const userService = {
         userType[`${foundUser.role}_id`] = userType.id;
         delete userType.id;
         const token: string = sign({ id: foundUser.id }, process.env.JWT_SECRET as string, {
-            expiresIn: "24h",
+            expiresIn: '24h',
         });
         return {
             ...payload,
@@ -63,12 +63,7 @@ export const userService = {
     },
 
 
-    async signUpToEvent(data: IUserCreate, userId: ObjectId): Promise<void> {
-
-    },
-
-
-    async create(userData: IUserCreate, user: { school_id: string; role: string; } | undefined): Promise<IUserView | { status: string, message: string, data: {} }> {
+    async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type } = userData;
 
         if (user && user.role == 'school') userData.school_id = user.school_id;
@@ -93,7 +88,7 @@ export const userService = {
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
         const data: Record<string, any> = getValidModelFields(userModel['user'], userData);
         data.password = passwordHash;
-        data.role = user_type
+        data.role = user_type;
 
 
         // for learners added by parents/schools
@@ -173,14 +168,14 @@ export const userService = {
         const users = await userModel[user_type].aggregate([
             {
                 $lookup: {
-                    from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "user"
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user'
                 }
             },
             {
-                $unwind: "$user"
+                $unwind: '$user'
             },
             {
                 $match: match
@@ -208,7 +203,7 @@ export const userService = {
 
     async listSchoolStudents(schoolId: string, queryParams: object) {
         const validParams = ['grade'];
-        let validQueryParams: Record<string, any> = {};
+        const validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
             if (validParams.includes(key)) {
                 validQueryParams[key] = value;
@@ -243,7 +238,7 @@ export const userService = {
         return this.view(criteria);
     },
 
-    async ensureUniqueUsername(username: string): Promise<String> {
+    async ensureUniqueUsername(username: string): Promise<string> {
         const foundUsername = await User.findOne({ username }).lean();
 
         if (foundUsername) {
@@ -310,11 +305,11 @@ export const userService = {
         const users = await userModel[userType].find({}).populate({ path: 'user', select: 'fullname email phone createdAt' });
 
         const columns = [
-            { label: "Name", value: (row: any) => row.user.fullname },
-            { label: "Email", value: (row: any) => row.user.email },
-            { label: "Phone", value: "phone" },
-            { label: "Location", value: "resident_state" },
-            { label: "Signed up on", value: (row: any) => row.user.createdAt, format: "d-mmm-yy" }
+            { label: 'Name', value: (row: any) => row.user.fullname },
+            { label: 'Email', value: (row: any) => row.user.email },
+            { label: 'Phone', value: 'phone' },
+            { label: 'Location', value: 'resident_state' },
+            { label: 'Signed up on', value: (row: any) => row.user.createdAt, format: 'd-mmm-yy' }
         ];
         return xlsxHelper.write(columns, users, 'parents_mailing_list');
     },
@@ -322,10 +317,10 @@ export const userService = {
     async generateSchoolStudentsData(schoolId: string) {
         const students = await this.listSchoolStudents(schoolId);
         const columns = [
-            { label: "Fullname", value: (row: any) => row.fullname },
-            { label: "Username", value: (row: any) => row.username },
-            { label: "Grade", value: (row: any) => row.grade },
-            { label: "Gender", value: (row: any) => row.gender }
+            { label: 'Fullname', value: (row: any) => row.fullname },
+            { label: 'Username', value: (row: any) => row.username },
+            { label: 'Grade', value: (row: any) => row.grade },
+            { label: 'Gender', value: (row: any) => row.gender }
         ];
         return xlsxHelper.write(columns, students, 'students_list');
     },
@@ -334,4 +329,4 @@ export const userService = {
         const user = await User.findOneAndDelete({ email });
         await userModel[user.role].deleteOne({ user: user._id });
     }
-}
+};

@@ -8,7 +8,7 @@ import { IOrder } from '../order/model';
 
 
 export const paymentService = {
-    async save(reference: String): Promise<{ payment: IPayment, order: IOrder }> {
+    async save(reference: string): Promise<{ payment: IPayment, order: IOrder }> {
         // first verify payment status
         const { amount, channel, currency, status } = await this.verifyPayment(reference);
         // verify order reference
@@ -29,7 +29,7 @@ export const paymentService = {
     },
 
 
-    async verifyPayment(reference: String): Promise<{ amount: Number, channel: String, currency: String, status: String }> {
+    async verifyPayment(reference: string): Promise<{ amount: number, channel: string, currency: string, status: string }> {
         const option = {
             headers: { Authorization: `Bearer ${paystackConfig.SECRET_KEY}` },
             baseURL: PAYSTACK_API_URL
@@ -49,4 +49,4 @@ export const paymentService = {
     async list(criteria: object): Promise<IPayment[]> {
         return Payment.find(criteria);
     }
-}
+};

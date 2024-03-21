@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import { orderService } from './service';
-import { EOrderStatus } from "./model";
-import { send as sendResponse } from "../helpers/httpResponse";
+import { EOrderStatus } from './model';
+import { send as sendResponse } from '../helpers/httpResponse';
 import { USER_TYPES } from '../config/constants';
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +11,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const listOrders = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +23,7 @@ export const listOrders = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const viewOrder = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +34,7 @@ export const viewOrder = async (req: Request, res: Response, next: NextFunction)
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const viewActiveOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -44,7 +44,7 @@ export const viewActiveOrder = async (req: Request, res: Response, next: NextFun
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
@@ -55,4 +55,4 @@ export const updateOrder = async (req: Request, res: Response, next: NextFunctio
     } catch (err) {
         next(err);
     }
-}
+};

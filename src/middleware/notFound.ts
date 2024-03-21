@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-const httpResponse = require("../helpers/httpResponse");
+import { Request, Response, NextFunction } from 'express';
+const httpResponse = require('../helpers/httpResponse');
 
 export const notFoundHandler = (
     request: Request,
@@ -7,7 +7,7 @@ export const notFoundHandler = (
     next: NextFunction
 ) => {
 
-    const message = "Resource not found";
+    const message = 'Resource not found';
 
-    httpResponse.send(response, 404, message)
+    httpResponse.send(response, 404, message);
 };

@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { handleError } from "./handleError";
+import { handleError } from './handleError';
 import { s3Config } from '../config/config';
 
 const { ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION } = s3Config;
@@ -33,7 +33,7 @@ export const putObject = async (bucketName: string, key: string, body: Buffer, C
 
     return new Promise((resolve, reject) => {
         s3Service.putObject(params, (err: Error, data: any) => {
-            if (err) reject(err)
+            if (err) reject(err);
             return resolve(data);
         });
     });
@@ -48,7 +48,7 @@ export const upload = async (bucketName: string, key: string, body: Buffer): Pro
 
     return new Promise((resolve, reject) => {
         s3Service.upload(params, (err: Error, data: any) => {
-            if (err) reject(err)
+            if (err) reject(err);
             return resolve(data);
         });
     });

@@ -4,32 +4,32 @@ import Quiz from '../quiz/models';
 
 export interface ICourseCreate {
     id?: ObjectId;
-    title: String;
-    description: String;
+    title: string;
+    description: string;
     tags: [];
-    difficult_level: String;
-    course_quadant: String;
-    access_scopes: String[];
+    difficult_level: string;
+    course_quadant: string;
+    access_scopes: string[];
     thumb_photo: any;
-    thumb_url: String
+    thumb_url: string
 }
 
 export interface ICourseEdit {
     id: ObjectId;
     access_scopes: [];
-    thumb_photo?: String;
-    thumb_url: String;
+    thumb_photo?: string;
+    thumb_url: string;
 }
 
 export interface ICourseView extends Document {
-    title: String;
-    description: String;
+    title: string;
+    description: string;
     tags?: [];
-    difficult_level: String;
-    course_quadant: String;
-    thumb_url: String;
-    lesson_count: Number;
-    duration?: String;
+    difficult_level: string;
+    course_quadant: string;
+    thumb_url: string;
+    lesson_count: number;
+    duration?: string;
     modules?: IModule[];
     quiz?: typeof Quiz;
     createdAt: Date;
@@ -38,13 +38,13 @@ export interface ICourseView extends Document {
 
 export interface IModule {
     id?: ObjectId;
-    title: String;
-    objectives: String;
-    further_reading: String;
-    further_reading_links: String;
-    duration: Number;
-    class_activities: String;
-    code_example: String;
+    title: string;
+    objectives: string;
+    further_reading: string;
+    further_reading_links: string;
+    duration: number;
+    class_activities: string;
+    code_example: string;
     instructor?: ObjectId;
     lessons?: [typeof lesson];
     quiz_id?: ObjectId;
@@ -53,10 +53,10 @@ export interface IModule {
 
 export interface ILesson {
     id?: ObjectId;
-    title: String;
-    note: String;
-    has_video: Boolean;
-    duration?: Number;
+    title: string;
+    note: string;
+    has_video: boolean;
+    duration?: number;
     lesson_video: any;
     quiz_id?: ObjectId;
     quiz?: typeof Quiz;

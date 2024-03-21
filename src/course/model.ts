@@ -11,7 +11,7 @@ export const lesson = {
     duration: Number,
     lesson_video: String,
     quiz_link: Schema.Types.ObjectId
-}
+};
 
 
 export const module = {
@@ -34,7 +34,7 @@ export const module = {
         type: Date,
         default: Date.now
     }
-}
+};
 
 
 const courseSchema = new Schema({

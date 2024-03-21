@@ -1,4 +1,4 @@
-import HttpException from "../common/http-exception";
+import HttpException from '../common/http-exception';
 
 export class handleError extends HttpException {
     data: any;

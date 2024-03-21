@@ -56,7 +56,7 @@ export const courseService = {
     },
 
 
-    async save(course: ICourseCreate | ICourseEdit, courseId?: String): Promise<ICourseView> {
+    async save(course: ICourseCreate | ICourseEdit, courseId?: string): Promise<ICourseView> {
         let thumb_url;
 
         if (course.thumb_photo) {
@@ -76,7 +76,7 @@ export const courseService = {
                 objectives: JSON.stringify(module.objectives),
                 class_activities: JSON.stringify(module.class_activities),
                 further_reading_links: JSON.stringify(module.further_reading_links)
-            }
+            };
         }
 
         const { objectives, class_activities, further_reading_links } = parseData(module);
@@ -85,7 +85,7 @@ export const courseService = {
             { _id: courseId },
             {
                 $push: {
-                    "modules": {
+                    'modules': {
                         ...module,
                         objectives,
                         class_activities,
@@ -106,8 +106,8 @@ export const courseService = {
     },
 
 
-    async addLesson(courseId: string, moduleId: string, lesson: ILesson): Promise<Boolean> {
-        const course = await this.view({ _id: courseId, "modules._id": moduleId });
+    async addLesson(courseId: string, moduleId: string, lesson: ILesson): Promise<boolean> {
+        const course = await this.view({ _id: courseId, 'modules._id': moduleId });
         if (!course) throw new handleError(404, 'Course or module not found');
 
         if (String(lesson.has_video).toLowerCase() == 'true') {
@@ -123,10 +123,10 @@ export const courseService = {
         }
 
         await Course.updateOne(
-            { _id: courseId, "modules._id": moduleId },
+            { _id: courseId, 'modules._id': moduleId },
             {
                 $push: {
-                    "modules.$.lessons": lesson
+                    'modules.$.lessons': lesson
                 }
             }
         );
@@ -135,7 +135,7 @@ export const courseService = {
 
 
     async listModuleLessons(courseId: string, moduleId: string) {
-        const course = await this.findOne({ _id: courseId, "modules._id": moduleId });
+        const course = await this.findOne({ _id: courseId, 'modules._id': moduleId });
         if (!course) throw new handleError(404, 'Course or module not found');
 
         return course.modules?.find((module: IModule) => String(module._id) === String(moduleId));
@@ -143,7 +143,7 @@ export const courseService = {
 
 
     getDetailsForCourseModules(courseModules: IModule[]) {
-        let courseModuleDetails = {
+        const courseModuleDetails = {
             lesson_count: 0,
             duration: 0
         };
@@ -158,12 +158,12 @@ export const courseService = {
 
             return {
                 ...module,
-                objectives: JSON.parse(module.objectives as string || "{}"),
-                class_activities: JSON.parse(module.class_activities as string || "{}"),
-                further_reading_links: JSON.parse(module.further_reading_links as string || "{}"),
+                objectives: JSON.parse(module.objectives as string || '{}'),
+                class_activities: JSON.parse(module.class_activities as string || '{}'),
+                further_reading_links: JSON.parse(module.further_reading_links as string || '{}'),
                 lesson_count,
                 duration: formatTimestamp(lessonDuration || 0),
-            }
+            };
         });
 
         return { modules, courseModuleDetails };
@@ -174,11 +174,11 @@ export const courseService = {
         let queryCriteria = {};
 
         switch (userType) {
-            case USER_TYPES.learner:
-                queryCriteria = await this.prepareUserCoursesCriteria(userId);
-                break;
-            case USER_TYPES.admin:
-            default:
+        case USER_TYPES.learner:
+            queryCriteria = await this.prepareUserCoursesCriteria(userId);
+            break;
+        case USER_TYPES.admin:
+        default:
         }
         return this.list({ ...queryCriteria, deleted: false });
     },
@@ -189,4 +189,4 @@ export const courseService = {
         const accessSlugs = access.content_access.map((a: { slug: any; }) => a.slug);
         return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
-}
+};

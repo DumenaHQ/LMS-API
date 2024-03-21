@@ -1,10 +1,9 @@
-import Quiz, { QuizLevelType, quizAnswers } from './models';
+import Quiz, { QuizLevelType } from './models';
 import Course from '../course/model';
 import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 import { userService } from '../user/service';
-import { IModule } from '../course/interfaces';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
@@ -24,12 +23,12 @@ export const quizService = {
 
         const filter = {
             course: { _id: courseId },
-            module: { _id: courseId, "modules._id": quiz_level_id },
+            module: { _id: courseId, 'modules._id': quiz_level_id },
             lesson: { _id: courseId }
         };
         const updateData = {
             course: { quiz_id: quizId },
-            module: { "modules.$.quiz_id": quizId },
+            module: { 'modules.$.quiz_id': quizId },
             lesson: {}
         };
 
@@ -48,12 +47,12 @@ export const quizService = {
     },
 
     async list(criteria: object): Promise<IQuiz[]> {
-        const quizes = await Quiz.find().select('-answers').sort({ createdAt: 'desc' });
+        const quizes = await Quiz.find(criteria).select('-answers').sort({ createdAt: 'desc' });
         return quizes.map(rawQuiz => {
             const quiz = rawQuiz.toJSON();
             const questions = quiz.questions;
             delete quiz.questions;
-            return { ...quiz, question_count: questions.length }
+            return { ...quiz, question_count: questions.length };
         });
     },
 
@@ -67,7 +66,7 @@ export const quizService = {
             { _id: new mongoose.Types.ObjectId(quizId) },
             {
                 $push: {
-                    "questions": { $each: questions }
+                    'questions': { $each: questions }
                 }
             }
         );
@@ -80,7 +79,7 @@ export const quizService = {
             { _id: new mongoose.Types.ObjectId(quizId) },
             {
                 $push: {
-                    "answers": {
+                    'answers': {
                         learner,
                         school_id,
                         answers: selectedOpts
@@ -91,9 +90,6 @@ export const quizService = {
         if (!quiz) throw new handleError(400, 'Quiz not found');
     },
 
-    async markQuiz(quizId: string) {
-
-    },
 
     async computeLearnerResult(quizId: string, learnerId: string) {
         const quiz = await this.view({ _id: quizId });
@@ -101,8 +97,8 @@ export const quizService = {
         if (!learnerAnswers) throw new handleError(400, 'This Learner hasn\'t taken the quiz yet');
 
         const { answers }: any = learnerAnswers;
-        const score = quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
-            const questAns = answers.find((answer: any) => answer.question_id == question.id);
+        return quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
+            const questAns = answers.find((answer: Record<string, unknown>) => answer.question_id == question.id);
             if (questAns && questAns.selected_ans == question.answer) {
                 return ++score;
             }
@@ -112,7 +108,7 @@ export const quizService = {
 
     computeQuizResult(questions: IQuizQuestion[], learnerAns: []) {
         return questions.reduce((score: number, question: IQuizQuestion) => {
-            const questAns: any = learnerAns.find((answer: any) => String(answer.question_id) == String(question._id));
+            const questAns: any = learnerAns.find((answer: Record<string, unknown>) => String(answer.question_id) == String(question._id));
             if (questAns && String(questAns.selected_ans) == String(question.answer)) {
                 return ++score;
             }
@@ -138,4 +134,4 @@ export const quizService = {
             return { ...learner, score: this.computeQuizResult(quiz.questions!, learnerAns.answers) };
         });
     }
-}
+};
