@@ -222,17 +222,6 @@ export const userService = {
         return { learners, grades: new Set(grades) };
     },
 
-    async listSchoolTeachers(schoolId: string){
-        const criteria = {
-            school: new mongoose.Types.ObjectId(schoolId),
-            'user.deleted': false
-        };
-
-        const instructors = this.list(criteria, 'instructor');
-
-        return instructors;
-    },
-
 
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
         const { user_type } = userData,
