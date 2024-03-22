@@ -62,6 +62,19 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 };
 
 
+export const removeTeacherFromClass = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: classId } = req.params;
+      
+        await classService.removeTeacherFromClass(classId);
+
+        sendResponse(res, 200, 'Teacher Removed');
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 // export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
 //         const { id: classId } = req.params;
