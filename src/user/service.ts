@@ -228,7 +228,7 @@ export const userService = {
             'user.deleted': false
         };
 
-        const instructors = this.list(criteria, 'instructor');
+        const instructors = await this.list(criteria, 'instructor');
 
         return instructors;
     },
