@@ -186,6 +186,14 @@ export const classService = {
         // Detect and return learners already added to class
     },
 
+
+    async removeTeacherFromClass(classId: string): Promise<void>{
+        const query = await Class.findByIdAndUpdate(classId, {$set:{teacher_id: null}});
+        if (!query) {
+            throw new handleError(400, 'Invalid class ID');
+        }
+    },
+
     async listClassesForRoles(userId: string, role: string) {
         const criteria = {
             [USER_TYPES.learner]: { 'learners.user_id': userId },
