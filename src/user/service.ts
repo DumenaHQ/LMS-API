@@ -225,11 +225,11 @@ export const userService = {
 
     async listSchoolTeachers(schoolId: string) {
         const criteria = {
-            school: new mongoose.Types.ObjectId(schoolId),
+            school_id: new mongoose.Types.ObjectId(schoolId),
             'user.deleted': false
         };
 
-        const instructors = this.list(criteria, 'instructor');
+        const instructors = await this.list(criteria, 'instructor');
 
         return instructors;
     },
