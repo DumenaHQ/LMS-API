@@ -13,4 +13,3 @@ router.delete('/:id/learners/:learnerid', isAuthenticated, isSchool, removeChild
 router.get('/:id/download-students-list', downloadSchoolStudents);
 
 router.get('/:id/teachers', isAuthenticated, isSchoolOrAdmin, listSchoolTeachers);
-
