@@ -8,8 +8,6 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         if (!token) return res.sendStatus(401); // Unauthorized
 
         verify(token, process.env.JWT_SECRET, async (err: any, payload: any) => {
-            // console.log({ payload })
-            // console.log(token)
             if (err) {
                 err.statusCode = 401;
                 next(err);
