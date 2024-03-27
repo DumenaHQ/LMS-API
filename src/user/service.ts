@@ -76,6 +76,9 @@ export const userService = {
             if (user_type != 'learner' && user_type != 'admin') {
                 emailService.sendVerificationEmail(newUser);
             }
+            if (user_type === 'instructor'){
+                emailService.sendPasswordResetLink(newUser);
+            }
             return newUser;
         } catch (err: any) {
             return { status: 'error', message: err.message, data: userData };
