@@ -171,6 +171,23 @@ export const listSchoolTeachers = async (req: Request, res: Response, next: Next
     }
 };
 
+export const removeTeacherFromSchool = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { teacherId } = req.params;
+        const { school_id } = req.user;
+
+        
+        await userService.removeTeacherFromSchool({
+            schoolId: school_id,
+            teacherId: teacherId
+        });
+
+        sendResponse(res, 200, 'Teacher Removed From School');
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 export const getParentChildren = async (req: Request, res: Response, next: NextFunction) => {
     try {

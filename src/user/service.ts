@@ -232,6 +232,30 @@ export const userService = {
 
         return instructors;
     },
+    async removeTeacherFromSchool(args:{teacherId:string, schoolId:string}) {
+   
+        const criteria = {
+            _id: new mongoose.Types.ObjectId(args.teacherId),
+            school_id: new mongoose.Types.ObjectId(args.schoolId),
+            'user.deleted': false
+        };
+
+        const instructor = await Instructor.findById(criteria._id);
+
+        if(!instructor){
+            throw new handleError(400, 'Instructor not found');
+        }
+
+        if (String(instructor.school_id) !== String(criteria.school_id)){
+            throw new handleError(400, 'Forbidden');
+        }
+
+        // Find And Delete Instructor Attached To User 
+        await userModel['instructor'].findByIdAndDelete(instructor._id);
+
+        // Find And Delete User
+        await User.findByIdAndDelete(instructor.user);
+    },
 
 
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
