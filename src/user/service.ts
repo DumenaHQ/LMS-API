@@ -74,7 +74,12 @@ export const userService = {
             const newUserId = await this.createLoginUser(userData);
             const newUser = await this.createUserType(userData, newUserId);
 
-            if (user_type != 'learner' && user_type != 'admin') {
+            const rolesWithoutVerificationEmail = [
+                USER_TYPES.learner,
+                USER_TYPES.admin,
+                USER_TYPES.instructor
+            ];
+            if (!rolesWithoutVerificationEmail.includes(user_type)) {
                 emailService.sendVerificationEmail(newUser);
             }
             if (user_type === 'instructor'){
