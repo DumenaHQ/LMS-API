@@ -1,22 +1,27 @@
-import { verify } from 'jsonwebtoken';
+import { JwtPayload, verify } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { userService } from '../user/service';
+import { handleError } from '../helpers/handleError';
 
+const JwtSecret = process.env.JWT_SECRET;
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         if (!token) return res.sendStatus(401); // Unauthorized
-
-        verify(token, process.env.JWT_SECRET, async (err: any, payload: any) => {
-            if (err) {
-                err.statusCode = 401;
-                next(err);
-            }
+        
+        try{
+            const payload = verify(token, String(JwtSecret)) as JwtPayload;
             req.user = await userService.view({ _id: payload.id });
             next();
-        });
+        } catch (err){
+            throw new handleError(401, 'Invalid token');
+        }
+
+
     } catch (err) {
         next(err);
+        // return res.sendStatus(401);
+
     }
 };
 
