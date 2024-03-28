@@ -35,7 +35,7 @@ export const userService = {
         if (foundUser.status == EUserStatus.Inactive) throw new handleError(422, 'User account is inactive.');
 
         const payload: any = {
-            id: foundUser.id,
+            id: foundUser._id,
             fullname: foundUser.fullname,
             email: foundUser.email,
             role: foundUser.role,
@@ -45,14 +45,15 @@ export const userService = {
         if (foundUser.phone) payload.phone = foundUser.phone;
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
 
-        let user_type;
+        let user_type = {};
+        let userType = {};
         if (foundUser.role != USER_TYPES.admin) {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
+            const userType = user_type ? user_type.toJSON() : {};
+            userType[`${foundUser.role}_id`] = userType.id;
+            delete userType.id;
         }
-        const userType = user_type ? user_type.toJSON() : {};
-        userType[`${foundUser.role}_id`] = userType.id;
-        delete userType.id;
-        const token: string = sign({ id: foundUser.id }, process.env.JWT_SECRET as string, {
+        const token: string = sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
             expiresIn: '24h',
         });
         return {
@@ -222,7 +223,7 @@ export const userService = {
         return { learners, grades: new Set(grades) };
     },
 
-    async listSchoolTeachers(schoolId: string){
+    async listSchoolTeachers(schoolId: string) {
         const criteria = {
             school_id: new mongoose.Types.ObjectId(schoolId),
             'user.deleted': false
