@@ -24,7 +24,7 @@ router.put('/', isAuthenticated, updateUser);
 
 router.post('/teacher', isAuthenticated, isSchool, userCreationRules(), validate, createUser);
 
-router.delete('/teacher/:teacherId', isAuthenticated, isSchool, removeTeacherFromSchool);
+router.delete('/teacher/:teacherUserId', isAuthenticated, isSchool, removeTeacherFromSchool);
 
 router.get('/:id', isAuthenticated, getUser);
 

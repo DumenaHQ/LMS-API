@@ -3,6 +3,7 @@ import { userService } from './service';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { handleError } from '../helpers/handleError';
 import { emailService } from '../helpers/email';
+import mongoose from 'mongoose';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -173,14 +174,20 @@ export const listSchoolTeachers = async (req: Request, res: Response, next: Next
 
 export const removeTeacherFromSchool = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { teacherId } = req.params;
+        const { teacherUserId } = req.params;
         const { school_id } = req.user;
 
-        
-        await userService.removeTeacherFromSchool({
-            schoolId: school_id,
-            teacherId: teacherId
+        const user = await userService.view({
+            _id: new mongoose.Types.ObjectId(teacherUserId),
         });
+
+        console.log(user);
+        console.log(req.user);
+
+        if (String(user.school_id) !== String(school_id)){
+            throw new handleError(403, 'Forbidden');
+        }
+        await userService.deleteUser(user.email);
 
         sendResponse(res, 200, 'Teacher Removed From School');
     } catch (err) {
