@@ -181,9 +181,6 @@ export const removeTeacherFromSchool = async (req: Request, res: Response, next:
             _id: new mongoose.Types.ObjectId(teacherUserId),
         });
 
-        console.log(user);
-        console.log(req.user);
-
         if (String(user.school_id) !== String(school_id)){
             throw new handleError(403, 'Forbidden');
         }
