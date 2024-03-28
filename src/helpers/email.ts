@@ -109,6 +109,22 @@ export const emailService = {
         sendMail(user.email, subject, template, data);
     },
 
+    sendSetNewPasswordLink: function (user: any, schoolName: string): void {
+        if (!user) return;
+        const email_b64 = Buffer.from(user.email).toString('base64url');
+        const hash = crypto.createHash('md5').update(user.email + process.env.EMAIL_HASH_STRING).digest('hex');
+
+        const data = {
+            user: user.fullname,
+            url: BASE_URL + '#/password-reset/' + email_b64 + '/' + hash,
+            base_url: BASE_URL,
+            schoolName: String(schoolName)
+        };
+        const subject = `You've been invited to join ${schoolName} on DUMENA`;
+        const template = 'setNewPassword';
+        sendMail(user.email, subject, template, data);
+    },
+
     emailDUMENA: function ({ sender_email, sender_name, sender_phone = '', subject = 'From FAQ', message }: any) {
         const template = 'dumenaEmail';
         const data = {
