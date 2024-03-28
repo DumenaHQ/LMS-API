@@ -78,7 +78,7 @@ export const userService = {
                 emailService.sendVerificationEmail(newUser);
             }
             if (user_type === 'instructor'){
-                emailService.sendPasswordResetLink(newUser);
+                emailService.sendSetNewPasswordLink(newUser, String(user?.school));
             }
             return newUser;
         } catch (err: any) {
