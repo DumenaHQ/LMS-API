@@ -82,7 +82,7 @@ export const userService = {
             if (!rolesWithoutVerificationEmail.includes(user_type)) {
                 emailService.sendVerificationEmail(newUser);
             }
-            if (user_type === 'instructor'){
+            if (user_type === USER_TYPES.instructor){
                 emailService.sendSetNewPasswordLink(newUser, String(user?.school));
             }
             return newUser;
