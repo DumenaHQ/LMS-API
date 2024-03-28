@@ -234,7 +234,6 @@ export const userService = {
         return instructors;
     },
 
-
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {
         const { user_type } = userData,
             criteria = { _id: new mongoose.Types.ObjectId(userId) };

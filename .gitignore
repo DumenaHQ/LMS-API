@@ -3,3 +3,4 @@ package-lock.json
 .env
 commands.txt
 yarn.lock
+todo.txt
