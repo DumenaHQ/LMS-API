@@ -210,7 +210,7 @@ export const classService = {
         if (data.teacher_id){
             const teacherId = new mongoose.Types.ObjectId(data.teacher_id);
             teacher = await User.findById(teacherId);
-            if (!teacher){
+            if (!teacher || teacher.role !== 'instructor'){
                 throw new handleError(400, 'Invalid teacher ID');
             }
             teacher = {
