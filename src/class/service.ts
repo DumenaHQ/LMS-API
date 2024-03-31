@@ -1,4 +1,5 @@
 import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import User from '../user/models';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -205,7 +206,26 @@ export const classService = {
     },
 
     async update(classId: string, data: object): Promise<any> {
-        return Class.findByIdAndUpdate(classId, data, { new: true });
+        let teacher;
+        if (data.teacher_id){
+            const teacherId = new mongoose.Types.ObjectId(data.teacher_id);
+            teacher = await User.findById(teacherId);
+            if (!teacher){
+                throw new handleError(400, 'Invalid teacher ID');
+            }
+            teacher = {
+                id: teacher.id,
+                fullname: teacher.fullname,
+                email: teacher.email,
+                role: teacher.role
+            };
+        }
+        const schoolClass = await Class.findByIdAndUpdate(classId, data, { new: true });
+
+        return {
+            class: schoolClass,
+            teacher,
+        };
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {

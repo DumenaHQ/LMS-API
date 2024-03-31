@@ -114,7 +114,7 @@ export const updateClass = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: classId } = req.params;
         const _class = await classService.update(classId, req.body);
-        sendResponse(res, 200, 'Class updated', { class: _class });
+        sendResponse(res, 200, 'Class updated', { ..._class });
     } catch (err) {
         next(err);
     }
