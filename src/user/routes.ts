@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild, deleteUser } from './controller';
+import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild, deleteUser, removeTeacherFromSchool } from './controller';
 import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 import { enrollLearnerRules } from '../middleware/validators/enrollLearnerValidators';
 import { isAuthenticated, isParent, isSchool } from '../middleware/verifyToken';
@@ -23,6 +23,8 @@ router.get('/exportdata', downloadUserData);
 router.put('/', isAuthenticated, updateUser);
 
 router.post('/teacher', isAuthenticated, isSchool, userCreationRules(), validate, createUser);
+
+router.delete('/teacher/:teacherUserId', isAuthenticated, isSchool, removeTeacherFromSchool);
 
 router.get('/:id', isAuthenticated, getUser);
 
