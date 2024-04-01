@@ -55,15 +55,10 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
             }
         ];
 
-        const instructor = {
-            fullname: 'Dumena Educators',
-            email: 'connect@dumena.com'
-        };
-
         await Promise.all([
             Role.insertMany(roles),
             Subscription.insertMany(subs),
-            Instructor.create(instructor)
+            // Instructor.create(instructor)
         ]);
 
         sendResponse(res, 200, 'Database Seeded!');
