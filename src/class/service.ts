@@ -1,4 +1,5 @@
 import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import User from '../user/models';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -92,7 +93,17 @@ export const classService = {
         classroom.course_count = courses.length;
         classroom.courses = await courseService.list({ _id: { $in: courses } });
 
-        return classroom;
+        // fetch teacher details
+        let teacher;
+        if (classroom.teacher_id){
+            teacher = await userService.view({_id: classroom.teacher_id});
+            teacher = {
+                id: teacher.id,
+                fullname: teacher.fullname,
+                email: teacher.email
+            };
+        }
+        return {...classroom, teacher};
     },
 
     async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
@@ -205,7 +216,14 @@ export const classService = {
     },
 
     async update(classId: string, data: object): Promise<any> {
-        return Class.findByIdAndUpdate(classId, data, { new: true });
+        let teacher;
+        if (data.teacher_id){
+            teacher = await userService.view({_id: data.teacher_id});
+            if (!teacher || teacher.role !== 'instructor'){
+                throw new handleError(400, 'Invalid teacher ID');
+            }
+        }
+        return await Class.findByIdAndUpdate(classId, data, { new: true });
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
