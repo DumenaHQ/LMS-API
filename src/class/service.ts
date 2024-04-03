@@ -225,6 +225,15 @@ export const classService = {
         return quizService.listLearnersResult(quizId, classLearnerIds);
     },
 
+    async getLearnerQuizResult(classId: string, quizId: string, learnerId: string){
+        const allClassQuizResults = await this.getClassQuizResults(classId, quizId);
+        const learnerQuizResult = allClassQuizResults.find((result: any) => result.id === learnerId);
+        if (!learnerQuizResult){
+            throw new handleError(400, 'Learner quiz report not found');
+        }
+        return learnerQuizResult;
+    },
+
     async subscribe(classId: string, userId: string, learners: []) {
         const klass = await this.findOne({ _id: classId }, false);
         const meta_data = { classId };

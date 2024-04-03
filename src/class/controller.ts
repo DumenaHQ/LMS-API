@@ -179,6 +179,17 @@ export const getClassQuizResults = async (req: Request, res: Response, next: Nex
     }
 };
 
+export const  getLearnerQuizResult = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: classId, quizId, learnerId } = req.params;
+        const quizResult = await classService. getLearnerQuizResult(classId, quizId, learnerId);
+        sendResponse(res, 200, 'Quiz Result fetched', { quizResult });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
