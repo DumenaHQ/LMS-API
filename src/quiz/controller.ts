@@ -62,3 +62,14 @@ export const submitQuiz = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
 };
+
+export const getLearnerQuizResult = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId, learnerId } = req.params;
+        // const { id: userId, school: school_id } = req.user;
+        const result = await quizService.computeLearnerResult(quizId, learnerId);
+        sendResponse(res, 200, 'Quiz Result', result);
+    } catch (err) {
+        next(err);
+    }
+};
