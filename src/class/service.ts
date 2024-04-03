@@ -39,7 +39,7 @@ export const classService = {
     },
 
 
-    async createTemplate(templateData: ITemplate) {
+    async createTemplate(templateData: ITemplate): Promise<ITemplate> {
         return ClassTemplate.create(templateData);
     },
 
@@ -92,17 +92,7 @@ export const classService = {
         classroom.course_count = courses.length;
         classroom.courses = await courseService.list({ _id: { $in: courses } });
 
-        // fetch teacher details
-        let teacher;
-        if (classroom.teacher_id) {
-            teacher = await userService.view({ _id: classroom.teacher_id });
-            teacher = {
-                id: teacher.id,
-                fullname: teacher.fullname,
-                email: teacher.email
-            };
-        }
-        return { ...classroom, teacher };
+        return classroom;
     },
 
     async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
