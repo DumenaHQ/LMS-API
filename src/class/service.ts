@@ -214,9 +214,10 @@ export const classService = {
         return this.list(criteria[role]);
     },
 
-    async update(classId: string, data: object): Promise<any> {
-        if (data.teacher_id) {
-            const teacher = await userService.findOne({ _id: data.teacher_id });
+    async update(classId: string, data: Record<string, unknown>): Promise<any> {
+        const { teacher_id } = data;
+        if (teacher_id) {
+            const teacher = await userService.findOne({ _id: teacher_id });
             if (!teacher || teacher.role !== 'instructor') {
                 throw new handleError(400, 'Invalid teacher ID');
             }
@@ -246,7 +247,7 @@ export const classService = {
         const meta_data = { classId };
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
-            return { order_type_id: klass.template, user_id, name, order_type: 'class', meta_data };
+            return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     }
