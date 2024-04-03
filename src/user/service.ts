@@ -82,7 +82,7 @@ export const userService = {
             if (!rolesWithoutVerificationEmail.includes(user_type)) {
                 emailService.sendVerificationEmail(newUser);
             }
-            if (user_type === USER_TYPES.instructor){
+            if (user_type === USER_TYPES.instructor) {
                 emailService.sendSetNewPasswordLink(newUser, String(user?.school));
             }
             return newUser;
@@ -157,6 +157,10 @@ export const userService = {
         const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
         return User.updateOne({ _id: user_id }, { password: passwordHash });
+    },
+
+    async findOne(criteria: object) {
+        return User.findOne(criteria);
     },
 
     async view(criteria: object): Promise<IUserView> {

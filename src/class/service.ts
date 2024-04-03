@@ -39,7 +39,7 @@ export const classService = {
     },
 
 
-    async createTemplate(templateData: ITemplate): Promise<ITemplate> {
+    async createTemplate(templateData: ITemplate) {
         return ClassTemplate.create(templateData);
     },
 
@@ -92,7 +92,17 @@ export const classService = {
         classroom.course_count = courses.length;
         classroom.courses = await courseService.list({ _id: { $in: courses } });
 
-        return classroom;
+        // fetch teacher details
+        let teacher;
+        if (classroom.teacher_id) {
+            teacher = await userService.view({ _id: classroom.teacher_id });
+            teacher = {
+                id: teacher.id,
+                fullname: teacher.fullname,
+                email: teacher.email
+            };
+        }
+        return { ...classroom, teacher };
     },
 
     async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
@@ -187,8 +197,8 @@ export const classService = {
     },
 
 
-    async removeTeacherFromClass(classId: string): Promise<void>{
-        const query = await Class.findByIdAndUpdate(classId, {$set:{teacher_id: null}});
+    async removeTeacherFromClass(classId: string): Promise<void> {
+        const query = await Class.findByIdAndUpdate(classId, { $set: { teacher_id: null } });
         if (!query) {
             throw new handleError(400, 'Invalid class ID');
         }
@@ -205,7 +215,13 @@ export const classService = {
     },
 
     async update(classId: string, data: object): Promise<any> {
-        return Class.findByIdAndUpdate(classId, data, { new: true });
+        if (data.teacher_id) {
+            const teacher = await userService.findOne({ _id: data.teacher_id });
+            if (!teacher || teacher.role !== 'instructor') {
+                throw new handleError(400, 'Invalid teacher ID');
+            }
+        }
+        return Class.findByIdAndUpdate(classId, data);
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
