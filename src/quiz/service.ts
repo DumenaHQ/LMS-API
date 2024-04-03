@@ -97,13 +97,19 @@ export const quizService = {
         if (!learnerAnswers) throw new handleError(400, 'This Learner hasn\'t taken the quiz yet');
 
         const { answers }: any = learnerAnswers;
-        return quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
+        const quizScore = quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
             const questAns = answers.find((answer: Record<string, unknown>) => answer.question_id == question.id);
             if (questAns && questAns.selected_ans == question.answer) {
                 return ++score;
             }
             return score;
         }, 0);
+
+
+        return {
+            title: quiz.title,
+            score: quizScore,
+        };
     },
 
     computeQuizResult(questions: IQuizQuestion[], learnerAns: []) {
