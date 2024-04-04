@@ -102,7 +102,9 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
     try {
         const { id: classId } = req.params;
         const { role } = req.user;
+        console.log(req.user)
         const roleId = req.user[`${role}_id`];
+        console.log(roleId)
         const _class = await classService.viewClass(classId, { roleId, role });
         sendResponse(res, 200, 'Class fetched', { class: _class });
     } catch (err) {

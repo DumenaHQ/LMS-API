@@ -115,6 +115,7 @@ export const classService = {
             [USER_TYPES.instructor]: { ...defaultParam, teacher_id: roleId },
             [USER_TYPES.admin]: defaultParam
         };
+        console.log({ criteria })
         return this.view(criteria[role]);
     },
 
