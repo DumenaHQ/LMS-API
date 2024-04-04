@@ -209,6 +209,7 @@ export const classService = {
             [USER_TYPES.learner]: { 'learners.user_id': userId },
             [USER_TYPES.school]: { school_id: userId },
             [USER_TYPES.parent]: { parent_id: userId },
+            [USER_TYPES.instructor]: { teacher_id: userId },
             [USER_TYPES.admin]: {}
         };
         return this.list(criteria[role]);
