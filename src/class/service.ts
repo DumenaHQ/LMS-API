@@ -105,13 +105,14 @@ export const classService = {
         return { ...classroom, teacher };
     },
 
-    async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
+    async viewClass(classId: string, { roleId, role }: { roleId: string, role: string }): Promise<IClass | null> {
         const defaultParam: any = { _id: classId };
 
         const criteria = {
-            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': id },
-            [USER_TYPES.school]: { ...defaultParam, school_id: id },
-            [USER_TYPES.parent]: { ...defaultParam, parent_id: id },
+            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': roleId },
+            [USER_TYPES.school]: { ...defaultParam, school_id: roleId },
+            [USER_TYPES.parent]: { ...defaultParam, parent_id: roleId },
+            [USER_TYPES.instructor]: { ...defaultParam, instructor_id: roleId },
             [USER_TYPES.admin]: defaultParam
         };
         return this.view(criteria[role]);
@@ -248,6 +249,7 @@ export const classService = {
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
+            s
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     }

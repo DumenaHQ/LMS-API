@@ -65,7 +65,7 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 export const removeTeacherFromClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-      
+
         await classService.removeTeacherFromClass(classId);
 
         sendResponse(res, 200, 'Teacher Removed');
@@ -101,8 +101,9 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
 export const viewClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-        const { id, role } = req.user;
-        const _class = await classService.viewClass(classId, { id, role });
+        const { role } = req.user;
+        const roleId = req.user[`${role}_id`];
+        const _class = await classService.viewClass(classId, { roleId, role });
         sendResponse(res, 200, 'Class fetched', { class: _class });
     } catch (err) {
         next(err);
