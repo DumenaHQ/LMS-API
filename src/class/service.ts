@@ -69,7 +69,6 @@ export const classService = {
 
 
     async view(criteria: object | string): Promise<IClass | null> {
-        console.log({ criteria })
         let classroom: any;
         if (typeof criteria == 'object')
             classroom = await this.findOne(criteria);
@@ -77,7 +76,6 @@ export const classService = {
             classroom = await this.findOne({ _id: criteria });
         }
         if (!classroom) {
-            console.log('not found')
             throw new handleError(404, 'Class not found');
         }
         classroom = classroom.toJSON();
@@ -107,14 +105,14 @@ export const classService = {
         return { ...classroom, teacher };
     },
 
-    async viewClass(classId: string, { roleId, role }: { roleId: string, role: string }): Promise<IClass | null> {
+    async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
         const defaultParam: any = { _id: new mongoose.Types.ObjectId(classId) };
 
         const criteria = {
-            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': roleId },
-            [USER_TYPES.school]: { ...defaultParam, school_id: roleId },
-            [USER_TYPES.parent]: { ...defaultParam, parent_id: roleId },
-            [USER_TYPES.instructor]: { ...defaultParam, teacher_id: roleId },
+            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': id },
+            [USER_TYPES.school]: { ...defaultParam, school_id: id },
+            [USER_TYPES.parent]: { ...defaultParam, parent_id: id },
+            [USER_TYPES.instructor]: { ...defaultParam, teacher_id: id },
             [USER_TYPES.admin]: defaultParam
         };
         return this.view(criteria[role]);
