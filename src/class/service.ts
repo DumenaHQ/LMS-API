@@ -112,6 +112,7 @@ export const classService = {
             [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': id },
             [USER_TYPES.school]: { ...defaultParam, school_id: id },
             [USER_TYPES.parent]: { ...defaultParam, parent_id: id },
+            [USER_TYPES.instructor]: { ...defaultParam, teacher_id: id },
             [USER_TYPES.admin]: defaultParam
         };
         return this.view(criteria[role]);
