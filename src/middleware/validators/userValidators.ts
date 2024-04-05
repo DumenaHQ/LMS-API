@@ -19,6 +19,7 @@ export const userCreationRules = () => {
             if (!userRole) throw new Error('Invalid user type');
 
             if (user_type == 'learner' && parent) req.body.fullname = `${lastname} ${firstname}`;
+            if (user_type == 'instructor') req.body.password = 'dumena';
         }),
         check('firstname').custom((firstname: string, { req }) => {
             if (req.body.user_type == 'learner' && req.body.parent && !firstname) throw new Error('Firstname must be specified');
