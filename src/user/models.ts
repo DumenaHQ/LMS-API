@@ -68,7 +68,7 @@ const UserSchema: Schema = new Schema({
     phone: {
         type: String,
         index: {
-            unique: true,
+            unique: false,
             sparse: true
         }
     },
@@ -80,7 +80,7 @@ const UserSchema: Schema = new Schema({
         type: String,
         trim: true,
         index: {
-            unique: true,
+            unique: false,
             sparse: true
         }
     },
