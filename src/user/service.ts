@@ -66,14 +66,10 @@ export const userService = {
 
     async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type } = userData;
-
         if (user && user.role == 'school') userData.school_id = user.school_id;
 
         try {
             await this.preventDuplicates(userData);
-            // const newUserId = await this.createLoginUser(userData);
-            // const newUser = await this.createUserType(userData, newUserId);
-
             const newUser = await this.createUserAndUserType(userData);
 
             const rolesWithoutVerificationEmail = [
@@ -93,41 +89,12 @@ export const userService = {
         }
     },
 
-
-    async createLoginUser(userData: IUserCreate): Promise<ObjectId> {
+    async createUserAndUserType(userData: IUserCreate) {
         const { fullname, parent, school, password, user_type } = userData;
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
         const data: Record<string, any> = getValidModelFields(userModel['user'], userData);
         data.password = passwordHash;
         data.role = user_type;
-
-
-        // for learners added by parents/schools
-        if (user_type === USER_TYPES.learner && (parent || school)) {
-            data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
-            data.status = EUserStatus.Active;
-        }
-        const newUser = await User.create(data);
-        return newUser.id;
-    },
-
-
-    async createUserType(userData: IUserCreate, user: ObjectId): Promise<IUserView> {
-        const { user_type } = userData;
-        const userTypeData = getValidModelFields(userModel[user_type], userData);
-        userTypeData.user = user;
-
-        await userModel[user_type].create(userTypeData);
-        return this.view({ _id: user });
-    },
-
-    async createUserAndUserType(userData: IUserCreate){
-        const { fullname, parent, school, password, user_type } = userData;
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-        const data: Record<string, any> = getValidModelFields(userModel['user'], userData);
-        data.password = passwordHash;
-        data.role = user_type;
-
 
         // for learners added by parents/schools
         if (user_type === USER_TYPES.learner && (parent || school)) {
@@ -135,24 +102,18 @@ export const userService = {
             data.status = EUserStatus.Active;
         }
 
-        // Using Mongoose's default connection
-        // This line starts a new session in Mongoose. A session is used to manage transactions and can track operations within a certain scope.
         const session = await mongoose.startSession();
-        // This line starts a transaction within the session. All operations performed within this transaction will be committed or rolled back together, depending on whether the transaction succeeds or fails.
         session.startTransaction();
         try {
-            // as indicated by the { session } option. The operation is performed within the context of the transaction.
             const newUser = await User.create([data], { session });
             const userTypeData = getValidModelFields(userModel[user_type], userData);
             userTypeData.user = newUser[0].id;
             await userModel[user_type].create([userTypeData], { session });
-            // This line commits the transaction. this is what ensures the change is commited to the db.
-            // If for any reason, an error occurs before this line, the transaction is aborted and therefoer is rolled back.
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
         } catch (err) {
             await session.abortTransaction();
-            throw new handleError(400, 'Error creating user and user type');
+            throw new handleError(400, 'Error creating user');
         } finally {
             session.endSession();
         }
