@@ -216,7 +216,7 @@ export const classService = {
         return this.list(criteria[role]);
     },
 
-    async update(classId: string, data: Record<string, unknown>): Promise<any> {
+    async update(classId: string, data: Record<string, unknown>,  files: File): Promise<any> {
         const { teacher_id } = data;
         if (teacher_id) {
             const teacher = await userService.findOne({ _id: teacher_id });
