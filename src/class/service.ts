@@ -231,11 +231,11 @@ export const classService = {
         }
         const { thumbnail, header_photo }: any = files || {};
         if (thumbnail) {
-            const thumbKey = `${UPLOADS.class_thumbs}/${klass.name.split(' ').join('-')}${path.extname(thumbnail.name)}`;
+            const thumbKey = `${UPLOADS.class_thumbs}/${klass.name?.split(' ').join('-')}${path.extname(thumbnail.name)}`;
             data.thumbnail = await uploadFile(lmsBucket, thumbnail, thumbKey);
         }
         if (header_photo) {
-            const photoKey = `${UPLOADS.class_header_photos}/${klass.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
+            const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
         
