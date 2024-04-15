@@ -113,7 +113,7 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
 export const updateClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-        const _class = await classService.update(classId, req.body, req.files);
+        const _class = await classService.update(classId, req.body);
         sendResponse(res, 200, 'Class updated', { _class });
     } catch (err) {
         next(err);
