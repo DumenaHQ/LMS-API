@@ -35,7 +35,9 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${classData.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        return Class.create(classData);
+        // Automatically add 1st,2nd,3rd term
+        
+        return await Class.create(classData);
     },
 
 

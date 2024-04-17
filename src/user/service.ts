@@ -1,4 +1,4 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus } from './models';
+import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, Admin } from './models';
 import { sign } from 'jsonwebtoken';
 import { handleError } from '../helpers/handleError';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,9 @@ const userModel = {
     [USER_TYPES.parent]: Parent,
     [USER_TYPES.school]: School,
     [USER_TYPES.user]: User,
-    [USER_TYPES.instructor]: Instructor
+    [USER_TYPES.instructor]: Instructor,
+    [USER_TYPES.admin]: Admin
+
 };
 
 
@@ -113,6 +115,7 @@ export const userService = {
             return this.view({ _id: newUser[0].id });
         } catch (err) {
             await session.abortTransaction();
+            console.log(err)
             throw new handleError(400, 'Error creating user');
         } finally {
             session.endSession();
