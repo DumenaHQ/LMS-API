@@ -1,4 +1,4 @@
-import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate, Term } from './model';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -36,7 +36,7 @@ export const classService = {
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
         // Automatically add 1st,2nd,3rd term
-        
+
         return await Class.create(classData);
     },
 
@@ -65,7 +65,7 @@ export const classService = {
     async findOne(criteria: object, includeTemplate: boolean = true) {
         const params = { deleted: false, status: EStatus.Active, ...criteria };
         return includeTemplate
-            ? Class.findOne(params).populate({ path: 'template' })
+            ? Class.findOne(params).populate(['terms', 'active_term', 'template'])
             : Class.findOne(params);
     },
 
@@ -122,7 +122,7 @@ export const classService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
+        const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false }).populate(['terms', 'active_term'])
             .populate({ path: 'template' }).sort({ createdAt: 'desc' });
 
         return classes.map((klas: any) => {
@@ -240,9 +240,21 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        
+        console.log(data);
 
-        return await Class.findByIdAndUpdate(classId, data);
+        if (klass.active_term && data.active_term_start_date && data.active_term_end_date){
+            data.active_term_start_date = new Date(String(data.active_term_start_date));
+            data.active_term_end_date = new Date(String(data.active_term_end_date));
+
+            await Term.findByIdAndUpdate(klass.active_term, {
+                $set: {
+                    start_date: data.active_term_start_date,
+                    end_date: data.active_term_end_date
+                }
+            });
+        }
+
+        return Class.findByIdAndUpdate(classId, data).populate(['active_term']);
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
