@@ -115,7 +115,6 @@ export const userService = {
             return this.view({ _id: newUser[0].id });
         } catch (err) {
             await session.abortTransaction();
-            console.log(err)
             throw new handleError(400, 'Error creating user');
         } finally {
             session.endSession();
