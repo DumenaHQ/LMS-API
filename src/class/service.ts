@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_ITEMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_ITEMS, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -42,27 +42,19 @@ export const classService = {
         try {
             const defaultTerms = [
                 {
-                    title: 'First Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
+                    ...TERMS.first_term
                     
                 },
                 {
-                    title: 'Second Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
+                    ...TERMS.second_term
                     
                 },
                 {
-                    title: 'Third Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
+                    ...TERMS.third_term
                     
                 },
                 {
-                    title: 'On Break',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
+                    ...TERMS.on_break
                     
                 },
             ];
@@ -90,7 +82,6 @@ export const classService = {
             return klass;
         } catch (error) {
             await session.abortTransaction();
-
             throw new handleError(400, 'Error Creating new class');
         } finally {
 
@@ -100,65 +91,7 @@ export const classService = {
 
 
     async createTemplate(templateData: ITemplate) {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        try {
-            const defaultTerms = [
-                {
-                    title: 'First Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
-                    
-                },
-                {
-                    title: 'Second Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
-                    
-                },
-                {
-                    title: 'Third Term',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
-                    
-                },
-                {
-                    title: 'On Break',
-                    start_date: Date.now(),
-                    end_date: Date.now(),
-                    
-                },
-            ];
-
-            // Create three terms and associate them with the class
-            const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
-                const term = new Term({ title: terms.title,
-                    start_date: terms.start_date, end_date: terms.end_date
-                });
-                await term.save();
-                // return term._id;
-                return term;
-            }));
-            
-            const klassTemplate = new ClassTemplate({
-                ...templateData,
-                // Set the created terms in the class schema
-                terms: createdTerms
-            });
-
-            await klassTemplate.save();
-
-            await session.commitTransaction();
-
-            return klassTemplate;
-        } catch (error) {
-            await session.abortTransaction();
-
-            throw new handleError(400, 'Error Creating new class template');
-        } finally {
-
-            session.endSession();
-        }
+        return ClassTemplate.create(templateData);
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
@@ -180,9 +113,20 @@ export const classService = {
 
     async findOne(criteria: object, includeTemplate: boolean = true) {
         const params = { deleted: false, status: EStatus.Active, ...criteria };
-        return includeTemplate
-            ? Class.findOne(params).populate(['terms', 'active_term', 'template'])
-            : Class.findOne(params);
+        const klass = includeTemplate
+            ? await Class.findOne(params).populate(['terms', 'template'])
+            : await Class.findOne(params).populate(['terms']);
+
+        if (klass){
+            let active_term;
+            if (klass.terms && klass.terms.length > 0){
+                active_term = await this.getClassActiveTerm(klass.terms);
+            }
+            console.log('Active Term', active_term);
+
+            return {...klass._doc, active_term};
+        }
+        return klass;
     },
 
 
@@ -196,7 +140,7 @@ export const classService = {
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
-        classroom = classroom.toJSON();
+        // classroom = classroom.toJSON();
 
         // fetch full learner details
         classroom.learners = await userService.list({
@@ -239,9 +183,9 @@ export const classService = {
 
     async list(criteria: object): Promise<any[] | []> {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false }).populate(['terms', 'active_term'])
-            .populate({ path: 'template' }).sort({ createdAt: 'desc' });
+            .populate(['terms', 'template']).sort({ createdAt: 'desc' });
 
-        return classes.map((klas: any) => {
+        const result = await Promise.all(classes.map( async (klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
             if (klas.template) {
@@ -249,11 +193,15 @@ export const classService = {
             } else {
                 _class.course_count = klas?.courses?.length;
             }
+            if (klas.terms && klas.terms.length > 0){
+                klas.active_term = await this.getClassActiveTerm(klas.terms);
+            }
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
             return _class;
-        });
+        }));
+        return result;
     },
 
 
@@ -343,7 +291,7 @@ export const classService = {
             }
         }
 
-        const klass = await Class.findById(classId);
+        const klass = await Class.findById(classId).populate(['terms']);
         if (!klass){
             throw new handleError(400, 'Invalid class ID');
         }
@@ -356,21 +304,31 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        console.log(data);
 
-        if (klass.active_term && data.active_term_start_date && data.active_term_end_date){
-            data.active_term_start_date = new Date(String(data.active_term_start_date));
-            data.active_term_end_date = new Date(String(data.active_term_end_date));
+        let active_term;
 
-            await Term.findByIdAndUpdate(klass.active_term, {
-                $set: {
+
+        if (data.active_term_start_date && data.active_term_end_date){
+            if (klass.terms && klass.terms.length > 0){
+                active_term = await this.getClassActiveTerm(klass.terms);
+                
+
+                data.active_term_start_date = new Date(String(data.active_term_start_date));
+                data.active_term_end_date = new Date(String(data.active_term_end_date));
+
+                active_term = await Term.findByIdAndUpdate(active_term.id, {
+                    // $set: {
                     start_date: data.active_term_start_date,
                     end_date: data.active_term_end_date
-                }
-            });
+                    // }
+                }, {new: true});
+                    
+            }
+
         }
 
-        return Class.findByIdAndUpdate(classId, data).populate(['active_term']);
+        const result = await Class.findByIdAndUpdate(classId, data).populate(['terms']);
+        return {...result._doc, active_term};
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -399,5 +357,21 @@ export const classService = {
             s;
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
+    },
+
+    async getClassActiveTerm(terms: Array<any>){
+        const today = new Date();
+        let activeTerm = terms.find(term => {
+            const startDate = new Date(term.start_date);
+            const endDate = new Date(term.end_date);
+            return startDate <= today && today <= endDate;
+        });
+        if (!activeTerm){
+            activeTerm = terms.find(term => {
+                return String(term.title).toLocaleLowerCase() === 'on break';
+            });
+        }
+        console.log(activeTerm);
+        return activeTerm;
     }
 };

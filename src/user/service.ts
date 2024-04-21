@@ -18,8 +18,6 @@ const userModel = {
     [USER_TYPES.school]: School,
     [USER_TYPES.user]: User,
     [USER_TYPES.instructor]: Instructor,
-    [USER_TYPES.admin]: Admin
-
 };
 
 

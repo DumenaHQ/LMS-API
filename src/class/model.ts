@@ -50,14 +50,6 @@ const termSchema = new Schema ({
     end_date: {
         type: Date,
     },
-    courses: {
-        type:[
-            {
-                type: Schema.Types.ObjectId,
-                ref: 'Course'
-            }
-        ]
-    },
 }, { timestamps: true });
 
 export const Term = mongoose.model('Term', termSchema);
@@ -98,12 +90,6 @@ const classSchema = new Schema({
 export default mongoose.model('Class', classSchema);
 
 const classTemplate = new Schema({
-    terms: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Term',
-        }],
-    },
     title: {
         type: String,
         unique: true

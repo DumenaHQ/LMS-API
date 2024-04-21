@@ -186,14 +186,4 @@ const InstructorSchema: Schema = new Schema({
 
 export const Instructor = mongoose.model('Instructor', InstructorSchema);
 
-
-const AdminSchema: Schema = new Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    },
-}, { timestamps: true });
-
-export const Admin = mongoose.model('Admin', AdminSchema);
-
 export default mongoose.model<IUserModel>('User', UserSchema);
