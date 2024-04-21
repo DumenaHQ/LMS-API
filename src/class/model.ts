@@ -51,6 +51,10 @@ const termSchema = new Schema ({
     end_date: {
         type: Date,
     },
+    courses: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Course'
+    }]
 }, { timestamps: true });
 
 export const Term = mongoose.model('Term', termSchema);
