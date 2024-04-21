@@ -47,15 +47,9 @@ const termSchema = new Schema ({
     },
     start_date: {
         type:Date,
-        default: Date.now
     },
     end_date: {
         type: Date,
-        default:  function() {
-            const currentDate = new Date();
-            currentDate.setMonth(currentDate.getMonth() + 3);
-            return currentDate;
-        }
     },
     courses: {
         type:[
