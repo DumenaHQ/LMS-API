@@ -40,6 +40,20 @@ const learner = {
 };
 
 
+const termSchema = new Schema ({
+    title: {
+        type: String,
+        default: 'on break'
+    },
+    start_date: {
+        type:Date,
+    },
+    end_date: {
+        type: Date,
+    },
+}, { timestamps: true });
+
+export const Term = mongoose.model('Term', termSchema);
 
 const classSchema = new Schema({
     template: {

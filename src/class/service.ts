@@ -1,4 +1,4 @@
-import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate, Term } from './model';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_ITEMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_ITEMS, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -40,7 +40,57 @@ export const classService = {
 
 
     async createTemplate(templateData: ITemplate) {
-        return ClassTemplate.create(templateData);
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const defaultTerms = [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                },
+                {
+                    ...TERMS.on_break
+                    
+                },
+            ];
+
+            // Create three terms and associate them with the class
+            const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
+                const term = new Term({ title: terms.title,
+                    start_date: terms.start_date, end_date: terms.end_date
+                });
+                await term.save();
+                // return term._id;
+                return term;
+            }));
+            
+            const klassTemplate = new ClassTemplate({
+                ...templateData,
+                // Set the created terms in the class schema
+                terms: createdTerms
+            });
+
+            await klassTemplate.save();
+
+            await session.commitTransaction();
+
+            return klassTemplate;
+        } catch (error) {
+            await session.abortTransaction();
+
+            throw new handleError(400, 'Error Creating new class template');
+        } finally {
+
+            session.endSession();
+        }
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {

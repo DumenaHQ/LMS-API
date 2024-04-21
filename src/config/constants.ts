@@ -26,4 +26,26 @@ export const
     TEMPLATE_FILE_PATH = 'downloads/templates',
     AWS_S3_REGION = 'us-east-1',
     LMS_BUCKET_NAME = 'lms.raw-files',
-    DEV_LMS_BUCKET_NAME = 'lms-vids';
+    DEV_LMS_BUCKET_NAME = 'lms-vids',
+    TERMS = {
+        first_term:{
+            title: 'First Term',
+            start_date: Date.now(),
+            end_date: Date.now(),
+        },
+        second_term:{
+            title: 'Second Term',
+            start_date: new Date('2024-03-21T18:18:51.038Z'),
+            end_date: new Date('2024-06-21T18:18:51.038Z'),
+        },
+        third_term:{
+            title: 'Third Term',
+            start_date: Date.now(),
+            end_date: Date.now(),
+        },
+        on_break:{
+            title: 'On Break',
+            start_date: new Date('2024-06-22T18:18:51.038Z'),
+            end_date: new Date('2024-09-21T18:18:51.038Z'),
+        },
+    };
