@@ -23,7 +23,6 @@ export interface IClass extends Document {
     learners: IAddLearner[];
     courses?: string[];
     status: string;
-    active_term?: Schema.Types.ObjectId;
 }
 
 export interface ITemplate extends Document {
@@ -74,10 +73,6 @@ const classSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'ClassTemplate'
     },
-    active_term:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Term',
-    },
     name: {
         type: String
     },
@@ -99,30 +94,6 @@ const classSchema = new Schema({
         enum: EStatus
     }
 }, { timestamps: true });
-classSchema.pre('save', async function (next) {
-    try {
-        const Term = mongoose.model('Term');
-        const terms = ['First Term', 'Second Term', 'Third Term', 'On Break'];
-  
-        // Create three terms and associate them with the class
-        const createdTerms = await Promise.all(terms.map(async (termTitle) => {
-            const term = new Term({ title: termTitle });
-            await term.save();
-            // return term._id;
-            return term;
-        }));
-  
-        // Set the created terms in the class schema
-        this.terms = createdTerms;
-
-        // set the active term
-        this.active_term = createdTerms[3];
-  
-        next();
-    } catch (error: any) {
-        next(error);
-    }
-});
   
 export default mongoose.model('Class', classSchema);
 
@@ -132,10 +103,6 @@ const classTemplate = new Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Term',
         }],
-    },
-    active_term:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Term',
     },
     title: {
         type: String,
@@ -153,28 +120,5 @@ const classTemplate = new Schema({
         default: false
     }
 }, { timestamps: true });
-classTemplate.pre('save', async function (next) {
-    try {
-        const Term = mongoose.model('Term');
-        const terms = ['First Term', 'Second Term', 'Third Term', 'On Break'];
-  
-        // Create three terms and associate them with the class
-        const createdTerms = await Promise.all(terms.map(async (termTitle) => {
-            const term = new Term({ title: termTitle });
-            await term.save();
-            // return term._id;
-            return term;
-        }));
-  
-        // Set the created terms in the class schema
-        this.terms = createdTerms;
 
-        // set the active term
-        this.active_term = createdTerms[3];
-  
-        next();
-    } catch (error: any) {
-        next(error);
-    }
-});
 export const ClassTemplate = mongoose.model('ClassTemplate', classTemplate);

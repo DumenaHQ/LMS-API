@@ -20,7 +20,7 @@ const classOrTemplateModel = {
 };
 
 export const classService = {
-    async create(classData: IClass, files: File): Promise<IClass> {
+    async create(classData: IClass, files: File): Promise<any> {
         if (classData.template) {
             const template = await ClassTemplate.findById(classData.template);
             if (!template) throw new handleError(400, 'Invalid template ID');
@@ -37,12 +37,128 @@ export const classService = {
         }
         // Automatically add 1st,2nd,3rd term
 
-        return await Class.create(classData);
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const defaultTerms = [
+                {
+                    title: 'First Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'Second Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'Third Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'On Break',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+            ];
+
+            // Create three terms and associate them with the class
+            const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
+                const term = new Term({ title: terms.title,
+                    start_date: terms.start_date, end_date: terms.end_date
+                });
+                await term.save();
+                // return term._id;
+                return term;
+            }));
+            
+            const klass = new Class({
+                ...classData,
+                // Set the created terms in the class schema
+                terms: createdTerms
+            });
+
+            await klass.save();
+
+            await session.commitTransaction();
+
+            return klass;
+        } catch (error) {
+            await session.abortTransaction();
+
+            throw new handleError(400, 'Error Creating new class');
+        } finally {
+
+            session.endSession();
+        }
     },
 
 
     async createTemplate(templateData: ITemplate) {
-        return ClassTemplate.create(templateData);
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const defaultTerms = [
+                {
+                    title: 'First Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'Second Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'Third Term',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+                {
+                    title: 'On Break',
+                    start_date: Date.now(),
+                    end_date: Date.now(),
+                    
+                },
+            ];
+
+            // Create three terms and associate them with the class
+            const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
+                const term = new Term({ title: terms.title,
+                    start_date: terms.start_date, end_date: terms.end_date
+                });
+                await term.save();
+                // return term._id;
+                return term;
+            }));
+            
+            const klassTemplate = new ClassTemplate({
+                ...templateData,
+                // Set the created terms in the class schema
+                terms: createdTerms
+            });
+
+            await klassTemplate.save();
+
+            await session.commitTransaction();
+
+            return klassTemplate;
+        } catch (error) {
+            await session.abortTransaction();
+
+            throw new handleError(400, 'Error Creating new class template');
+        } finally {
+
+            session.endSession();
+        }
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
@@ -280,7 +396,7 @@ export const classService = {
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-            s
+            s;
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     }
