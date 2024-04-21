@@ -94,14 +94,14 @@ export const classService = {
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
-        const templates = await ClassTemplate.find({ deleted: false, status: EStatus.Active, ...criteria }).sort({ createdAt: 'desc' });
+        const templates = await ClassTemplate.find({ deleted: false, status: EStatus.Active, ...criteria }).populate(['terms']).sort({ createdAt: 'desc' });
         return templates.map((template: any) => {
             return { ...template.toJSON(), course_count: template.courses.length };
         });
     },
 
     async viewTemplate(criteria: object): Promise<ITemplate> {
-        const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
+        const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria }).populate(['terms']);
         template.course_count = template.courses.length;
         template.courses = await courseService.list({
             _id: { $in: template.courses.map((course: string) => course) }
