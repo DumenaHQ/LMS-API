@@ -1,4 +1,4 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus } from './models';
+import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, Admin } from './models';
 import { sign } from 'jsonwebtoken';
 import { handleError } from '../helpers/handleError';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,8 @@ const userModel = {
     [USER_TYPES.parent]: Parent,
     [USER_TYPES.school]: School,
     [USER_TYPES.user]: User,
-    [USER_TYPES.instructor]: Instructor
+    [USER_TYPES.instructor]: Instructor,
+    [USER_TYPES.admin]: Admin
 };
 
 
