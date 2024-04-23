@@ -43,7 +43,6 @@ const learner = {
 const termSchema = new Schema ({
     title: {
         type: String,
-        default: 'on break'
     },
     start_date: {
         type:Date,
@@ -51,12 +50,7 @@ const termSchema = new Schema ({
     end_date: {
         type: Date,
     },
-    courses: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Course',
-        }],
-    }
+    courses: []
 }, { timestamps: true });
 
 export const Term = mongoose.model('Term', termSchema);
