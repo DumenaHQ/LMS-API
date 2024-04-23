@@ -62,20 +62,20 @@ export const classService = {
                 },
             ];
 
-            // Create three terms and associate them with the class
-            const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
-                const term = new Term({ title: terms.title,
-                    start_date: terms.start_date, end_date: terms.end_date
-                });
-                await term.save();
-                // return term._id;
-                return term;
-            }));
+            // // Create three terms and associate them with the class
+            // const createdTerms = await Promise.all(defaultTerms.map(async (terms) => {
+            //     const term = new Term({ title: terms.title,
+            //         start_date: terms.start_date, end_date: terms.end_date
+            //     });
+            //     await term.save();
+            //     // return term._id;
+            //     return term;
+            // }));
             
             const klassTemplate = new ClassTemplate({
                 ...templateData,
                 // Set the created terms in the class schema
-                terms: createdTerms
+                terms: defaultTerms
             });
 
             await klassTemplate.save();
