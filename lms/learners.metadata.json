@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"parent_email":{"$numberInt":"1"}},"name":"parent_email_1","background":true},{"v":{"$numberInt":"2"},"key":{"grade":{"$numberInt":"1"}},"name":"grade_1","background":true}],"uuid":"05089cde99494acb814d6676fd0f0aea","collectionName":"learners","type":"collection"}

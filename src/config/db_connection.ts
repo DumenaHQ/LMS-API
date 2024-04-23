@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 import { dbConfig, env } from './config';
 
-const { host, port, user, password, name: dbname } = dbConfig;
+const { host, port, user, password, name: dbname, connectionString } = dbConfig;
 
 (async function () {
     try {
         const credentials = {
-            development: `mongodb://${host}:${port}/${dbname}`,
+            development: connectionString,
             production: `mongodb+srv://${user}:${password}@${host}/${dbname}?w=majority`
         };
         await mongoose.connect(`${credentials[env]}`, {

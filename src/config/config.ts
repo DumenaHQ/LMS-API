@@ -11,9 +11,7 @@ type envKeys = {
 
 const dbconfig: envKeys = {
     development: {
-        host: process.env.DEV_DB_HOST || 'localhost',
-        port: parseInt(process.env.DEV_DB_PORT as string) || 27017,
-        name: process.env.DEV_DB_NAME || 'lms_dev'
+        connectionString: process.env.DB_CONNECTION_STRING
     },
     production: {
         host: process.env.DB_HOST || 'localhost',
