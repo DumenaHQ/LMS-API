@@ -26,6 +26,7 @@ export interface IClass extends Document {
 }
 
 export interface ITemplate extends Document {
+    terms?: [];
     title: string;
     syllabus: string;
     courses?: string[];
@@ -71,6 +72,7 @@ const classSchema = new Schema({
 export default mongoose.model('Class', classSchema);
 
 const classTemplate = new Schema({
+    terms: [],
     title: {
         type: String,
         unique: true

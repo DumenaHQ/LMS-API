@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_ITEMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_ITEMS, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -40,7 +40,30 @@ export const classService = {
 
 
     async createTemplate(templateData: ITemplate) {
-        return ClassTemplate.create(templateData);
+        // Automatically add 1st,2nd,3rd term
+        const defaultTerms = [
+            {
+                ...TERMS.first_term
+                            
+            },
+            {
+                ...TERMS.second_term
+                            
+            },
+            {
+                ...TERMS.third_term
+                            
+            }
+        ];
+        
+        const klassTemplate = new ClassTemplate({
+            ...templateData,
+            terms: defaultTerms
+        });
+        
+        await klassTemplate.save();
+        
+        return klassTemplate;
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
@@ -266,7 +289,6 @@ export const classService = {
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-            s
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     }
