@@ -26,6 +26,7 @@ export interface IClass extends Document {
 }
 
 export interface ITemplate extends Document {
+    terms?: [];
     title: string;
     syllabus: string;
     courses?: string[];
