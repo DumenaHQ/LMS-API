@@ -293,8 +293,29 @@ export const classService = {
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-            s
+            s;
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
+    },
+
+    async getClassActiveTerm(terms: Array<{
+        title: string,
+        start_date: Date,
+        end_date: Date,
+    }>){
+        const today = new Date();
+        let activeTerm = terms.find(term => {
+            const startDate = new Date(term.start_date);
+            const endDate = new Date(term.end_date);
+            return startDate <= today && today <= endDate;
+        });
+        if (!activeTerm){
+            activeTerm = {
+                title: 'on break',
+                start_date: new Date(),
+                end_date: new Date(),
+            };
+        }
+        return activeTerm;
     }
 };

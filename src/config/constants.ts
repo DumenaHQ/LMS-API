@@ -30,8 +30,8 @@ export const
     TERMS = {
         first_term:{
             title: 'first term',
-            start_date: Date.now(),
-            end_date: Date.now(),
+            start_date: new Date(),
+            end_date: new Date(),
         },
         second_term:{
             title: 'second term',
@@ -40,8 +40,8 @@ export const
         },
         third_term:{
             title: 'third term',
-            start_date: Date.now(),
-            end_date: Date.now(),
+            start_date: new Date(),
+            end_date: new Date(),
         }
     };
 
