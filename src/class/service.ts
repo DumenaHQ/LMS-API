@@ -20,7 +20,7 @@ const classOrTemplateModel = {
 };
 
 export const classService = {
-    async create(classData: IClass, files: File): Promise<IClass> {
+    async create(classData: IClass, files: File): Promise<any> {
         if (classData.template) {
             const template = await ClassTemplate.findById(classData.template);
             if (!template) throw new handleError(400, 'Invalid template ID');
@@ -35,9 +35,36 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${classData.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        return Class.create(classData);
-    },
+        // Automatically add 1st,2nd,3rd term
+        try {
+            const defaultTerms = [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ];
 
+            const klass = new Class({
+                ...classData,
+                terms: defaultTerms
+            });
+
+            await klass.save();
+
+            return klass;
+        } catch (error) {
+
+            throw new handleError(400, 'Error Creating new class, class with name already exist');
+        }
+    },
 
     async createTemplate(templateData: ITemplate) {
         // Automatically add 1st,2nd,3rd term
@@ -85,9 +112,19 @@ export const classService = {
 
     async findOne(criteria: object, includeTemplate: boolean = true) {
         const params = { deleted: false, status: EStatus.Active, ...criteria };
-        return includeTemplate
-            ? Class.findOne(params).populate({ path: 'template' })
-            : Class.findOne(params);
+        const klass = includeTemplate
+            ? await Class.findOne(params).populate({ path: 'template' })
+            : await Class.findOne(params);
+
+        if (klass){
+            let active_term;
+            if (klass.terms && klass.terms.length > 0){
+                active_term = this.getClassActiveTerm(klass.terms);
+            }
+    
+            return {...klass._doc, active_term};
+        }
+        return klass;
     },
 
 
@@ -101,7 +138,7 @@ export const classService = {
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
-        classroom = classroom.toJSON();
+        // classroom = classroom.toJSON();
 
         // fetch full learner details
         classroom.learners = await userService.list({
@@ -153,6 +190,9 @@ export const classService = {
                 _class.course_count = _class.template.courses?.length;
             } else {
                 _class.course_count = klas?.courses?.length;
+            }
+            if (klas.terms && klas.terms.length > 0){
+                klas.active_term = this.getClassActiveTerm(klas.terms);
             }
             delete _class.learners;
             delete _class.courses;
@@ -263,7 +303,28 @@ export const classService = {
         }
         
 
-        return await Class.findByIdAndUpdate(classId, data);
+
+        let active_term;
+        if (data.active_term_start_date && data.active_term_end_date){
+            if (klass.terms && klass.terms.length > 0){
+                active_term = this.getClassActiveTerm(klass.terms);
+
+                active_term =  {
+                    title: active_term.title,
+                    start_date: new Date(String(data.active_term_start_date)),
+                    end_date: new Date(String(data.active_term_end_date))
+                };
+                const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
+                klass.terms[updatedTerm] = active_term;
+                data.terms = klass.terms;    
+            }
+
+        }
+
+        const result = await Class.findByIdAndUpdate(classId, data, {new: true});
+
+        return {...result._doc, active_term};
+        
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -291,5 +352,26 @@ export const classService = {
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
+    },
+
+    getClassActiveTerm(terms: Array<{
+        title: string,
+        start_date: Date,
+        end_date: Date,
+    }>){
+        const today = new Date();
+        let activeTerm = terms.find(term => {
+            const startDate = new Date(term.start_date);
+            const endDate = new Date(term.end_date);
+            return startDate <= today && today <= endDate;
+        });
+        if (!activeTerm){
+            activeTerm = {
+                title: 'on break',
+                start_date: new Date(),
+                end_date: new Date(),
+            };
+        }
+        return activeTerm;
     }
 };
