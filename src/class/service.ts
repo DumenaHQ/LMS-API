@@ -115,7 +115,7 @@ export const classService = {
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
-        classroom = classroom.toJSON();
+        // classroom = classroom.toJSON();
 
         // fetch full learner details
         classroom.learners = await userService.list({
@@ -280,7 +280,28 @@ export const classService = {
         }
         
 
-        return await Class.findByIdAndUpdate(classId, data);
+
+        let active_term;
+        if (data.active_term_start_date && data.active_term_end_date){
+            if (klass.terms && klass.terms.length > 0){
+                active_term = this.getClassActiveTerm(klass.terms);
+
+                active_term =  {
+                    title: active_term.title,
+                    start_date: new Date(String(data.active_term_start_date)),
+                    end_date: new Date(String(data.active_term_end_date))
+                };
+                const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
+                klass.terms[updatedTerm] = active_term;
+                data.terms = klass.terms;    
+            }
+
+        }
+
+        const result = await Class.findByIdAndUpdate(classId, data, {new: true});
+
+        return {...result._doc, active_term};
+        
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
