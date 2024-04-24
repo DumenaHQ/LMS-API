@@ -42,6 +42,7 @@ const learner = {
 
 
 const classSchema = new Schema({
+    terms:[],
     template: {
         type: Schema.Types.ObjectId,
         ref: 'ClassTemplate'
