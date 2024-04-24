@@ -42,10 +42,5 @@ export const
             title: 'Third Term',
             start_date: Date.now(),
             end_date: Date.now(),
-        },
-        on_break:{
-            title: 'On Break',
-            start_date: new Date('2024-06-22T18:18:51.038Z'),
-            end_date: new Date('2024-09-21T18:18:51.038Z'),
-        },
+        }
     };
