@@ -71,6 +71,7 @@ const classSchema = new Schema({
 export default mongoose.model('Class', classSchema);
 
 const classTemplate = new Schema({
+    terms: [],
     title: {
         type: String,
         unique: true

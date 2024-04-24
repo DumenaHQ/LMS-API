@@ -26,4 +26,24 @@ export const
     TEMPLATE_FILE_PATH = 'downloads/templates',
     AWS_S3_REGION = 'us-east-1',
     LMS_BUCKET_NAME = 'lms.raw-files',
-    DEV_LMS_BUCKET_NAME = 'lms-vids';
+    DEV_LMS_BUCKET_NAME = 'lms-vids',
+    TERMS = {
+        first_term:{
+            title: 'first term',
+            courses: [],
+            start_date: new Date(),
+            end_date: new Date(),
+        },
+        second_term:{
+            title: 'second term',
+            courses: [],
+            start_date: new Date('2024-03-21T18:18:51.038Z'),
+            end_date: new Date('2024-06-21T18:18:51.038Z'),
+        },
+        third_term:{
+            title: 'third term',
+            courses: [],
+            start_date: new Date(),
+            end_date: new Date(),
+        }
+    };
