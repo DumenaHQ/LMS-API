@@ -89,9 +89,19 @@ export const classService = {
 
     async findOne(criteria: object, includeTemplate: boolean = true) {
         const params = { deleted: false, status: EStatus.Active, ...criteria };
-        return includeTemplate
-            ? Class.findOne(params).populate({ path: 'template' })
-            : Class.findOne(params);
+        const klass = includeTemplate
+            ? await Class.findOne(params).populate({ path: 'template' })
+            : await Class.findOne(params);
+
+        if (klass){
+            let active_term;
+            if (klass.terms && klass.terms.length > 0){
+                active_term = await this.getClassActiveTerm(klass.terms);
+            }
+    
+            return {...klass._doc, active_term};
+        }
+        return klass;
     },
 
 
