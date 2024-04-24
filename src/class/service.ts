@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_ITEMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_ITEMS, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -20,7 +20,7 @@ const classOrTemplateModel = {
 };
 
 export const classService = {
-    async create(classData: IClass, files: File): Promise<IClass> {
+    async create(classData: IClass, files: File): Promise<any> {
         if (classData.template) {
             const template = await ClassTemplate.findById(classData.template);
             if (!template) throw new handleError(400, 'Invalid template ID');
@@ -35,9 +35,36 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${classData.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        return Class.create(classData);
-    },
+        // Automatically add 1st,2nd,3rd term
+        try {
+            const defaultTerms = [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ];
 
+            const klass = new Class({
+                ...classData,
+                terms: defaultTerms
+            });
+
+            await klass.save();
+
+            return klass;
+        } catch (error) {
+
+            throw new handleError(400, 'Error Creating new class, class with name already exist');
+        }
+    },
 
     async createTemplate(templateData: ITemplate) {
         return ClassTemplate.create(templateData);
