@@ -96,7 +96,7 @@ export const classService = {
         if (klass){
             let active_term;
             if (klass.terms && klass.terms.length > 0){
-                active_term = await this.getClassActiveTerm(klass.terms);
+                active_term = this.getClassActiveTerm(klass.terms);
             }
     
             return {...klass._doc, active_term};
@@ -167,6 +167,9 @@ export const classService = {
                 _class.course_count = _class.template.courses?.length;
             } else {
                 _class.course_count = klas?.courses?.length;
+            }
+            if (klas.terms && klas.terms.length > 0){
+                klas.active_term = this.getClassActiveTerm(klas.terms);
             }
             delete _class.learners;
             delete _class.courses;
@@ -303,12 +306,11 @@ export const classService = {
         const orderItems = learners.map((learner: any) => {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-            s;
         });
         return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
     },
 
-    async getClassActiveTerm(terms: Array<{
+    getClassActiveTerm(terms: Array<{
         title: string,
         start_date: Date,
         end_date: Date,
