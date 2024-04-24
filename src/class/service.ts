@@ -67,7 +67,30 @@ export const classService = {
     },
 
     async createTemplate(templateData: ITemplate) {
-        return ClassTemplate.create(templateData);
+        // Automatically add 1st,2nd,3rd term
+        const defaultTerms = [
+            {
+                ...TERMS.first_term
+                            
+            },
+            {
+                ...TERMS.second_term
+                            
+            },
+            {
+                ...TERMS.third_term
+                            
+            }
+        ];
+        
+        const klassTemplate = new ClassTemplate({
+            ...templateData,
+            terms: defaultTerms
+        });
+        
+        await klassTemplate.save();
+        
+        return klassTemplate;
     },
 
     async listTemplates(criteria: object): Promise<ITemplate[]> {
