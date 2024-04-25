@@ -35,61 +35,20 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${classData.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        // Automatically add 1st,2nd,3rd term
-        try {
-            const defaultTerms = [
-                {
-                    ...TERMS.first_term
-                    
-                },
-                {
-                    ...TERMS.second_term
-                    
-                },
-                {
-                    ...TERMS.third_term
-                    
-                }
-            ];
 
-            const klass = new Class({
-                ...classData,
-                terms: defaultTerms
-            });
-
-            await klass.save();
-
-            return klass;
-        } catch (error) {
-
-            throw new handleError(400, 'Error Creating new class, class with name already exist');
-        }
+        const klass = new Class({
+            ...classData,
+            terms: TERMS
+        });
+        return this.view({ _id: klass._id });
     },
 
     async createTemplate(templateData: ITemplate) {
-        // Automatically add 1st,2nd,3rd term
-        const defaultTerms = [
-            {
-                ...TERMS.first_term
-                            
-            },
-            {
-                ...TERMS.second_term
-                            
-            },
-            {
-                ...TERMS.third_term
-                            
-            }
-        ];
-        
         const klassTemplate = new ClassTemplate({
             ...templateData,
-            terms: defaultTerms
+            terms: TERMS
         });
-        
         await klassTemplate.save();
-        
         return klassTemplate;
     },
 
@@ -100,8 +59,9 @@ export const classService = {
         });
     },
 
-    async viewTemplate(criteria: object): Promise<ITemplate> {
+    async viewTemplate(criteria: object): Promise<ITemplate | {}> {
         const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
+        if (!template) return {};
         template.course_count = template.courses.length;
         template.courses = await courseService.list({
             _id: { $in: template.courses.map((course: string) => course) }
@@ -116,19 +76,19 @@ export const classService = {
             ? await Class.findOne(params).populate({ path: 'template' })
             : await Class.findOne(params);
 
-        if (klass){
+        if (klass) {
             let active_term;
-            if (klass.terms && klass.terms.length > 0){
+            if (klass.terms && klass.terms.length > 0) {
                 active_term = this.getClassActiveTerm(klass.terms);
             }
-    
-            return {...klass._doc, active_term};
+
+            return { ...klass._doc, active_term };
         }
         return klass;
     },
 
 
-    async view(criteria: object | string): Promise<IClass | null> {
+    async view(criteria: object | string): Promise<IClass> {
         let classroom: any;
         if (typeof criteria == 'object')
             classroom = await this.findOne(criteria);
@@ -191,7 +151,7 @@ export const classService = {
             } else {
                 _class.course_count = klas?.courses?.length;
             }
-            if (klas.terms && klas.terms.length > 0){
+            if (klas.terms && klas.terms.length > 0) {
                 _class.active_term = this.getClassActiveTerm(klas.terms);
             }
             delete _class.learners;
@@ -279,7 +239,7 @@ export const classService = {
         return this.list(criteria[role]);
     },
 
-    async update(classId: string, data: Record<string, unknown>,  files: File): Promise<any> {
+    async update(classId: string, data: Record<string, unknown>, files: File): Promise<any> {
         const { teacher_id } = data;
         if (teacher_id) {
             const teacher = await userService.findOne({ _id: teacher_id });
@@ -289,7 +249,7 @@ export const classService = {
         }
 
         const klass = await Class.findById(classId);
-        if (!klass){
+        if (!klass) {
             throw new handleError(400, 'Invalid class ID');
         }
         const { thumbnail, header_photo }: any = files || {};
@@ -301,15 +261,15 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        
+
 
 
         let active_term;
-        if (data.active_term_start_date && data.active_term_end_date){
-            if (klass.terms && klass.terms.length > 0){
+        if (data.active_term_start_date && data.active_term_end_date) {
+            if (klass.terms && klass.terms.length > 0) {
                 active_term = this.getClassActiveTerm(klass.terms);
 
-                active_term =  {
+                active_term = {
                     title: active_term.title,
                     defaultDateChanged: true,
                     start_date: new Date(String(data.active_term_start_date)),
@@ -317,15 +277,15 @@ export const classService = {
                 };
                 const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
                 klass.terms[updatedTerm] = active_term;
-                data.terms = klass.terms;    
+                data.terms = klass.terms;
             }
 
         }
 
-        const result = await Class.findByIdAndUpdate(classId, data, {new: true});
+        const result = await Class.findByIdAndUpdate(classId, data, { new: true });
 
-        return {...result._doc, active_term};
-        
+        return { ...result._doc, active_term };
+
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -359,14 +319,14 @@ export const classService = {
         title: string,
         start_date: Date,
         end_date: Date,
-    }>){
+    }>) {
         const today = new Date();
         let activeTerm = terms.find(term => {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
             return startDate <= today && today <= endDate;
         });
-        if (!activeTerm){
+        if (!activeTerm) {
             activeTerm = {
                 title: 'on break',
                 start_date: new Date(),
