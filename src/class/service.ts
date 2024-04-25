@@ -332,7 +332,7 @@ export const classService = {
     },
 
     async delete(classId: string): Promise<void> {
-        Class.findByIdAndUpdate(classId, { deleted: true }, { new: true });
+        await Class.findByIdAndUpdate(classId, { deleted: true });
     },
 
     async getClassQuizResults(classId: string, quizId: string) {
