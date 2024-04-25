@@ -311,6 +311,7 @@ export const classService = {
 
                 active_term =  {
                     title: active_term.title,
+                    defaultDateChanged: true,
                     start_date: new Date(String(data.active_term_start_date)),
                     end_date: new Date(String(data.active_term_end_date))
                 };
