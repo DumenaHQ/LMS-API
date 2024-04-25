@@ -192,7 +192,7 @@ export const classService = {
                 _class.course_count = klas?.courses?.length;
             }
             if (klas.terms && klas.terms.length > 0){
-                klas.active_term = this.getClassActiveTerm(klas.terms);
+                _class.active_term = this.getClassActiveTerm(klas.terms);
             }
             delete _class.learners;
             delete _class.courses;
