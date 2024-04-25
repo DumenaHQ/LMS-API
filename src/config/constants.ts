@@ -31,18 +31,21 @@ export const
         first_term:{
             title: 'first term',
             courses: [],
+            defaultDateChanged: false,
             start_date: new Date(),
             end_date: new Date(),
         },
         second_term:{
             title: 'second term',
             courses: [],
+            defaultDateChanged: false,
             start_date: new Date('2024-03-21T18:18:51.038Z'),
             end_date: new Date('2024-06-21T18:18:51.038Z'),
         },
         third_term:{
             title: 'third term',
             courses: [],
+            defaultDateChanged: false,
             start_date: new Date(),
             end_date: new Date(),
         }
