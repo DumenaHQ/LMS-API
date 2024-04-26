@@ -117,13 +117,12 @@ export const classService = {
             : await Class.findOne(params);
 
         if (klass){
-            let active_term;
             const _class = klass.toJSON();
 
-            if (klass.terms && klass.terms.length > 0){
-                active_term = this.getClassActiveTerm(klass.terms);
-                _class.active_term = active_term;
-            }
+            // if (klass.terms && klass.terms.length > 0){
+            const active_term = this.getClassActiveTerm(klass.terms);
+            _class.active_term = active_term;
+            // }
             return _class;
         }
         return klass;
