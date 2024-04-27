@@ -358,10 +358,9 @@ export const classService = {
         start_date: Date,
         end_date: Date,
     }>){
-        let activeTerm;
+        let activeTerm = null;
 
         if (terms.length === 0) {
-            activeTerm = null;
             return activeTerm;
         }
         const today = new Date();
