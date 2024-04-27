@@ -370,12 +370,6 @@ export const classService = {
             return startDate <= today && today <= endDate;
         });
         if (!activeTerm){
-            // activeTerm = {
-            //     title: 'on break',
-            //     start_date: new Date(),
-            //     end_date: new Date(),
-            // };
-            activeTerm = null ;
             return activeTerm;
 
         }
