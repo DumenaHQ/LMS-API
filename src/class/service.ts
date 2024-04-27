@@ -117,13 +117,12 @@ export const classService = {
             : await Class.findOne(params);
 
         if (klass){
-            let active_term;
             const _class = klass.toJSON();
 
-            if (klass.terms && klass.terms.length > 0){
-                active_term = this.getClassActiveTerm(klass.terms);
-                _class.active_term = active_term;
-            }
+            // if (klass.terms && klass.terms.length > 0){
+            const active_term = this.getClassActiveTerm(klass.terms);
+            _class.active_term = active_term;
+            // }
             return _class;
         }
         return klass;
@@ -193,9 +192,8 @@ export const classService = {
             } else {
                 _class.course_count = klas?.courses?.length;
             }
-            if (klas.terms && klas.terms.length > 0){
-                _class.active_term = this.getClassActiveTerm(klas.terms);
-            }
+
+            _class.active_term = this.getClassActiveTerm(klas.terms);
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
@@ -308,9 +306,8 @@ export const classService = {
 
         let active_term;
         if (data.active_term_start_date && data.active_term_end_date){
-            if (klass.terms && klass.terms.length > 0){
-                active_term = this.getClassActiveTerm(klass.terms);
-
+            active_term = this.getClassActiveTerm(klass.terms);
+            if (active_term){
                 active_term =  {
                     title: active_term.title,
                     defaultDateChanged: true,
@@ -319,9 +316,8 @@ export const classService = {
                 };
                 const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
                 klass.terms[updatedTerm] = active_term;
-                data.terms = klass.terms;    
-            }
-
+                data.terms = klass.terms;   
+            } 
         }
 
         const result = await Class.findByIdAndUpdate(classId, data, {new: true});
@@ -362,18 +358,20 @@ export const classService = {
         start_date: Date,
         end_date: Date,
     }>){
+        let activeTerm = null;
+
+        if (terms.length === 0) {
+            return activeTerm;
+        }
         const today = new Date();
-        let activeTerm = terms.find(term => {
+        activeTerm = terms.find(term => {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
             return startDate <= today && today <= endDate;
         });
         if (!activeTerm){
-            activeTerm = {
-                title: 'on break',
-                start_date: new Date(),
-                end_date: new Date(),
-            };
+            return activeTerm;
+
         }
         return activeTerm;
     }
