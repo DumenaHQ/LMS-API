@@ -11,6 +11,7 @@ import { paymentService } from '../payment/service';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
+import Class from '../class/model';
 
 const userModel = {
     [USER_TYPES.learner]: Learner,
@@ -368,10 +369,15 @@ export const userService = {
                     school: school._id,
                     'user.deleted': false
                 });
+
+                const totalClasses = await Class.countDocuments({
+                    school_id: school._id,
+                });
+
                 const _school = school.toJSON();
                 _school.totalInstructorsOnboarded = totalInstructorsOnboarded;
                 _school.totalLearnersOnboarded = totalLearnersOnboarded;
-
+                _school.totalClasses = totalClasses;
 
                 return _school;
             }
