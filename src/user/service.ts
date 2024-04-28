@@ -352,5 +352,32 @@ export const userService = {
     async deleteUser(email: string) {
         const user = await User.findOneAndDelete({ email });
         await userModel[user.role].deleteOne({ user: user._id });
-    }
+    },
+
+    async schoolsAnalytics(){
+        const schools = await School.find();
+
+        const formattedSchools = await Promise.all(schools.map(
+            async (school) => {
+                const totalInstructorsOnboarded = await Instructor.countDocuments({
+                    school_id: school._id,
+                    'user.deleted': false
+                });
+
+                const totalLearnersOnboarded = await Learner.countDocuments({
+                    school: school._id,
+                    'user.deleted': false
+                });
+                const _school = school.toJSON();
+                _school.totalInstructorsOnboarded = totalInstructorsOnboarded;
+                _school.totalLearnersOnboarded = totalLearnersOnboarded;
+
+
+                return _school;
+            }
+        ));
+
+        return formattedSchools;
+    } 
+
 };
