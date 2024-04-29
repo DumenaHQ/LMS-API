@@ -374,12 +374,7 @@ export const userService = {
                     school_id: school._id,
                 });
 
-                const _school = school.toJSON();
-                _school.totalInstructorsOnboarded = totalInstructorsOnboarded;
-                _school.totalLearnersOnboarded = totalLearnersOnboarded;
-                _school.totalClasses = totalClasses;
-
-                return _school;
+                return { ...school.toJSON(), totalInstructorsOnboarded, totalLearnersOnboarded, totalClasses };
             }
         ));
 
