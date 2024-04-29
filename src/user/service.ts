@@ -358,7 +358,7 @@ export const userService = {
     async schoolsAnalytics(){
         const schools = await School.find();
 
-        const formattedSchools = await Promise.all(schools.map(
+        return Promise.all(schools.map(
             async (school) => {
                 const totalInstructorsOnboarded = await Instructor.countDocuments({
                     school_id: school._id,
