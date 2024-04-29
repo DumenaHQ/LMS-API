@@ -264,7 +264,7 @@ export const schoolsAnalytics =  async (req: Request, res: Response, next: NextF
     try {
 
         const schoolsAnalytics = await userService.schoolsAnalytics();
-        sendResponse(res, 200, 'All Schools Analytics', schoolsAnalytics);
+        sendResponse(res, 200, 'Schools Analytics Fetched', schoolsAnalytics);
     } catch (err) {
         next(err);
     }
