@@ -259,3 +259,13 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
 };
+
+export const schoolsAnalytics =  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const schoolsAnalytics = await userService.schoolsAnalytics();
+        sendResponse(res, 200, 'Schools Analytics Fetched', schoolsAnalytics);
+    } catch (err) {
+        next(err);
+    }
+};

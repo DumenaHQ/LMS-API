@@ -11,6 +11,7 @@ import { paymentService } from '../payment/service';
 
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
+import Class from '../class/model';
 
 const userModel = {
     [USER_TYPES.learner]: Learner,
@@ -352,5 +353,31 @@ export const userService = {
     async deleteUser(email: string) {
         const user = await User.findOneAndDelete({ email });
         await userModel[user.role].deleteOne({ user: user._id });
-    }
+    },
+
+    async schoolsAnalytics(){
+        const schools = await School.find();
+
+        return Promise.all(schools.map(
+            async (school) => {
+                const totalInstructorsOnboarded = await Instructor.countDocuments({
+                    school_id: school._id,
+                    'user.deleted': false
+                });
+
+                const totalLearnersOnboarded = await Learner.countDocuments({
+                    school: school._id,
+                    'user.deleted': false
+                });
+
+                const totalClasses = await Class.countDocuments({
+                    school_id: school._id,
+                });
+
+                return { ...school.toJSON(), totalInstructorsOnboarded, totalLearnersOnboarded, totalClasses };
+            }
+        ));
+
+    } 
+
 };
