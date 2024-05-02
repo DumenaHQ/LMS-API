@@ -233,7 +233,11 @@ export const classService = {
 
 
     async addLearners(classId: string, learners: IAddLearner[]): Promise<void> {
-        const _class = await this.findOne({ _id: classId }, false);
+        const params = { deleted: false, status: EStatus.Active,  _id: classId };
+
+        const _class =    await Class.findOne(params);
+
+        
         if (!_class) {
             throw new handleError(400, 'Invalid class ID');
         }
