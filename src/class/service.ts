@@ -115,16 +115,6 @@ export const classService = {
         const klass = includeTemplate
             ? await Class.findOne(params).populate({ path: 'template' })
             : await Class.findOne(params);
-
-        if (klass){
-            const _class = klass.toJSON();
-
-            // if (klass.terms && klass.terms.length > 0){
-            const active_term = this.getClassActiveTerm(klass.terms);
-            _class.active_term = active_term;
-            // }
-            return _class;
-        }
         return klass;
     },
 
@@ -139,7 +129,7 @@ export const classService = {
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
-        // classroom = classroom.toJSON();
+        classroom = classroom.toJSON();
 
         // fetch full learner details
         classroom.learners = await userService.list({
@@ -163,6 +153,9 @@ export const classService = {
                 email: teacher.email
             };
         }
+
+        classroom.active_term = this.getClassActiveTerm(classroom.terms);
+
         return { ...classroom, teacher };
     },
 
