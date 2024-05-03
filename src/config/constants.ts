@@ -32,21 +32,21 @@ export const
             title: 'first term',
             courses: [],
             defaultDateChanged: false,
-            start_date: new Date(),
-            end_date: new Date(),
+            start_date: new Date(String(`${new Date().getFullYear()}-09-03T00:00:00.000Z`)),
+            end_date: new Date(`${new Date().getFullYear()}-12-23T00:00:00.000Z`),
         },
         second_term:{
             title: 'second term',
             courses: [],
             defaultDateChanged: false,
-            start_date: new Date('2024-03-21T18:18:51.038Z'),
-            end_date: new Date('2024-06-21T18:18:51.038Z'),
+            start_date: new Date(`${new Date().getFullYear()}-01-03T00:00:00.000Z`),
+            end_date: new Date(`${new Date().getFullYear()}-04-07T00:00:00.000Z`),
         },
         third_term:{
             title: 'third term',
             courses: [],
             defaultDateChanged: false,
-            start_date: new Date(),
-            end_date: new Date(),
+            start_date: new Date(`${new Date().getFullYear()}-04-14T00:00:00.000Z`),
+            end_date: new Date(`${new Date().getFullYear()}-07-20T00:00:00.000Z`),
         }
     };
