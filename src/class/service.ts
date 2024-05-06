@@ -1,4 +1,4 @@
-import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate, ITerm } from './model';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -75,15 +75,6 @@ export const classService = {
         const klass = includeTemplate
             ? await Class.findOne(params).populate({ path: 'template' })
             : await Class.findOne(params);
-
-        if (klass) {
-            let active_term;
-            if (klass.terms && klass.terms.length > 0) {
-                active_term = this.getClassActiveTerm(klass.terms);
-            }
-
-            return { ...klass._doc, active_term };
-        }
         return klass;
     },
 
@@ -98,7 +89,7 @@ export const classService = {
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
-        // classroom = classroom.toJSON();
+        classroom = classroom.toJSON();
 
         // fetch full learner details
         classroom.learners = await userService.list({
@@ -122,6 +113,9 @@ export const classService = {
                 email: teacher.email
             };
         }
+
+        classroom.active_term = this.getClassActiveTerm(classroom.terms);
+
         return { ...classroom, teacher };
     },
 
@@ -151,9 +145,8 @@ export const classService = {
             } else {
                 _class.course_count = klas?.courses?.length;
             }
-            if (klas.terms && klas.terms.length > 0) {
-                _class.active_term = this.getClassActiveTerm(klas.terms);
-            }
+
+            _class.active_term = this.getClassActiveTerm(klas.terms);
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
@@ -264,11 +257,10 @@ export const classService = {
 
 
 
-        let active_term;
+        let active_term: ITerm;
         if (data.active_term_start_date && data.active_term_end_date) {
-            if (klass.terms && klass.terms.length > 0) {
-                active_term = this.getClassActiveTerm(klass.terms);
-
+            active_term = this.getClassActiveTerm(klass.terms);
+            if (active_term) {
                 active_term = {
                     title: active_term.title,
                     defaultDateChanged: true,
@@ -279,13 +271,11 @@ export const classService = {
                 klass.terms[updatedTerm] = active_term;
                 data.terms = klass.terms;
             }
-
         }
 
         const result = await Class.findByIdAndUpdate(classId, data, { new: true });
 
-        return { ...result._doc, active_term };
-
+        return { result, active_term };
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -320,19 +310,15 @@ export const classService = {
         start_date: Date,
         end_date: Date,
     }>) {
+        if (terms.length === 0) {
+            return null;
+        }
         const today = new Date();
-        let activeTerm = terms.find(term => {
+        const activeTerm = terms.find(term => {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
             return startDate <= today && today <= endDate;
         });
-        if (!activeTerm) {
-            activeTerm = {
-                title: 'on break',
-                start_date: new Date(),
-                end_date: new Date(),
-            };
-        }
-        return activeTerm;
+        return activeTerm || null;
     }
 };
