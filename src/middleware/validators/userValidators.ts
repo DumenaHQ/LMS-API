@@ -1,5 +1,5 @@
 import { check } from 'express-validator';
-import User, { Role } from '../../user/models';
+import User, { Role, School } from '../../user/models';
 import { validate } from './validate';
 
 export default validate;
@@ -38,6 +38,13 @@ export const userCreationRules = () => {
 
             const existingUser = await User.findOne({ email }).lean();
             if (existingUser) throw new Error('Email already in use');
+        }),
+        check('school_email').custom(async (email: string, { req }) => {
+            if (req.body.user_type == 'school'){
+                if (!email) throw new Error('Email must be provided');
+                const existingSchool = await School.findOne({ school_email:email }).lean();
+                if (existingSchool) throw new Error('School email already in use');
+            }
         }),
         check('password').not().isEmpty().withMessage('password must be specified'),
         check('school').custom((school: string, { req }) => {
