@@ -209,7 +209,7 @@ export const userService = {
                     'user.role': 0,
                     'user.deleted': 0,
                     'user.password': 0,
-                    'user.status': 0,
+                    // 'user.status': 0,
                 }
             }
         ]);
