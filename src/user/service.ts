@@ -213,7 +213,6 @@ export const userService = {
                 }
             }
         ]);
-        console.log(users)
         return users.map((user: object) => this.sanitizeUser(user));
     },
 
