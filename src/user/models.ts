@@ -161,6 +161,10 @@ const SchoolSchema: Schema = new Schema({
         type: String,
         unique: true
     },
+    school_email:{
+        type: String,
+        unique: true 
+    },
     address: String,
     resident_state: String,
     user: {
