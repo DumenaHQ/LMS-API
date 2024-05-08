@@ -82,7 +82,7 @@ export const userService = {
             if (!rolesWithoutVerificationEmail.includes(user_type)) {
                 emailService.sendVerificationEmail(newUser);
             }
-            if (user_type === USER_TYPES.instructor) {
+            if (user_type == USER_TYPES.instructor) {
                 emailService.sendSetNewPasswordLink(newUser, String(user?.school));
             }
             return newUser;
@@ -99,7 +99,7 @@ export const userService = {
         data.role = user_type;
 
         // for learners added by parents/schools
-        if (user_type === USER_TYPES.learner && (parent || school)) {
+        if (user_type == USER_TYPES.learner && (parent || school)) {
             data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
             data.status = EUserStatus.Active;
         }
@@ -355,7 +355,7 @@ export const userService = {
         await userModel[user.role].deleteOne({ user: user._id });
     },
 
-    async schoolsAnalytics(){
+    async schoolsAnalytics() {
         const schools = await School.find();
 
         return Promise.all(schools.map(
@@ -378,6 +378,6 @@ export const userService = {
             }
         ));
 
-    } 
+    }
 
 };

@@ -10,6 +10,12 @@ export interface IAddLearner {
     date_added?: Date
 }
 
+export interface ITerm {
+    title: string,
+    defaultDateChanged: boolean,
+    start_date: Date,
+    end_date: Date
+}
 
 export interface IClass extends Document {
     name: string;
@@ -43,7 +49,7 @@ const learner = {
 
 
 const classSchema = new Schema({
-    terms:[],
+    terms: [],
     template: {
         type: Schema.Types.ObjectId,
         ref: 'ClassTemplate'
