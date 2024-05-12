@@ -4,6 +4,7 @@ import { send as sendResponse } from '../helpers/httpResponse';
 import { handleError } from '../helpers/handleError';
 import { emailService } from '../helpers/email';
 import mongoose from 'mongoose';
+import { USER_TYPES } from '../config/constants';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +24,12 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
     try {
         const { user } = req;
         const learnerData = req.body;
-        learnerData[user.role] = user.id;
+        if (user.role === USER_TYPES.school){
+            learnerData[user.role] = user.school_id;
+        }
+        if (user.role === USER_TYPES.parent){
+            learnerData[user.role] = user.id;
+        }
         learnerData.fullname = `${req.body.lastname} ${req.body.firstname}`;
         const learner = await userService.create({ ...learnerData, user_type: 'learner' });
 
