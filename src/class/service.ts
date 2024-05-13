@@ -1,4 +1,4 @@
-import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate } from './model';
+import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate, ITerm } from './model';
 import Course from '../course/model';
 import { Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
@@ -35,61 +35,20 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${classData.name.split(' ').join('-')}${path.extname(header_photo.name)}`;
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        // Automatically add 1st,2nd,3rd term
-        try {
-            const defaultTerms = [
-                {
-                    ...TERMS.first_term
-                    
-                },
-                {
-                    ...TERMS.second_term
-                    
-                },
-                {
-                    ...TERMS.third_term
-                    
-                }
-            ];
 
-            const klass = new Class({
-                ...classData,
-                terms: defaultTerms
-            });
-
-            await klass.save();
-
-            return klass;
-        } catch (error) {
-
-            throw new handleError(400, 'Error Creating new class, class with name already exist');
-        }
+        const klass = new Class({
+            ...classData,
+            terms: TERMS
+        });
+        return this.view({ _id: klass._id });
     },
 
     async createTemplate(templateData: ITemplate) {
-        // Automatically add 1st,2nd,3rd term
-        const defaultTerms = [
-            {
-                ...TERMS.first_term
-                            
-            },
-            {
-                ...TERMS.second_term
-                            
-            },
-            {
-                ...TERMS.third_term
-                            
-            }
-        ];
-        
         const klassTemplate = new ClassTemplate({
             ...templateData,
-            terms: defaultTerms
+            terms: TERMS
         });
-        
         await klassTemplate.save();
-        
         return klassTemplate;
     },
 
@@ -100,8 +59,9 @@ export const classService = {
         });
     },
 
-    async viewTemplate(criteria: object): Promise<ITemplate> {
+    async viewTemplate(criteria: object): Promise<ITemplate | {}> {
         const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
+        if (!template) return {};
         template.course_count = template.courses.length;
         template.courses = await courseService.list({
             _id: { $in: template.courses.map((course: string) => course) }
@@ -119,7 +79,7 @@ export const classService = {
     },
 
 
-    async view(criteria: object | string): Promise<IClass | null> {
+    async view(criteria: object | string): Promise<IClass> {
         let classroom: any;
         if (typeof criteria == 'object')
             classroom = await this.findOne(criteria);
@@ -289,19 +249,19 @@ export const classService = {
         return this.list(criteria[role]);
     },
 
-    async update(classId: string, data: Record<string, unknown>,  files: File): Promise<any> {
-        if (data.teacher_id === ''){
+    async update(classId: string, data: Record<string, unknown>, files: File): Promise<any> {
+        if (data.teacher_id === '') {
             delete data.teacher_id;
         }
         if (data.teacher_id) {
             const teacher = await userService.findOne({ _id: data.teacher_id });
-            if (!teacher || teacher.role !== 'instructor') {
+            if (!teacher || teacher.role !== USER_TYPES.instructor) {
                 throw new handleError(400, 'Invalid teacher ID');
             }
         }
 
         const klass = await Class.findById(classId);
-        if (!klass){
+        if (!klass) {
             throw new handleError(400, 'Invalid class ID');
         }
         const { thumbnail, header_photo }: any = files || {};
@@ -313,14 +273,12 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-        
-
 
         let active_term;
-        if (data.active_term_start_date && data.active_term_end_date){
+        if (data.active_term_start_date && data.active_term_end_date) {
             active_term = this.getClassActiveTerm(klass.terms);
-            if (active_term){
-                active_term =  {
+            if (active_term) {
+                active_term = {
                     title: active_term.title,
                     defaultDateChanged: true,
                     start_date: new Date(String(data.active_term_start_date)),
@@ -328,14 +286,13 @@ export const classService = {
                 };
                 const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
                 klass.terms[updatedTerm] = active_term;
-                data.terms = klass.terms;   
-            } 
+                data.terms = klass.terms;
+            }
         }
 
-        const result = await Class.findByIdAndUpdate(classId, data, {new: true});
+        const result = await Class.findByIdAndUpdate(classId, data, { new: true });
 
         return {...result._doc, active_term};
-        
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -369,113 +326,16 @@ export const classService = {
         title: string,
         start_date: Date,
         end_date: Date,
-    }>){
-        let activeTerm = null;
-
+    }>) {
         if (terms.length === 0) {
-            return activeTerm;
+            return null;
         }
         const today = new Date();
-        activeTerm = terms.find(term => {
+        const activeTerm = terms.find(term => {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
             return startDate <= today && today <= endDate;
         });
-        if (!activeTerm){
-            return activeTerm;
-
-        }
-        return activeTerm;
-    },
-
-    /**
-     * Distributes modules from the given course IDs to the terms of the class with the provided classId.
-     *
-     * @param {string} classId - The ID of the class to distribute modules to.
-     * @param {string[]} courseIds - An array of course IDs from which to distribute modules.
-     * @return {Promise<void>} - A Promise that resolves when the modules have been distributed to the terms of the class.
-     * @throws {Error} - If the class with the provided classId does not exist or if the class has no terms.
-     */
-    async distributeModulesToClassTerms(classId: string, courseIds: string[]): Promise<void> {
-        // Fetch the class from the database using the provided classId
-        const classData = await Class.findById(classId);
-        // If the class doesn't exist, throw an error
-        if (!classData) {
-            throw new Error(`Class with ID ${classId} not found.`);
-        }
-        
-        // Check if the class has at least one term
-        if (classData.terms.length < 1) {
-            // If there are no terms in the class, throw an error indicating that at least one term is required
-            throw new Error(`Class with ID ${classId} must have at least one term.`);
-        }
-    
-        // Fetch the courses from the database based on the provided array of courseIds
-        const courses = await Course.find({ _id: { $in: courseIds } });
-        
-        // Loop through each course
-        for (const course of courses) {
-            // Calculate the number of modules per term by dividing the total number of modules in the course by the number of terms in the class and rounding up
-            const totalModules = course.modules.length;
-            const modulesPerTerm = Math.ceil(totalModules / classData.terms.length);
-            
-            // Distribute modules across terms
-            let moduleIndex = 0;
-            // Iterate over each term in the class
-            for (let i = 0; i < classData.terms.length; i++) {
-                const term = classData.terms[i];
-                // Slice the modules array of the course according to the calculated modules per term and assign them to the current term
-                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
-                moduleIndex += modulesPerTerm;
-            }
-            
-            // Update the class in the database with the distributed modules
-            await classData.save();
-        }
-    },
-    
-    /**
-     * Distributes modules from the given course IDs to the terms of the class template with the provided class template ID.
-     *
-     * @param {string} classTemplateId - The ID of the class template to distribute modules to.
-     * @param {string[]} courseIds - An array of course IDs from which to distribute modules.
-     * @return {Promise<void>} - A Promise that resolves when the modules have been distributed to the terms of the class template.
-     */
-    async distributeModulesToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {
-        // Fetch the classTemplate from the database using the provided classTemplateId
-        const classTemplateData = await ClassTemplate.findById(classTemplateId);
-        // If the classTemplate doesn't exist, throw an error
-        if (!classTemplateData) {
-            throw new Error(`Class Template with ID ${classTemplateId} not found.`);
-        }
-        
-        // Check if the classTemplate has at least one term
-        if (classTemplateData.terms.length < 1) {
-            // If there are no terms in the classTemplate, throw an error indicating that at least one term is required
-            throw new Error(`Class Template with ID ${classTemplateId} must have at least one term.`);
-        }
-    
-        // Fetch the courses from the database based on the provided array of courseIds
-        const courses = await Course.find({ _id: { $in: courseIds } });
-        
-        // Loop through each course
-        for (const course of courses) {
-            // Calculate the number of modules per term by dividing the total number of modules in the course by the number of terms in the classTemplate and rounding up
-            const totalModules = course.modules.length;
-            const modulesPerTerm = Math.ceil(totalModules / classTemplateData.terms.length);
-            
-            // Distribute modules across terms
-            let moduleIndex = 0;
-            // Iterate over each term in the classTemplate
-            for (let i = 0; i < classTemplateData.terms.length; i++) {
-                const term = classTemplateData.terms[i];
-                // Slice the modules array of the course according to the calculated modules per term and assign them to the current term
-                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
-                moduleIndex += modulesPerTerm;
-            }
-            
-            // Update the class Template in the database with the distributed modules
-            await classTemplateData.save();
-        }
+        return activeTerm || null;
     }
 };
