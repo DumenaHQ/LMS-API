@@ -6,8 +6,8 @@ import { USER_TYPES } from '../config/constants';
 
 export const createClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, role } = req.user;
-        if (role == USER_TYPES.school) req.body.school_id = id;
+        const { id, role,school_id } = req.user;
+        if (role == USER_TYPES.school) req.body.school_id = school_id;
         else if (role == USER_TYPES.parent) req.body.parent_id = id;
         const _class = await classService.create({ ...req.body }, req.files);
         sendResponse(res, 201, 'Class created', { class: _class });
