@@ -48,10 +48,10 @@ export const userService = {
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
 
         let user_type = {};
-        const userType = {};
+        let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
-            const userType = user_type ? user_type.toJSON() : {};
+            userType = user_type ? user_type.toJSON() : {};
             userType[`${foundUser.role}_id`] = userType.id;
             delete userType.id;
         }
@@ -146,7 +146,7 @@ export const userService = {
             throw new handleError(400, 'Email or hash not found');
         }
         const email = Buffer.from(email_hash, 'base64url').toString('ascii');
-        const user = await this.view({ email });
+        const user = await this.findOne({ email });
         if (!user) throw new handleError(400, 'Invalid email hash. couldn\'t verify your email');
 
         const hash = crypto.createHash('md5').update(email + process.env.EMAIL_HASH_STRING).digest('hex');
@@ -160,15 +160,16 @@ export const userService = {
         if (!newPassword) throw new handleError(400, 'Password can not be empty');
         const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
-        return User.updateOne({ _id: user_id }, { password: passwordHash });
+        // updating status here is a quick hack, that's only for instructor user types
+        return User.updateOne({ _id: user_id }, { password: passwordHash, status: EUserStatus.Active });
     },
 
     async findOne(criteria: object) {
-        return User.findOne(criteria);
+        return User.findOne({ ...criteria, deleted: false });
     },
 
     async view(criteria: object): Promise<IUserView> {
-        const user = await User.findOne({ ...criteria, deleted: false }).select({ password: 0 });
+        const user = await User.findOne(criteria).select({ password: 0 });
         if (!user) throw new handleError(404, 'User not found');
 
         let user_type;
@@ -296,8 +297,9 @@ export const userService = {
     async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<{}> {
         const password = 'dumena';
         return Promise.all(studentsData.map(async (student: any) => {
-            await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
-            emailService.emailParentOnchildEnrollment({ ...student, password, schoolName });
+            const learner = await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
+            const { parent_email } = student;
+            emailService.emailParentOnchildEnrollment({ ...learner, parent_email, password, schoolName });
         }));
     },
 
