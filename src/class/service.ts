@@ -210,6 +210,15 @@ export const classService = {
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
         classOrTemplate.courses = Array.from(courses);
         await classOrTemplate.save();
+
+        // Distrubute modules of each course across the terms atached to the class
+        if (model === 'class'){
+            try {
+                await this.distributeModulesToTerms(modelId, courseIds);
+            } catch (error: any) {
+                console.log(error.message);
+            }
+        }
     },
 
     async listCourses(classId: string): Promise<ICourseView[] | []> {
@@ -367,5 +376,52 @@ export const classService = {
 
         }
         return activeTerm;
+    },
+
+    /**
+     * Distributes modules from the given course IDs to the terms of the class with the provided classId.
+     *
+     * @param {string} classId - The ID of the class to distribute modules to.
+     * @param {string[]} courseIds - An array of course IDs from which to distribute modules.
+     * @return {Promise<void>} - A Promise that resolves when the modules have been distributed to the terms of the class.
+     * @throws {Error} - If the class with the provided classId does not exist or if the class has no terms.
+     */
+    async distributeModulesToTerms(classId: string, courseIds: string[]): Promise<void> {
+        // Fetch the class from the database using the provided classId
+        const classData = await Class.findById(classId);
+        // If the class doesn't exist, throw an error
+        if (!classData) {
+            throw new Error(`Class with ID ${classId} not found.`);
+        }
+        
+        // Check if the class has at least one term
+        if (classData.terms.length < 1) {
+            // If there are no terms in the class, throw an error indicating that at least one term is required
+            throw new Error(`Class with ID ${classId} must have at least one term.`);
+        }
+    
+        // Fetch the courses from the database based on the provided array of courseIds
+        const courses = await Course.find({ _id: { $in: courseIds } });
+        
+        // Loop through each course
+        for (const course of courses) {
+            // Calculate the number of modules per term by dividing the total number of modules in the course by the number of terms in the class and rounding up
+            const totalModules = course.modules.length;
+            const modulesPerTerm = Math.ceil(totalModules / classData.terms.length);
+            
+            // Distribute modules across terms
+            let moduleIndex = 0;
+            // Iterate over each term in the class
+            for (let i = 0; i < classData.terms.length; i++) {
+                const term = classData.terms[i];
+                // Slice the modules array of the course according to the calculated modules per term and assign them to the current term
+                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
+                moduleIndex += modulesPerTerm;
+            }
+            
+            // Update the class in the database with the distributed modules
+            await classData.save();
+        }
     }
+    
 };
