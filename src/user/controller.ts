@@ -24,10 +24,10 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
     try {
         const { user } = req;
         const learnerData = req.body;
-        if (user.role === USER_TYPES.school){
+        if (user.role === USER_TYPES.school) {
             learnerData[user.role] = user.school_id;
         }
-        if (user.role === USER_TYPES.parent){
+        if (user.role === USER_TYPES.parent) {
             learnerData[user.role] = user.id;
         }
         learnerData.fullname = `${req.body.lastname} ${req.body.firstname}`;
@@ -146,9 +146,9 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
 export const addSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: schoolId, school } = req.user;
+        const { school_id, school } = req.user;
         const { learners } = req.body;
-        await userService.addSchoolStudents(schoolId, learners, school);
+        await userService.addSchoolStudents(school_id, learners, school);
         //if (resp.status) throw new Error(resp.message)
         sendResponse(res, 200, 'Students Added');
     } catch (err) {
