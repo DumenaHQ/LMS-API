@@ -71,7 +71,9 @@ export const userService = {
         if (user && user.role == 'school') userData.school_id = user.school_id;
 
         try {
-            await this.preventDuplicates(userData);
+            const isDuplicate = await this.isDuplicateUser(userData);
+            if (isDuplicate === true) return userData;
+
             const newUser = await this.createUserAndUserType(userData);
 
             const rolesWithoutVerificationEmail = [
@@ -291,8 +293,12 @@ export const userService = {
     },
 
 
-    async addSchoolStudents(schoolId: string, studentsData: []): Promise<{}> {
-        return Promise.all(studentsData.map(async (student: any) => this.create({ ...student, school: schoolId, password: 'dumena', user_type: 'learner' })));
+    async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<{}> {
+        const password = 'dumena';
+        return Promise.all(studentsData.map(async (student: any) => {
+            await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
+            emailService.emailParentOnchildEnrollment({ ...student, password, schoolName });
+        }));
     },
 
 
@@ -300,8 +306,8 @@ export const userService = {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
 
-    async preventDuplicates({ fullname, school, parent_email, user_type }: IUserCreate) {
-        if (user_type != USER_TYPES.learner) return true;
+    async isDuplicateUser({ fullname, school, parent_email, user_type }: IUserCreate) {
+        if (user_type != USER_TYPES.learner) return false;
 
         const criteria = {
             school: new mongoose.Types.ObjectId(school),
@@ -309,7 +315,7 @@ export const userService = {
             parent_email
         };
         const user = await this.list(criteria, 'learner');
-        if (user.length) throw new handleError(400, 'Possible duplicate account');
+        return user.length > 0;
     },
 
 

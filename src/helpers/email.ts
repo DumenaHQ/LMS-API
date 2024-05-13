@@ -76,6 +76,19 @@ export const emailService = {
         sendMail(email, subject, template, data);
     },
 
+    emailParentOnchildEnrollment: function ({ fullname, username, password, parent_email, schoolName }: Record<string, any>): void {
+        if (!parent_email) return;
+        const data = {
+            fullname,
+            username,
+            password,
+            schoolName
+        };
+        const subject = `Your Child has been Enrolled on DUMENA Platform!`;
+        const template = 'parentChildEnrollment';
+        sendMail(parent_email, subject, template, data);
+    },
+
     sendLauchInviteEmail: function (user: any): void {
         const data = {
             user: user.fullname
