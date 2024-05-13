@@ -68,7 +68,7 @@ export const userService = {
 
     async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type } = userData;
-        if (user && user.role == 'school') userData.school_id = user.school_id;
+        if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
             const isDuplicate = await this.isDuplicateUser(userData);
@@ -368,12 +368,10 @@ export const userService = {
             async (school) => {
                 const totalInstructorsOnboarded = await Instructor.countDocuments({
                     school_id: school._id,
-                    'user.deleted': false
                 });
 
                 const totalLearnersOnboarded = await Learner.countDocuments({
                     school: school._id,
-                    'user.deleted': false
                 });
 
                 const totalClasses = await Class.countDocuments({

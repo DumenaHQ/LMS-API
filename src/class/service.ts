@@ -233,10 +233,12 @@ export const classService = {
     },
 
     async update(classId: string, data: Record<string, unknown>, files: File): Promise<any> {
-        const { teacher_id } = data;
-        if (teacher_id) {
-            const teacher = await userService.findOne({ _id: teacher_id });
-            if (!teacher || teacher.role !== 'instructor') {
+        if (data.teacher_id === '') {
+            delete data.teacher_id;
+        }
+        if (data.teacher_id) {
+            const teacher = await userService.findOne({ _id: data.teacher_id });
+            if (!teacher || teacher.role !== USER_TYPES.instructor) {
                 throw new handleError(400, 'Invalid teacher ID');
             }
         }
@@ -254,8 +256,6 @@ export const classService = {
             const photoKey = `${UPLOADS.class_header_photos}/${klass.name?.split(' ').join('-')}${path.extname(header_photo.name)}`;
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
-
-
 
         let active_term: ITerm;
         if (data.active_term_start_date && data.active_term_end_date) {
