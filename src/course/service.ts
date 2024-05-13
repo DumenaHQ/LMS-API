@@ -120,6 +120,8 @@ export const courseService = {
             }
             const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
             lesson.duration = Math.round(duration);
+        }else{
+            delete lesson.lesson_video;
         }
 
         await Course.updateOne(
