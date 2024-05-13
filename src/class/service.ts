@@ -273,9 +273,11 @@ export const classService = {
     },
 
     async update(classId: string, data: Record<string, unknown>,  files: File): Promise<any> {
-        const { teacher_id } = data;
-        if (teacher_id) {
-            const teacher = await userService.findOne({ _id: teacher_id });
+        if (data.teacher_id === ''){
+            delete data.teacher_id;
+        }
+        if (data.teacher_id) {
+            const teacher = await userService.findOne({ _id: data.teacher_id });
             if (!teacher || teacher.role !== 'instructor') {
                 throw new handleError(400, 'Invalid teacher ID');
             }
