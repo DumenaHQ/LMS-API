@@ -170,6 +170,23 @@ export const classService = {
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
         classOrTemplate.courses = Array.from(courses);
         await classOrTemplate.save();
+
+        // Distrubute modules of each course across the terms atached to the class
+        if (model === 'class'){
+            try {
+                await this.distributeModulesToClassTerms(modelId, courseIds);
+            } catch (error: any) {
+                console.log(error.message);
+            }
+        }
+        // Distrubute modules of each course across the terms atached to the class template
+        if (model === 'template'){
+            try {
+                await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
+            } catch (error: any) {
+                console.log(error.message);
+            }
+        }
     },
 
     async listCourses(classId: string): Promise<ICourseView[] | []> {
@@ -257,7 +274,7 @@ export const classService = {
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
 
-        let active_term: ITerm;
+        let active_term;
         if (data.active_term_start_date && data.active_term_end_date) {
             active_term = this.getClassActiveTerm(klass.terms);
             if (active_term) {
@@ -275,7 +292,7 @@ export const classService = {
 
         const result = await Class.findByIdAndUpdate(classId, data, { new: true });
 
-        return { result, active_term };
+        return {...result._doc, active_term};
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -320,5 +337,72 @@ export const classService = {
             return startDate <= today && today <= endDate;
         });
         return activeTerm || null;
+    },
+
+
+
+    async distributeModulesToClassTerms(classId: string, courseIds: string[]): Promise<void> {
+        const classData = await Class.findById(classId);
+        if (!classData) {
+            throw new Error(`Class with ID ${classId} not found.`);
+        }
+        if (classData.terms.length < 1) {
+            throw new Error(`Class with ID ${classId} must have at least one term.`);
+        }
+        // Fetch the courses from the database based on the provided array of courseIds
+        const courses = await Course.find({ _id: { $in: courseIds } });
+        // Loop through each course
+        for (const course of courses) {
+            // Calculate the number of modules per term by dividing the total number of modules in the course by the number of terms in the class and rounding up
+            const totalModules = course.modules.length;
+            const modulesPerTerm = Math.ceil(totalModules / classData.terms.length);
+    
+            // Distribute modules across terms
+            let moduleIndex = 0;
+            // Iterate over each term in the class
+            for (let i = 0; i < classData.terms.length; i++) {
+                const term = classData.terms[i];
+                // Slice the modules array of the course according to the calculated modules per term and assign them to the current term
+                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
+                moduleIndex += modulesPerTerm;
+            }
+    
+            // Update the class in the database with the distributed modules
+            await classData.save();
+        }
+    },
+    
+
+    async distributeModulesToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {
+        const classTemplateData = await ClassTemplate.findById(classTemplateId);
+        if (!classTemplateData) {
+            throw new Error(`Class Template with ID ${classTemplateId} not found.`);
+        }
+        if (classTemplateData.terms.length < 1) {
+            throw new Error(`Class Template with ID ${classTemplateId} must have at least one term.`);
+        }
+        // Fetch the courses from the database based on the provided array of courseIds
+        const courses = await Course.find({ _id: { $in: courseIds } });
+        // Loop through each course
+        for (const course of courses) {
+            // Calculate the number of modules per term by dividing the total number of modules in the course by the number of terms in the classTemplate and rounding up
+            const totalModules = course.modules.length;
+            const modulesPerTerm = Math.ceil(totalModules / classTemplateData.terms.length);
+    
+            // Distribute modules across terms
+            let moduleIndex = 0;
+            // Iterate over each term in the classTemplate
+            for (let i = 0; i < classTemplateData.terms.length; i++) {
+                const term = classTemplateData.terms[i];
+                // Slice the modules array of the course according to the calculated modules per term and assign them to the current term
+                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
+                moduleIndex += modulesPerTerm;
+            }
+    
+            // Update the class Template in the database with the distributed modules
+            await classTemplateData.save();
+        }
+
+
     }
 };
