@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware/verifyToken';
-import { createQuestion, getQuestions } from './controller';
-import validate, { getQuestionsRules, questionCreationRules } from '../middleware/validators/supportValidators';
+import { createQuestion, getQuestions, getSchoolQuestions } from './controller';
+import validate, { getQuestionsRules, getSchoolQuestionsRules, questionCreationRules } from '../middleware/validators/supportValidators';
 
 export const router = Router();
 
@@ -13,10 +13,10 @@ router.post('/class/:class_id/questions', isAuthenticated, questionCreationRules
 router.get('/questions', isAuthenticated, getQuestions);
 
 // Api to get questions from a particular class GET
-router.get('/class/:class_id/questions', isAuthenticated, getQuestionsRules(), getQuestions);
+router.get('/class/:class_id/questions', isAuthenticated, getQuestionsRules(),validate, getQuestions);
 
 // Api to get questions from a school GET
-// router.get('/school/:id/questions');
+router.get('/school/:school_id/questions', isAuthenticated, getSchoolQuestionsRules(), validate, getSchoolQuestions);
 
 
 

@@ -35,3 +35,15 @@ export const getQuestions = async (req: Request, res: Response, next: NextFuncti
         next(err);
     }
 };
+
+
+export const getSchoolQuestions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const param = req.params;
+        console.log(param);
+        const questions = await supportService.getQuestions(undefined, param.school_id);
+        sendResponse(res, 200, 'success', { questions });
+    } catch (err) {
+        next(err);
+    }
+};

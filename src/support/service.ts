@@ -15,7 +15,7 @@ export const supportService = {
     },
 
     // Service to get questions GET
-    async getQuestions(class_id?: string) {
+    async getQuestions(class_id?: string, school_id?: string) {
         const data = await Question.find().populate({ 
             path: 'user', 
             select: '-password -isUserOnboarded -status' // Exclude the fields from the response
@@ -23,11 +23,17 @@ export const supportService = {
 
         const questions = data.map((question) => question.toJSON());
         
+        if (school_id){
+            return questions.map((question) => {
+                console.log(question);
+                
+                if (question.class && String(question.class.school_id) === school_id){
+                    return question;
+                }});
+        }
         if (!class_id) return questions;
-
         return questions.map(
             (question) => {
-                console.log(question.class);
                 if (question.class && String(question.class.id) === class_id) return question;
             }
         );
