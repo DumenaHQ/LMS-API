@@ -24,10 +24,10 @@ export const enrollLearner = async (req: Request, res: Response, next: NextFunct
     try {
         const { user } = req;
         const learnerData = req.body;
-        if (user.role === USER_TYPES.school){
+        if (user.role === USER_TYPES.school) {
             learnerData[user.role] = user.school_id;
         }
-        if (user.role === USER_TYPES.parent){
+        if (user.role === USER_TYPES.parent) {
             learnerData[user.role] = user.id;
         }
         learnerData.fullname = `${req.body.lastname} ${req.body.firstname}`;
@@ -146,9 +146,9 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
 export const addSchoolStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id: schoolId } = req.user;
+        const { school_id, school } = req.user;
         const { learners } = req.body;
-        await userService.addSchoolStudents(schoolId, learners);
+        await userService.addSchoolStudents(school_id, learners, school);
         //if (resp.status) throw new Error(resp.message)
         sendResponse(res, 200, 'Students Added');
     } catch (err) {
@@ -171,7 +171,7 @@ export const listSchoolStudents = async (req: Request, res: Response, next: Next
 export const listSchoolTeachers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { school_id } = req.user;
-   
+
         // const queryParams = req.query;
         const teachers = await userService.listSchoolTeachers(school_id);
         sendResponse(res, 200, 'Teachers Fetched', { teachers });
@@ -189,7 +189,7 @@ export const removeTeacherFromSchool = async (req: Request, res: Response, next:
             _id: new mongoose.Types.ObjectId(teacherUserId),
         });
 
-        if (String(user.school_id) !== String(school_id)){
+        if (String(user.school_id) !== String(school_id)) {
             throw new handleError(403, 'Forbidden');
         }
         await userService.deleteUser(user.email);
@@ -268,7 +268,7 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-export const schoolsAnalytics =  async (req: Request, res: Response, next: NextFunction) => {
+export const schoolsAnalytics = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const schoolsAnalytics = await userService.schoolsAnalytics();

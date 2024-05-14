@@ -48,10 +48,10 @@ export const userService = {
         if (foundUser.active_organization) payload.organization = foundUser.active_organization;
 
         let user_type = {};
-        const userType = {};
+        let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
-            const userType = user_type ? user_type.toJSON() : {};
+            userType = user_type ? user_type.toJSON() : {};
             userType[`${foundUser.role}_id`] = userType.id;
             delete userType.id;
         }
@@ -71,7 +71,9 @@ export const userService = {
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
-            await this.preventDuplicates(userData);
+            const isDuplicate = await this.isDuplicateUser(userData);
+            if (isDuplicate === true) return userData;
+
             const newUser = await this.createUserAndUserType(userData);
 
             const rolesWithoutVerificationEmail = [
@@ -82,7 +84,7 @@ export const userService = {
             if (!rolesWithoutVerificationEmail.includes(user_type)) {
                 emailService.sendVerificationEmail(newUser);
             }
-            if (user_type === USER_TYPES.instructor) {
+            if (user_type == USER_TYPES.instructor) {
                 emailService.sendSetNewPasswordLink(newUser, String(user?.school));
             }
             return newUser;
@@ -99,7 +101,7 @@ export const userService = {
         data.role = user_type;
 
         // for learners added by parents/schools
-        if (user_type === USER_TYPES.learner && (parent || school)) {
+        if (user_type == USER_TYPES.learner && (parent || school)) {
             data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
             data.status = EUserStatus.Active;
         }
@@ -144,7 +146,7 @@ export const userService = {
             throw new handleError(400, 'Email or hash not found');
         }
         const email = Buffer.from(email_hash, 'base64url').toString('ascii');
-        const user = await this.view({ email });
+        const user = await this.findOne({ email });
         if (!user) throw new handleError(400, 'Invalid email hash. couldn\'t verify your email');
 
         const hash = crypto.createHash('md5').update(email + process.env.EMAIL_HASH_STRING).digest('hex');
@@ -158,15 +160,16 @@ export const userService = {
         if (!newPassword) throw new handleError(400, 'Password can not be empty');
         const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
-        return User.updateOne({ _id: user_id }, { password: passwordHash });
+        // updating status here is a quick hack, that's only for instructor user types
+        return User.updateOne({ _id: user_id }, { password: passwordHash, status: EUserStatus.Active });
     },
 
     async findOne(criteria: object) {
-        return User.findOne(criteria);
+        return User.findOne({ ...criteria, deleted: false });
     },
 
     async view(criteria: object): Promise<IUserView> {
-        const user = await User.findOne({ ...criteria, deleted: false }).select({ password: 0 });
+        const user = await User.findOne(criteria).select({ password: 0 });
         if (!user) throw new handleError(404, 'User not found');
 
         let user_type;
@@ -291,8 +294,13 @@ export const userService = {
     },
 
 
-    async addSchoolStudents(schoolId: string, studentsData: []): Promise<{}> {
-        return Promise.all(studentsData.map(async (student: any) => this.create({ ...student, school: schoolId, password: 'dumena', user_type: 'learner' })));
+    async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<{}> {
+        const password = 'dumena';
+        return Promise.all(studentsData.map(async (student: any) => {
+            const learner = await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
+            const { parent_email } = student;
+            emailService.emailParentOnchildEnrollment({ ...learner, parent_email, password, schoolName });
+        }));
     },
 
 
@@ -300,8 +308,8 @@ export const userService = {
         return paymentService.list({ user: new mongoose.Types.ObjectId(userId) });
     },
 
-    async preventDuplicates({ fullname, school, parent_email, user_type }: IUserCreate) {
-        if (user_type != USER_TYPES.learner) return true;
+    async isDuplicateUser({ fullname, school, parent_email, user_type }: IUserCreate) {
+        if (user_type != USER_TYPES.learner) return false;
 
         const criteria = {
             school: new mongoose.Types.ObjectId(school),
@@ -309,7 +317,7 @@ export const userService = {
             parent_email
         };
         const user = await this.list(criteria, 'learner');
-        if (user.length) throw new handleError(400, 'Possible duplicate account');
+        return user.length > 0;
     },
 
 
@@ -355,7 +363,7 @@ export const userService = {
         await userModel[user.role].deleteOne({ user: user._id });
     },
 
-    async schoolsAnalytics(){
+    async schoolsAnalytics() {
         const schools = await School.find();
 
         return Promise.all(schools.map(
@@ -376,6 +384,6 @@ export const userService = {
             }
         ));
 
-    } 
+    }
 
 };
