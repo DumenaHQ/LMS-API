@@ -44,4 +44,4 @@ router.use('/downloads', miscRoutes);
 
 router.use('/setup', miscRoutes);
 
-router.use('/support', supportRoutes);
+router.use('/supports', supportRoutes);

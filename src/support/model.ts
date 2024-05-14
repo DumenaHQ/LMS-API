@@ -2,7 +2,8 @@ import mongoose, { Schema } from 'mongoose';
 
 // Support Question Schema
 const questionSchema = new Schema( {
-    text: String,
+    question: String,
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -21,7 +22,7 @@ export const Question = mongoose.model('Question', questionSchema);
 
 // Support Question Comment Schema
 const commentSchema = new Schema( {
-    text: String,
+    comment: String,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
