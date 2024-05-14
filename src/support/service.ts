@@ -14,16 +14,22 @@ export const supportService = {
         return newQuestion;
     },
 
-
     // Service to get questions GET
     async getQuestions(class_id?: string) {
-        if (class_id){
-            return Question.find({ class: class_id }).populate(['user', 'class', 'course']);
-        } else {
-            return Question.find().populate(['user', 'class', 'course']);
-        }
+        const data = await Question.find().populate({ 
+            path: 'user', 
+            select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+        }).populate('class').populate('course');
+
+        const questions = data.map((question) => question.toJSON());
+        
+        if (!class_id) return questions;
+
+        return questions.map(
+            (question) => {
+                console.log(question.class);
+                if (question.class && String(question.class.id) === class_id) return question;
+            }
+        );
     }
-
-
-
 };

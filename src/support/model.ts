@@ -6,15 +6,18 @@ const questionSchema = new Schema( {
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     class: {
         type: Schema.Types.ObjectId,
-        ref: 'Class'
+        ref: 'Class',
+        required: true
     },
     course: {
         type: Schema.Types.ObjectId,
-        ref: 'Course'
+        ref: 'Course',
+        required: true
     },
     lesson: Object,
 }, { timestamps: true } );
