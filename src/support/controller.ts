@@ -23,3 +23,15 @@ export const createQuestion = async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 };
+
+
+// Controller to get questions GET
+export const getQuestions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const param = req.params;
+        const questions = await supportService.getQuestions(param.class_id);
+        sendResponse(res, 200, 'success', { questions });
+    } catch (err) {
+        next(err);
+    }
+};

@@ -12,5 +12,18 @@ export const supportService = {
             lesson: question.lesson
         }, { new: true });
         return newQuestion;
+    },
+
+
+    // Service to get questions GET
+    async getQuestions(class_id?: string) {
+        if (class_id){
+            return Question.find({ class: class_id }).populate(['user', 'class', 'course']);
+        } else {
+            return Question.find().populate(['user', 'class', 'course']);
+        }
     }
+
+
+
 };
