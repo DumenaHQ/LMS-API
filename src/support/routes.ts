@@ -1,10 +1,13 @@
 import { Router } from 'express';
+import { isAuthenticated } from '../middleware/verifyToken';
+import { createQuestion } from './controller';
+import validate, { questionCreationRules } from '../middleware/validators/supportValidators';
 
 export const router = Router();
 
 
 // Api to create a question POST
-router.post('/class/:id/questions');
+router.post('/class/:class_id/questions', isAuthenticated, questionCreationRules(), validate, createQuestion );
 
 // Api to get questions from a particular class GET
 // router.get('/class/:id/questions');

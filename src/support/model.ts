@@ -16,7 +16,7 @@ const questionSchema = new Schema( {
         type: Schema.Types.ObjectId,
         ref: 'Course'
     },
-    lesson: Schema.Types.ObjectId,
+    lesson: Object,
 }, { timestamps: true } );
 export const Question = mongoose.model('Question', questionSchema);
 
