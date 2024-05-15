@@ -36,13 +36,32 @@ export const getQuestions = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+// Controller to get questions from a school GET
 
 export const getSchoolQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const param = req.params;
-        console.log(param);
         const questions = await supportService.getQuestions(undefined, param.school_id);
         sendResponse(res, 200, 'success', { questions });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+// Controller to create a comment reolying to a question
+export const createComment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.user;
+        const body = req.body;
+        const param = req.params;
+
+        const comment = await supportService.createComment({
+            comment: body.comment,
+            user_id: id,
+            question_id: param.question_id
+        });
+        sendResponse(res, 201, 'success', { comment });
     } catch (err) {
         next(err);
     }

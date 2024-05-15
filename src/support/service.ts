@@ -1,5 +1,5 @@
-import { IAddSupportQuestion } from './interface';
-import { Question } from './model';
+import { IAddSupportComment, IAddSupportQuestion } from './interface';
+import { Comment, Question } from './model';
 
 export const supportService = {
     // Service to create a question POST
@@ -10,7 +10,7 @@ export const supportService = {
             class: question.class_id,
             course: question.course_id,
             lesson: question.lesson
-        }, { new: true });
+        });
         return newQuestion;
     },
 
@@ -25,11 +25,12 @@ export const supportService = {
         
         if (school_id){
             return questions.map((question) => {
-                console.log(question);
-                
+      
                 if (question.class && String(question.class.school_id) === school_id){
                     return question;
-                }});
+                }
+            }
+            );
         }
         if (!class_id) return questions;
         return questions.map(
@@ -37,5 +38,15 @@ export const supportService = {
                 if (question.class && String(question.class.id) === class_id) return question;
             }
         );
-    }
+    },
+
+    // Service to create a comment
+    async createComment(comment: IAddSupportComment) {
+        const newComment = await Comment.create({
+            comment: comment.comment,
+            user: comment.user_id,
+            question: comment.question_id
+        });
+        return newComment;
+    },
 };

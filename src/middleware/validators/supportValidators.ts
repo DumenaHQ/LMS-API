@@ -4,6 +4,7 @@ import { Types } from 'mongoose';
 import { classService } from '../../class/service';
 import { courseService } from '../../course/service';
 import { School } from '../../user/models';
+import { Question } from '../../support/model';
 
 export default validate;
 
@@ -11,7 +12,7 @@ export default validate;
 export const questionCreationRules = () => {
     return [
         body('question').notEmpty().isString().isLength({max: 5000, min: 2}),
-        param('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
+        check('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
             // Check if class with id actually exist
             const classExist = await classService.view({ _id: class_id });
             if (!classExist) throw new Error(`Class with id ${class_id} does not exist`);
@@ -49,14 +50,24 @@ export const getQuestionsRules = () => {
     ];
 };
 
-
-
 export const getSchoolQuestionsRules = () => {
     return [
         check('school_id').notEmpty().isMongoId().custom(async (school_id: string) => {
             // Check if school with id actually exist
             const schoolExist = await School.findById(school_id);
             if (!schoolExist) throw new Error(`School with id ${school_id} does not exist`);
+            return true;
+        }),
+    ];
+};
+
+export const commentCreationRules = () => {
+    return [
+        body('comment').notEmpty().isString().isLength({max: 5000, min: 2}),
+        check('question_id').notEmpty().isMongoId().custom(async (question_id: string) => {
+            // Check if question with id actually exist
+            const questionExist = await Question.findById(question_id);
+            if (!questionExist) throw new Error(`Question with id ${question_id} does not exist`);
             return true;
         }),
     ];

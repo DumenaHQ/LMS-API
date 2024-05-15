@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware/verifyToken';
-import { createQuestion, getQuestions, getSchoolQuestions } from './controller';
-import validate, { getQuestionsRules, getSchoolQuestionsRules, questionCreationRules } from '../middleware/validators/supportValidators';
+import { createComment, createQuestion, getQuestions, getSchoolQuestions } from './controller';
+import validate, { commentCreationRules, getQuestionsRules, getSchoolQuestionsRules, questionCreationRules } from '../middleware/validators/supportValidators';
 
 export const router = Router();
 
@@ -21,7 +21,7 @@ router.get('/school/:school_id/questions', isAuthenticated, getSchoolQuestionsRu
 
 
 // Api to reply to a question POST
-// router.post('/questions/:id/comments');
+router.post('/questions/:question_id/comments', isAuthenticated, commentCreationRules(), validate, createComment);
 
 // Api to get all comments to a given question GET
 // router.get('/questions/:id/comments');
