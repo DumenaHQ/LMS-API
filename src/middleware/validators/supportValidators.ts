@@ -20,7 +20,7 @@ export const questionCreationRules = () => {
         }),
         body('course_id').notEmpty().isMongoId().custom(async (course_id: string) => {
             // Check if course with id actually exist
-            const courseExist =  await courseService.view({ _id: course_id });
+            const courseExist =  await courseService.findOne({ _id: course_id });
             if (!courseExist) throw new Error(`Course with id ${course_id} does not exist`);
             return true;
         }),
@@ -46,7 +46,7 @@ export const getQuestionsRules = () => {
     return [
         param('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
             // Check if class with id actually exist
-            const classExist = await classService.view({ _id: class_id });
+            const classExist = await classService.findOne({ _id: class_id });
             if (!classExist) throw new Error(`Class with id ${class_id} does not exist`);
             return true;
         }),
