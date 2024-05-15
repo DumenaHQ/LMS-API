@@ -38,8 +38,7 @@ export const getQuestions = async (req: Request, res: Response, next: NextFuncti
 
 export const getSchoolQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {params} = req;
-        const {school_id} = params;
+        const { school_id } = req.params;
         const questions = await supportService.getQuestions(undefined, school_id);
         sendResponse(res, 200, 'success', { questions });
     } catch (err) {
@@ -52,10 +51,7 @@ export const getSchoolQuestions = async (req: Request, res: Response, next: Next
 export const createComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.user;
-        const { body, params } = req;
-        const {question_id} = params;
-
-
+        const { body, params: { question_id } } = req;
         const comment = await supportService.createComment({
             comment: body.comment,
             user_id: id,
@@ -71,9 +67,7 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
 
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {params} = req;
-        const {question_id} = params;
-
+        const { question_id } = req.params;
         const comments = await supportService.getComments(question_id);
         sendResponse(res, 200, 'success', { comments });
     } catch (err) {
