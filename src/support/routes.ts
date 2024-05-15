@@ -7,7 +7,7 @@ export const router = Router();
 
 
 // Api to create a question POST
-router.post('/class/:class_id/questions', isAuthenticated, questionCreationRules(), validate, createQuestion );
+router.post('/questions', isAuthenticated, questionCreationRules(), validate, createQuestion );
 
 // Api to get all questions GET
 router.get('/questions', isAuthenticated, getQuestions);

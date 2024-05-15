@@ -2,7 +2,7 @@ import { IAddSupportComment, IAddSupportQuestion } from './interface';
 import { Comment, Question } from './model';
 
 export const supportService = {
-    // Service to create a question POST
+
     async createQuestion(question: IAddSupportQuestion){
         const newQuestion = await Question.create({
             question: question.question,
@@ -14,18 +14,18 @@ export const supportService = {
         return newQuestion;
     },
 
-    // Service to get questions GET
+
     async getQuestions(class_id?: string, school_id?: string) {
-        const data = await Question.find().populate({ 
+        const questions = await Question.find().populate({ 
             path: 'user', 
             select: '-password -isUserOnboarded -status' // Exclude the fields from the response
-        }).populate('class').populate('course');
+        }).populate('class').populate('course').lean();
 
-        const questions = data.map((question) => question.toJSON());
+
         
+        // return questions from a given school
         if (school_id){
             return questions.map((question) => {
-      
                 if (question.class && String(question.class.school_id) === school_id){
                     return question;
                 }
@@ -33,6 +33,8 @@ export const supportService = {
             );
         }
         if (!class_id) return questions;
+
+        // return questions from a given class id
         return questions.map(
             (question) => {
                 if (question.class && String(question.class.id) === class_id) return question;
@@ -40,7 +42,7 @@ export const supportService = {
         );
     },
 
-    // Service to create a comment
+ 
     async createComment(comment: IAddSupportComment) {
         const newComment = await Comment.create({
             comment: comment.comment,
@@ -51,7 +53,7 @@ export const supportService = {
     },
 
 
-    // Service to get all comments to a given question GET
+   
     async getComments(question_id: string) {
         const data = await Comment.find({ question: question_id }).populate({ 
             path: 'user', 

@@ -12,9 +12,9 @@ export default validate;
 export const questionCreationRules = () => {
     return [
         body('question').notEmpty().isString().isLength({max: 5000, min: 2}),
-        check('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
+        body('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
             // Check if class with id actually exist
-            const classExist = await classService.view({ _id: class_id });
+            const classExist = await classService.findOne({ _id: class_id });
             if (!classExist) throw new Error(`Class with id ${class_id} does not exist`);
             return true;
         }),
@@ -27,7 +27,10 @@ export const questionCreationRules = () => {
         body('lesson').custom(async (lesson: any) => {
             // Check if the lesson object has all the required properties
             if (
-                typeof lesson === 'object' && lesson !== null && Types.ObjectId.isValid(lesson.id) && typeof lesson.title === 'string' && typeof lesson.note === 'string' &&  typeof lesson.has_video === 'boolean' && typeof lesson.duration === 'number' && typeof lesson.lesson_video === 'string' 
+                typeof lesson === 'object' 
+                && lesson !== null 
+                && Types.ObjectId.isValid(lesson.id) 
+                && typeof lesson.title === 'string' 
             ) {
                 // Object matches the Lesson schema
                 return true;
