@@ -49,4 +49,15 @@ export const supportService = {
         });
         return newComment;
     },
+
+
+    // Service to get all comments to a given question GET
+    async getComments(question_id: string) {
+        const data = await Comment.find({ question: question_id }).populate({ 
+            path: 'user', 
+            select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+        });
+        return data.map((comment) => comment.toJSON());
+    },
+
 };

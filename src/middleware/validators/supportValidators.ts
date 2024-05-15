@@ -72,3 +72,14 @@ export const commentCreationRules = () => {
         }),
     ];
 };
+
+export const getCommentsRules = () => {
+    return [
+        check('question_id').notEmpty().isMongoId().custom(async (question_id: string) => {
+            // Check if question with id actually exist
+            const questionExist = await Question.findById(question_id);
+            if (!questionExist) throw new Error(`Question with id ${question_id} does not exist`);
+            return true;
+        }),
+    ];
+};

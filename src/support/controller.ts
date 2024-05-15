@@ -49,7 +49,7 @@ export const getSchoolQuestions = async (req: Request, res: Response, next: Next
 };
 
 
-// Controller to create a comment reolying to a question
+// Controller to create a comment replying to a question
 export const createComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.user;
@@ -62,6 +62,18 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
             question_id: param.question_id
         });
         sendResponse(res, 201, 'success', { comment });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+// COntroller to get all comments to a given question GET
+export const getComments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const param = req.params;
+        const comments = await supportService.getComments(param.question_id);
+        sendResponse(res, 200, 'success', { comments });
     } catch (err) {
         next(err);
     }
