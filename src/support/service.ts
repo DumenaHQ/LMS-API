@@ -16,10 +16,15 @@ export const supportService = {
 
 
     async getQuestions(class_id?: string, school_id?: string) {
-        const questions = await Question.find().populate({ 
-            path: 'user', 
-            select: '-password -isUserOnboarded -status' // Exclude the fields from the response
-        }).populate('class').populate('course').lean();
+        const questions = await Question.find()
+            .sort({ createdAt: -1 }) 
+            .populate({ 
+                path: 'user', 
+                select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+            })
+            .populate('class')
+            .populate('course')
+            .lean();
 
 
         
