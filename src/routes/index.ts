@@ -10,6 +10,7 @@ import { router as couponRoutes } from '../coupon/routes';
 import { router as programRoutes } from '../program/routes';
 import { router as classRouter } from '../class/routes';
 import { router as miscRoutes } from '../misc/routes';
+import {router as supportRoutes} from '../support/routes';
 
 export const router = Router();
 
@@ -42,3 +43,5 @@ router.use('/classes', classRouter);
 router.use('/downloads', miscRoutes);
 
 router.use('/setup', miscRoutes);
+
+router.use('/supports', supportRoutes);
