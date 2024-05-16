@@ -38,7 +38,20 @@ export const classService = {
 
         const klass = await Class.create({
             ...classData,
-            terms: TERMS
+            terms: [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ]
         });
         return this.view({ _id: klass._id });
     },
@@ -46,7 +59,20 @@ export const classService = {
     async createTemplate(templateData: ITemplate) {
         const klassTemplate = new ClassTemplate({
             ...templateData,
-            terms: TERMS
+            terms: [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ]
         });
         await klassTemplate.save();
         return klassTemplate;
