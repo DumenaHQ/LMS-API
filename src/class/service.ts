@@ -116,14 +116,14 @@ export const classService = {
         return { ...classroom, teacher };
     },
 
-    async viewClass(classId: string, { id, role }: { id: string, role: string }): Promise<IClass | null> {
+    async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }): Promise<IClass | null> {
         const defaultParam: any = { _id: new mongoose.Types.ObjectId(classId) };
 
         const criteria = {
-            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': id },
-            [USER_TYPES.school]: { ...defaultParam, school_id: id },
-            [USER_TYPES.parent]: { ...defaultParam, parent_id: id },
-            [USER_TYPES.instructor]: { ...defaultParam, teacher_id: id },
+            [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': roleUserId },
+            [USER_TYPES.school]: { ...defaultParam, school_id: roleUserId },
+            [USER_TYPES.parent]: { ...defaultParam, parent_id: roleUserId },
+            [USER_TYPES.instructor]: { ...defaultParam, teacher_id: roleUserId },
             [USER_TYPES.admin]: defaultParam
         };
         return this.view(criteria[role]);
