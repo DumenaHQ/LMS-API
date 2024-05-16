@@ -74,3 +74,8 @@ export const swapLearnerSchoolId = async (req: Request, res: Response, next: Nex
     await miscService.swapLearnerSchoolId();
     sendResponse(res, 200, 'Data corrected!');
 }
+
+export const swapClassSchoolId = async (req: Request, res: Response, next: NextFunction) => {
+    await miscService.swapClassSchoolId();
+    sendResponse(res, 200, 'Data corrected!');
+}
