@@ -25,24 +25,24 @@ export const
     PAYSTACK_API_URL = 'https://api.paystack.co',
     TEMPLATE_FILE_PATH = 'downloads/templates',
     AWS_S3_REGION = 'us-east-1',
-    LMS_BUCKET_NAME = 'lms.raw-files',
+    LMS_BUCKET_NAME = 'lms-vids',
     DEV_LMS_BUCKET_NAME = 'lms-vids',
     TERMS = {
-        first_term:{
+        first_term: {
             title: 'first term',
             modules: [],
             defaultDateChanged: false,
             start_date: new Date(String(`${new Date().getFullYear()}-09-03T00:00:00.000Z`)),
             end_date: new Date(`${new Date().getFullYear()}-12-23T00:00:00.000Z`),
         },
-        second_term:{
+        second_term: {
             title: 'second term',
             modules: [],
             defaultDateChanged: false,
             start_date: new Date(`${new Date().getFullYear()}-01-03T00:00:00.000Z`),
             end_date: new Date(`${new Date().getFullYear()}-04-07T00:00:00.000Z`),
         },
-        third_term:{
+        third_term: {
             title: 'third term',
             modules: [],
             defaultDateChanged: false,

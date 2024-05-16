@@ -36,7 +36,7 @@ export const classService = {
             classData.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
 
-        const klass = new Class({
+        const klass = await Class.create({
             ...classData,
             terms: TERMS
         });
