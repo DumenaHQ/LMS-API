@@ -30,16 +30,16 @@ export const supportService = {
                     return question;
                 }
             }
-            );
+            ).filter((question) => question !== null && question !== undefined);
         }
         if (!class_id) return questions;
 
         // return questions from a given class id
         return questions.map(
             (question) => {
-                if (question.class && String(question.class.id) === class_id) return question;
+                if (question.class && String(question.class._id) === class_id) return question;
             }
-        );
+        ).filter((question) => question !== null && question !== undefined);
     },
 
  
