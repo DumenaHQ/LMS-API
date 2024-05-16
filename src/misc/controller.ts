@@ -72,4 +72,5 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
 
 export const swapLearnerSchoolId = async (req: Request, res: Response, next: NextFunction) => {
     await miscService.swapLearnerSchoolId();
+    sendResponse(res, 200, 'Data corrected!');
 }

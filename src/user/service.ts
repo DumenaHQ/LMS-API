@@ -214,6 +214,9 @@ export const userService = {
                     'user.password': 0,
                     // 'user.status': 0,
                 }
+            },
+            {
+                $sort: { 'createdAt': -1 }
             }
         ]);
         return users.map((user: object) => this.sanitizeUser(user));
