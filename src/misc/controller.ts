@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { miscService } from './miscService';
-import { Role, Instructor } from '../user/models';
+import { Role } from '../user/models';
 import Subscription from '../subscription/model';
 
 export const downloadTemplateFile = (req: Request, res: Response, next: NextFunction) => {
@@ -35,6 +35,10 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
                 permissions: []
             },
             {
+                role: 'educator',
+                permissions: []
+            },
+            {
                 role: 'admin',
                 permissions: []
             }
@@ -57,8 +61,7 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
 
         await Promise.all([
             Role.insertMany(roles),
-            Subscription.insertMany(subs),
-            // Instructor.create(instructor)
+            Subscription.insertMany(subs)
         ]);
 
         sendResponse(res, 200, 'Database Seeded!');
@@ -66,3 +69,7 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
         next(err);
     }
 };
+
+export const swapLearnerSchoolId = async (req: Request, res: Response, next: NextFunction) => {
+    await miscService.swapLearnerSchoolId();
+}

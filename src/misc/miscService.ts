@@ -1,6 +1,7 @@
 import { handleError } from '../helpers/handleError';
 import { TEMPLATE_FILE_PATH } from '../config/constants';
 import * as path from 'path';
+import { Learner, School } from '../user/models';
 
 
 export const miscService = {
@@ -15,5 +16,11 @@ export const miscService = {
             throw new handleError(400, 'Invalid template sample name');
         }
         return path.join(__dirname, '../../', `${TEMPLATE_FILE_PATH}/${templateFiles[name]}`);
+    },
+
+    async swapLearnerSchoolId() {
+        const schools = await School.find();
+        const res = await Promise.all(schools.map(async school => Learner.updateMany({ school: school.user }, { school: school._id })));
     }
 };
+

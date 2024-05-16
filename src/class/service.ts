@@ -238,7 +238,7 @@ export const classService = {
     },
 
     async update(classId: string, data: Record<string, unknown>, files: File): Promise<any> {
-        if (data.teacher_id === '') {
+        if (!data.teacher_id || data.teacher_id === '') {
             delete data.teacher_id;
         }
         if (data.teacher_id) {
