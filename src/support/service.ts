@@ -20,10 +20,10 @@ export const supportService = {
             .sort({ createdAt: -1 }) 
             .populate({ 
                 path: 'user', 
-                select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+                select: 'id email fullname role' // Exclude the fields from the response
             })
-            .populate('class')
-            .populate('course')
+            .populate({path: 'class', select: 'id name school_id'})
+            .populate({path:'course', select: 'id title difficulty_level course_quadrant'})
             .lean();
 
 
