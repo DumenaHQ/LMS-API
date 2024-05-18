@@ -89,8 +89,8 @@ export const removeTeacherFromClass = async (req: Request, res: Response, next: 
 
 export const listClasses = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { role } = req.user;
-        const roleUserId = req.user[`${role}_id`];
+        const { role, id } = req.user;
+        const roleUserId = role === USER_TYPES.school ? req.user[`school_id`] : id;
         const classes = await classService.listClassesForRoles(roleUserId, role);
         sendResponse(res, 200, 'Classes Fetched', { classes });
     } catch (err) {
