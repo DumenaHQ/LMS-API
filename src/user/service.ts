@@ -50,9 +50,16 @@ export const userService = {
         let user_type = {};
         let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
+
+            console.log(foundUser);
+
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
+
             userType = user_type ? user_type.toJSON() : {};
             userType[`${foundUser.role}_id`] = userType.id;
+            if(!userType['school_email']){
+                payload['school_email'] = foundUser.email;
+            }
             delete userType.id;
         }
         const token: string = sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
