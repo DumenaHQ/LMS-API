@@ -222,6 +222,10 @@ export const userService = {
         return users.map((user: object) => this.sanitizeUser(user));
     },
 
+    async getAllUsers(match = {}) {
+        return User.find({ ...match }).select({ password: 0 });
+    },
+
     async listSchoolStudents(schoolId: string, queryParams: object) {
         const validParams = ['grade'];
         const validQueryParams: Record<string, any> = {};
