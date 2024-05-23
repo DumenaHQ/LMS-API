@@ -51,7 +51,7 @@ export const userService = {
         let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
 
-            console.log(foundUser);
+           
 
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
 
