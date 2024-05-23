@@ -19,6 +19,16 @@ export interface IUserCreate {
     school_id?: string;
 }
 
+export interface IAdminCreate {
+    fullname: string;
+    email: string;
+    admin_type: 'super' | 'educator';
+    phone?: string,
+    resident_state?: string;
+    address?: string;
+}
+
+
 export interface IUserModel {
     fullname: string;
     email: string;
@@ -194,6 +204,12 @@ const AdminSchema: Schema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
+    },
+    roles: {
+        type: String,
+        enum: ['super', 'educator'],
+        default: 'super',
+        required: true,
     },
 }, { timestamps: true });
 

@@ -123,6 +123,10 @@ export const userService = {
         }
     },
 
+
+    async enrollAdmin(){},
+
+
     async activateAccount(email_hash: string, hash_string: string): Promise<IUserView | null> {
         if (!email_hash || !hash_string) {
             throw new handleError(400, 'Email or hash not found');
@@ -387,6 +391,7 @@ export const userService = {
             }
         ));
 
-    }
+    },
+
 
 };
