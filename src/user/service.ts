@@ -50,9 +50,16 @@ export const userService = {
         let user_type = {};
         let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
+
+           
+
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
+
             userType = user_type ? user_type.toJSON() : {};
             userType[`${foundUser.role}_id`] = userType.id;
+            if(!userType['school_email']){
+                payload['school_email'] = foundUser.email;
+            }
             delete userType.id;
         }
         
@@ -236,6 +243,10 @@ export const userService = {
             }
         ]);
         return users.map((user: object) => this.sanitizeUser(user));
+    },
+
+    async getAllUsers(match = {}) {
+        return User.find({ ...match }).select({ password: 0 });
     },
 
     async listSchoolStudents(schoolId: string, queryParams: object) {
