@@ -55,6 +55,7 @@ export const userService = {
             userType[`${foundUser.role}_id`] = userType.id;
             delete userType.id;
         }
+        
         const token: string = sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
             expiresIn: '24h',
         });
@@ -112,6 +113,11 @@ export const userService = {
             const newUser = await User.create([data], { session });
             const userTypeData = getValidModelFields(userModel[user_type], userData);
             userTypeData.user = newUser[0].id;
+            // for admins being onboarded
+            if (user_type == USER_TYPES.admin) {
+                data.status = EUserStatus.Active;
+                userTypeData.role = userData.admin_role;
+            }
             await userModel[user_type].create([userTypeData], { session });
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
@@ -123,9 +129,14 @@ export const userService = {
         }
     },
 
-
-    async enrollAdmin(){},
-
+    async onboardAdmin(userData: IUserCreate){
+        try {
+            const newUser = await this.createUserAndUserType(userData);
+            return newUser;
+        } catch (err: any) {
+            return { status: 'error', message: err.message, data: userData };
+        }
+    },
 
     async activateAccount(email_hash: string, hash_string: string): Promise<IUserView | null> {
         if (!email_hash || !hash_string) {
@@ -176,13 +187,14 @@ export const userService = {
         const user = await User.findOne(criteria).select({ password: 0 });
         if (!user) throw new handleError(404, 'User not found');
 
-        let user_type;
-        if (user.role != USER_TYPES.admin) {
-            user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
-        }
+        const user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
+
         const userType = user_type ? user_type.toJSON() : {};
         userType[`${user.role}_id`] = userType.id;
         delete userType.id;
+        if (user.role == USER_TYPES.admin) {
+            userType.admin_role = userType.role;
+        }
         return { ...userType, ...user.toJSON() };
     },
 

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { router as userRoutes } from '../user/routes';
+import { router as adminRoutes } from '../user/adminRoutes';
 import { router as schoolRoutes } from '../user/schoolRoutes';
 import { router as courseRoutes } from '../course/routes';
 import { router as quizRoutes } from '../quiz/routes';
@@ -17,6 +18,8 @@ export const router = Router();
 router.get('/', (req: Request, res: Response) => res.json({ message: 'Dumena, LMS API' }));
 
 router.use('/users', userRoutes);
+
+router.use('/admins', adminRoutes);
 
 router.use('/courses', courseRoutes);
 

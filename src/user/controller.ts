@@ -19,17 +19,23 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-// export const enrollAdmin = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const { user } = req;
-//         const adminData = req.body;
-//         adminData.fullname = `${req.body.lastname} ${req.body.firstname}`;
-//         const admin = await userService.create({ ...adminData, user_type: 'admin' });
-//         sendResponse(res, 201, 'Admin Enrolled', { user: admin });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
+export const onboardAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { admin_role, firstname, lastname, phone, email } = req.body;
+        const adminData = {
+            fullname : `${lastname} ${firstname}`,
+            user_type: 'admin',
+            admin_role,
+            phone,
+            email,
+            password: 'dumena',
+        };
+        const admin = await userService.onboardAdmin(adminData);
+        sendResponse(res, 201, 'Admin Onboarded', { user: admin });
+    } catch (err) {
+        next(err);
+    }
+};
 
 export const enrollLearner = async (req: Request, res: Response, next: NextFunction) => {
     try {
