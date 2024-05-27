@@ -1,5 +1,5 @@
-import { body, check } from 'express-validator';
-import User, { AdminRole, Role, School } from '../../user/models';
+import { check } from 'express-validator';
+import User, { Role, School } from '../../user/models';
 import { validate } from './validate';
 
 export default validate;
@@ -20,8 +20,6 @@ export const userCreationRules = () => {
 
             if (user_type == 'learner' && parent) req.body.fullname = `${lastname} ${firstname}`;
             if (user_type == 'instructor') req.body.password = 'dumena';
-            // This makes sure this endpoint cant be used to create an admin
-            if(user_type == 'admin') throw new Error('Action forbidden, you are not allowed to create an admin account');
         }),
         check('firstname').custom((firstname: string, { req }) => {
             if (req.body.user_type == 'learner' && req.body.parent && !firstname) throw new Error('Firstname must be specified');
@@ -67,23 +65,5 @@ export const loginRules = () => {
     return [
         check('email').exists().withMessage('Email/username field must be provided'),
         check('password').exists().withMessage('Password field must be provided')
-    ];
-};
-
-export const adminOnboardingRules = () => {
-    return [
-        body('admin_role').notEmpty().withMessage('admin_role must be specified').custom(async (admin_role: string) => {
-            
-            if (!Object.values(AdminRole).includes(admin_role as AdminRole)) throw new Error(`Invalid admin role, Choose from any of these: [${Object.values(AdminRole).join(', ')}]`);
-
-            return true;
-        }),
-        body('firstname').notEmpty().withMessage('firstname must be specified'),
-        body('lastname').notEmpty().withMessage('lastname must be specified'),
-        body('phone').notEmpty().withMessage('phone must be specified').isMobilePhone('any').withMessage('invalid phone'),
-        body('email').notEmpty().withMessage('email must be specified').isEmail().withMessage('invalid email').custom(async (email: string) => {
-            const existingUser = await User.findOne({ email }).lean();
-            if (existingUser) throw new Error('Email already in use');
-        }),
     ];
 };
