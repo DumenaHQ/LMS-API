@@ -64,3 +64,14 @@ export const isLearner = (req: Request, res: Response, next: NextFunction) => {
         return res.sendStatus(403);
     }
 };
+
+export const authorizeAdminRoles = (roles: string[]) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const admin = await userService.view({ _id: req.user.id });
+        if (admin && roles.includes(admin.admin_role)) {
+            next();
+        } else {
+            return res.sendStatus(403); // Forbidden
+        }
+    };
+};
