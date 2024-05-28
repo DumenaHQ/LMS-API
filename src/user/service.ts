@@ -51,18 +51,18 @@ export const userService = {
         let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
 
-           
+
 
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
 
             userType = user_type ? user_type.toJSON() : {};
             userType[`${foundUser.role}_id`] = userType.id;
-            if(!userType['school_email']){
+            if (!userType['school_email']) {
                 payload['school_email'] = foundUser.email;
             }
             delete userType.id;
         }
-        
+
         const token: string = sign({ id: foundUser._id }, process.env.JWT_SECRET as string, {
             expiresIn: '24h',
         });
@@ -136,7 +136,7 @@ export const userService = {
         }
     },
 
-    async onboardAdmin(userData: IUserCreate){
+    async onboardAdmin(userData: IUserCreate) {
         try {
             const newUser = await this.createUserAndUserType(userData);
             return newUser;
@@ -292,8 +292,11 @@ export const userService = {
             User.updateOne(criteria, userUpdateData),
             userModel[user_type].updateOne({ user: new mongoose.Types.ObjectId(userId) }, userTypeData)
         ]);
-
         return this.view(criteria);
+    },
+
+    async changeUserStatus(userId: string, status: string) {
+        return User.updateOne({ _id: new mongoose.Types.ObjectId(userId) }, { status });
     },
 
     async ensureUniqueUsername(username: string): Promise<string> {

@@ -23,7 +23,7 @@ export const onboardAdmin = async (req: Request, res: Response, next: NextFuncti
     try {
         const { admin_role, firstname, lastname, phone, email } = req.body;
         const adminData = {
-            fullname : `${lastname} ${firstname}`,
+            fullname: `${lastname} ${firstname}`,
             user_type: 'admin',
             admin_role,
             phone,
@@ -142,7 +142,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await userService.getAllUsers({deleted: false});
+        const users = await userService.getAllUsers({ deleted: false });
         sendResponse(res, 200, 'User fetched', { users });
     } catch (err) {
         next(err);
@@ -268,6 +268,21 @@ export const downloadSchoolStudents = async (req: Request, res: Response, next: 
             'Content-disposition': 'attachment; filename=students_list.xlsx',
         });
         res.end(dataFile);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const changeUserStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: userId } = req.params;
+        const path = req.path.split('/')[2];
+        const status: Record<string, string> = {
+            activate: 'active',
+            deactivate: 'inactive'
+        };
+        await userService.changeUserStatus(userId, status[path]);
+        sendResponse(res, 200, 'User status Updated');
     } catch (err) {
         next(err);
     }
