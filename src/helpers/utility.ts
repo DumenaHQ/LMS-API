@@ -40,4 +40,8 @@ export const formatTimestamp = (time: number): string => {
 
 export const capitalizeFirstLetter = (word: string): string => {
     return word[0].toUpperCase() + word.slice(1);
-};   
+};
+
+export function isInEnum<T>(enumObj: T, value: unknown): value is T[keyof T] {
+    return Object.values(enumObj).includes(value as T[keyof T]);
+}

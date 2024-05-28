@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({
     limits: { fileSize: 1000 * 1024 * 1024 },
 }));
-
+app.set('trust proxy', true);
 app.use('/', routes);
 
 
