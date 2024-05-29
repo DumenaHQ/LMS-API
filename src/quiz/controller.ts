@@ -34,8 +34,8 @@ export const listQuizzes = async (req: Request, res: Response, next: NextFunctio
 export const attachQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
-        const { course_id: courseId, quiz_level, quiz_level_id } = req.body;
-        await quizService.attachQuiz(quizId, courseId, quiz_level, quiz_level_id);
+        const { course_id: courseId, quiz_level, module_id, lesson_id } = req.body;
+        await quizService.attachQuiz(quizId, courseId, quiz_level, module_id, lesson_id);
         sendResponse(res, 201, 'Quiz added to course');
     } catch (err) {
         next(err);

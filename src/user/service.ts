@@ -50,9 +50,6 @@ export const userService = {
         let user_type = {};
         let userType: Record<any, unknown> = {};
         if (foundUser.role != USER_TYPES.admin) {
-
-
-
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
 
             userType = user_type ? user_type.toJSON() : {};
@@ -138,8 +135,7 @@ export const userService = {
 
     async onboardAdmin(userData: IUserCreate) {
         try {
-            const newUser = await this.createUserAndUserType(userData);
-            return newUser;
+            return this.createUserAndUserType(userData);
         } catch (err: any) {
             return { status: 'error', message: err.message, data: userData };
         }
@@ -276,9 +272,7 @@ export const userService = {
             'user.deleted': false
         };
 
-        const instructors = await this.list(criteria, 'instructor');
-
-        return instructors;
+        return this.list(criteria, 'instructor');
     },
 
     async update(userId: string, userData: IUserCreate): Promise<IUserView | null> {

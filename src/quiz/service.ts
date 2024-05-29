@@ -9,10 +9,10 @@ export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
         if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
 
-        return Quiz.create(quiz);
+        return Quiz.create(quiz) as unknown as IQuiz;
     },
 
-    async attachQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, quiz_level_id: string): Promise<void> {
+    async attachQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, module_id: string, lesson_id: string): Promise<void> {
         const [quiz, course] = await Promise.all([
             Quiz.findById(quizId),
             Course.findById(courseId)
@@ -23,32 +23,40 @@ export const quizService = {
 
         const filter = {
             course: { _id: courseId },
-            module: { _id: courseId, 'modules._id': quiz_level_id },
-            lesson: { _id: courseId }
-        };
-        const updateData = {
-            course: { quiz_id: quizId },
-            module: { 'modules.$.quiz_id': quizId },
+            module: { _id: courseId, 'modules._id': module_id },
             lesson: {}
         };
 
+        const updateData = {
+            course: { quiz_id: quizId },
+            module: { 'modules.$.quiz_id': quizId },
+            lesson: { 'modules.$[el1].lessons.$[el2].quiz_id': quizId }
+        };
+
+        const arrayFilters = {
+            course: [],
+            module: [],
+            lesson: [{ 'el1._id': module_id }, { 'el2._id': lesson_id }]
+        };
+
         await Course.findOneAndUpdate(
-            filter[quiz_level],
-            { $set: updateData[quiz_level] }
+            filter[quiz_level as keyof unknown],
+            { $set: updateData[quiz_level as keyof unknown] },
+            { arrayFilters: arrayFilters[quiz_level as keyof unknown] }
         );
     },
 
 
     async view(criteria: object): Promise<IQuiz> {
-        const quiz = await this.findOne(criteria);
+        const quiz = await this.findOne(criteria) as IQuiz;
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
         return quiz;
     },
 
-    async list(criteria: object): Promise<IQuiz[]> {
+    async list(criteria: object): Promise<unknown[]> {
         const quizes = await Quiz.find(criteria).select('-answers').sort({ createdAt: 'desc' });
-        return quizes.map(rawQuiz => {
+        return quizes.map((rawQuiz: Record<string, any>) => {
             const quiz = rawQuiz.toJSON();
             const questions = quiz.questions;
             delete quiz.questions;
@@ -56,8 +64,8 @@ export const quizService = {
         });
     },
 
-    async findOne(criteria: object): Promise<IQuiz | null> {
-        return Quiz.findOne(criteria).select('-answers');
+    async findOne(criteria: object): Promise<IQuiz> {
+        return Quiz.findOne(criteria).select('-answers') as unknown as IQuiz;
     },
 
 
@@ -104,7 +112,6 @@ export const quizService = {
             }
             return score;
         }, 0);
-
 
         return {
             title: quiz.title,

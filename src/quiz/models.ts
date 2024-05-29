@@ -57,3 +57,4 @@ const quizSchema = new Schema({
 }, { timestamps: true });
 
 export default mongoose.model('Quiz', quizSchema);
+
