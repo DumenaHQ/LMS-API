@@ -12,6 +12,8 @@ import { router as programRoutes } from '../program/routes';
 import { router as classRouter } from '../class/routes';
 import { router as miscRoutes } from '../misc/routes';
 import {router as supportRoutes} from '../support/routes';
+import { router as activityRoutes } from '../activity/routes';
+
 
 export const router = Router();
 
@@ -48,3 +50,5 @@ router.use('/downloads', miscRoutes);
 router.use('/setup', miscRoutes);
 
 router.use('/supports', supportRoutes);
+
+router.use('/activites', activityRoutes);
