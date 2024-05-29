@@ -1,0 +1,16 @@
+export enum EActivityType {
+  'login',
+  'logout',
+  'joined_class',
+  'entered_class',
+  'exited_class',
+  'started_lesson',
+  'paused_lesson',
+  'stopped_lesson',
+  'completed_lesson',
+  'started_quiz',
+  'paused_quiz',
+  'stopped_quiz',
+  'completed_quiz',
+  'clicked_link',
+}
