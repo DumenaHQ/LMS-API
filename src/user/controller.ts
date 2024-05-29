@@ -142,7 +142,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await userService.getAllUsers({ deleted: false });
+        const users = await userService.getAllUsersAndUserType({ deleted: false });
         sendResponse(res, 200, 'User fetched', { users });
     } catch (err) {
         next(err);
