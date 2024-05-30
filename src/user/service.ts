@@ -242,19 +242,22 @@ export const userService = {
     },
 
     async getAllUsers(match = {}) {
-        return User.find({ ...match }).select({ password: 0 });
+        const rawUsers = await User.find({ ...match }).select({ password: 0 });
+        return rawUsers.map(user => user.toJSON());
     },
 
     async getAllUsersAndUserType(match = {}) {
         const users = await this.getAllUsers(match);
+
         return Promise.all(
             users.map(async (user: any) => {
-                const user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 }).lean();
+                const user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
+                if (!user_type) return user;
                 if (user.role === USER_TYPES.admin) {
-                    const { role: admin_role, ...userType } = user_type;
-                    return { ...userType, admin_role };
+                    const { role: admin_role, ...userType } = user_type.toJSON();
+                    return { ...user, ...userType, admin_role };
                 }
-                return user_type;
+                return { ...user, ...user_type.toJSON() };
             })
         );
     },
