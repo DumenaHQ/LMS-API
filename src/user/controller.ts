@@ -143,7 +143,8 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const {role} = req.query;
-        const users = role ? await userService.getAllUsersAndUserType({ deleted: false, role }) : await userService.getAllUsersAndUserType({ deleted: false });
+        const roleCriteria = role ? { role } : {};
+        const users = await userService.getAllUsersAndUserType({ deleted: false, ...roleCriteria });
         sendResponse(res, 200, 'User fetched', { users });
     } catch (err) {
         next(err);
