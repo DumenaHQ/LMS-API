@@ -247,28 +247,18 @@ export const userService = {
 
     async getAllUsersAndUserType(match = {}) {
         const users = await this.getAllUsers(match);
-        const usersAndUserTYpe = await Promise.all(
+        return Promise.all(
             users.map(async (user: any) => {
-                const user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 });
-                if(user.role === 'admin'){
-                    const {role: admin_role, ...userType} = user_type.toJSON();
-                    return {
-                        ...user.toJSON(),
-                        ...userType,
-                        admin_role
-                    };
-
-                }else{
-                    return {
-                        ...user.toJSON(),
-                        ...user_type.toJSON(),
-                    };
+                const user_type = await userModel[user.role].findOne({ user: user.id }).select({ user: 0 }).lean();
+                if (user.role === USER_TYPES.admin) {
+                    const { role: admin_role, ...userType } = user_type;
+                    return { ...userType, admin_role };
                 }
+                return user_type;
             })
         );
-        return usersAndUserTYpe;
     },
-        
+
 
     async listSchoolStudents(schoolId: string, queryParams: object) {
         const validParams = ['grade'];
