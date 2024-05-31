@@ -332,10 +332,10 @@ export const userService = {
 
 
     async removeLearner(learnerId: string) {
-        const learner = await Learner.findById(learnerId);
+        const learner = await Learner.findOne({ user: learnerId });
         if (!learner) throw new handleError(404, 'Learner not found');
 
-        await User.updateOne({ _id: learner.user }, { deleted: true });
+        await User.updateOne({ _id: learnerId }, { deleted: true });
     },
 
 
