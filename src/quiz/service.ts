@@ -24,7 +24,7 @@ export const quizService = {
         const filter = {
             course: { _id: courseId },
             module: { _id: courseId, 'modules._id': module_id },
-            lesson: {}
+            lesson: { _id: courseId }
         };
 
         const updateData = {
