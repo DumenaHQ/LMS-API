@@ -78,11 +78,13 @@ export const emailService = {
 
     emailParentOnchildEnrollment: function ({ fullname, username, password, parent_email, schoolName }: Record<string, any>): void {
         if (!parent_email) return;
+
         const data = {
             fullname,
             username,
             password,
-            schoolName
+            schoolName,
+            loginLink: BASE_URL + '#/login'
         };
         const subject = `Your Child has been Enrolled on DUMENA Platform!`;
         const template = 'parentChildEnrollment';
