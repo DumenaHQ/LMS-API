@@ -100,22 +100,30 @@ export const quizService = {
 
 
     async computeLearnerResult(quizId: string, learnerId: string) {
-        const quiz = await this.view({ _id: quizId });
-        const learnerAnswers = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == learnerId);
+        const quiz = await Quiz.findOne({ _id: quizId });
+        if (!quiz) throw new handleError(404, 'Quiz not found');
+
+        const learnerAnswers = quiz.answers?.find((answer: Record<string, unknown>) => String(answer.learner) === String(learnerId));
         if (!learnerAnswers) throw new handleError(400, 'This Learner hasn\'t taken the quiz yet');
 
         const { answers }: any = learnerAnswers;
-        const quizScore = quiz.questions?.reduce((score: number, question: IQuizQuestion) => {
-            const questAns = answers.find((answer: Record<string, unknown>) => answer.question_id == question.id);
+        const quizScore = quiz.questions?.reduce((score: number, question: Record<string, unknown>) => {
+            const questAns = answers.find((answer: Record<string, unknown>) => String(answer.question_id) === String(question.id));
             if (questAns && questAns.selected_ans == question.answer) {
                 return ++score;
             }
             return score;
         }, 0);
 
+        let percentageScore;
+        if (quizScore) {
+            percentageScore = (quizScore / quiz.questions?.length!) * 100;
+        }
+
         return {
             title: quiz.title,
             score: quizScore,
+            percentageScore,
         };
     },
 

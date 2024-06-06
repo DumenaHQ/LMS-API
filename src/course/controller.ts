@@ -72,3 +72,14 @@ export const listModuleLessons = async (req: Request, res: Response, next: NextF
         next(err);
     }
 };
+
+export const isLessonCompleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: learnerId } = req.user;
+        const { id: courseId, moduleId, lessonId } = req.params;
+        const lessonStatus = await courseService.isLessonCompleted(courseId, moduleId, lessonId, learnerId);
+        sendResponse(res, 200, 'Lesson Completion Status Fetched', lessonStatus);
+    } catch (err) {
+        next(err);
+    }
+}

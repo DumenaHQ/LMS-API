@@ -49,4 +49,5 @@ export const
             start_date: new Date(`${new Date().getFullYear()}-04-14T00:00:00.000Z`),
             end_date: new Date(`${new Date().getFullYear()}-07-20T00:00:00.000Z`),
         }
-    };
+    },
+    QUIZ_PASS_MARK = 80
