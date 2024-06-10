@@ -218,4 +218,4 @@ export const courseService = {
         const accessSlugs = access?.content_access.map((a: { slug: any; }) => a.slug);
         return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
-};
+};
