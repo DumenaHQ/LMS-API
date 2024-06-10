@@ -192,7 +192,7 @@ export const courseService = {
         const courseModule = course?.modules?.find((module: IModule) => String(module.id) == String(moduleId));
         if (!courseModule) throw new handleError(404, 'Lesson module not found');
 
-        const lesson = courseModule?.lessons?.find((lesson: Record<string, unknown>) => String(lesson.id == String(lessonId)));
+        const lesson = courseModule?.lessons?.find((lesson: Record<string, unknown>) => String(lesson._id) === String(lessonId));
         if (!lesson) throw new handleError(404, 'Lesson not found');
 
         const lessonQuizId = lesson.quiz_id || null;
@@ -218,4 +218,4 @@ export const courseService = {
         const accessSlugs = access?.content_access.map((a: { slug: any; }) => a.slug);
         return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
-};
+};
