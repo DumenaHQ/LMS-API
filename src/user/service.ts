@@ -282,14 +282,6 @@ export const userService = {
                     const { role: admin_role, ...userType } = user_type.toJSON();
                     return { ...user, ...userType, admin_role };
                 }
-                if (user.role === USER_TYPES.school) {
-                    const subscription = await SchoolSubscription.findOne({
-                        school: user_type._id,
-                        status: 'active'
-                    }).populate('subscription');
-                    const modifiedUserType= {...user_type.toJSON(), subscription};
-                    return { ...user, ...modifiedUserType };
-                }
                 return { ...user, ...user_type.toJSON() };
             })
         );
