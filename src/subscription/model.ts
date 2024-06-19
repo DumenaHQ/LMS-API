@@ -21,6 +21,53 @@ const subscriptionSchema = new Schema({
 export default mongoose.model('Subscription', subscriptionSchema);
 
 
+
+const schoolSubscriptionSchema = new Schema({
+    subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'Subscription'
+    },
+    school: {
+        type: Schema.Types.ObjectId,
+        ref: 'School'
+    },
+    coupon: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coupon'
+    },
+    status: {
+        type: String,
+        enum: ['active', 'expired'],
+        default: 'active'
+    }
+}, { timestamps: true });
+export const SchoolSubscription = mongoose.model('SchoolSubscription', schoolSubscriptionSchema);
+
+
+const schoolSubscriptionTransactionSchema = new Schema({
+    school_subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'SchoolSubscription'
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'success', 'failed'],
+        default: 'pending'
+    },
+    reference: {
+        type: String,
+        unique: true,
+        required: true
+    },
+}, { timestamps: true });
+export const SchoolSubscriptionTransaction = mongoose.model('SchoolSubscriptionTransaction', schoolSubscriptionTransactionSchema);
+
+
+
 const contentAcessSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
