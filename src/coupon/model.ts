@@ -24,6 +24,7 @@ const couponSchema = new Schema({
     },
     status: {
         type: String,
+        enum: ['active', 'inactive'],
         default: 'active'
     }
 }, { timestamps: true });
