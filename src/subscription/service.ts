@@ -1,12 +1,16 @@
 import { handleError } from '../helpers/handleError';
 import { IOrder } from '../order/model';
-import { Learner } from '../user/models';
-import Subscription from './model';
+import { Learner, School } from '../user/models';
+import Subscription, { SchoolSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
 
 export const subscriptionService = {
-    async create(data: object) {
+    async create(data: {
+        title: string;
+        slug: string;
+        amount: number;
+    }) {
         return Subscription.create(data);
     },
 
@@ -17,7 +21,6 @@ export const subscriptionService = {
     async list() {
         return Subscription.find();
     },
-
 
     async grantAccess(order: IOrder) {
         switch (order.item_type) {
@@ -62,5 +65,23 @@ export const subscriptionService = {
             learnerIds.push({ user_id });
             await classService.addLearners(classId, learnerIds);
         });
+    },
+
+    async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
+        const school = await School.findById(school_id);
+        if (!school) {
+            throw new handleError(400, 'School not found');
+        }
+
+        const subscription = await Subscription.findById(subscription_id);
+        if (!subscription) {
+            throw new handleError(400, 'Subscription not found');
+        }
+
+        const schoolSubscription = await SchoolSubscription.create({
+            school: school.id,
+            subscription: subscription.id
+        });
+        return schoolSubscription;
     }
 };

@@ -12,10 +12,6 @@ const subscriptionSchema = new Schema({
         type: String,
         unique: true
     },
-    item_id: Schema.Types.ObjectId,
-    months: {
-        type: Number
-    }
 }, { timestamps: true });
 
 export default mongoose.model('Subscription', subscriptionSchema);
