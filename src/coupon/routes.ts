@@ -4,6 +4,6 @@ import { listCoupons } from './controller';
 
 export const router = Router();
 
-// router.post('/',);
+router.post('/', isAuthenticated, isAdmin, listCoupons);
 
-router.get('/', listCoupons);
+router.get('/', isAuthenticated, isAdmin, listCoupons);

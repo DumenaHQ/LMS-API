@@ -26,6 +26,9 @@ const couponSchema = new Schema({
         type: String,
         enum: ['active', 'inactive'],
         default: 'active'
+    },
+    expiry_date: {
+        type: Date
     }
 }, { timestamps: true });
 
