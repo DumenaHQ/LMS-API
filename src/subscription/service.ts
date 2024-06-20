@@ -83,5 +83,11 @@ export const subscriptionService = {
             subscription: subscription.id
         });
         return schoolSubscription;
+    },
+    
+    async updateSchoolSubscription(schoolSubscriptionId: string, data={}) {
+        const schoolSubscription = await SchoolSubscription.findByIdAndUpdate(schoolSubscriptionId, data);
+        return schoolSubscription;
     }
+
 };

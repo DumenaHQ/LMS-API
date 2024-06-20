@@ -19,3 +19,15 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
         next(err);
     }
 };
+
+
+export const updateSchoolSubscription = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { school_sub_id } = req.params;
+        const { coupon } = req.body;
+        const schoolSubscription = await subscriptionService.updateSchoolSubscription(school_sub_id, { coupon });
+        sendResponse(res, 201, 'School Subscription Updated', { schoolSubscription });
+    } catch (err) {
+        next(err);
+    }
+};
