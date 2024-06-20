@@ -6,5 +6,5 @@ export const router = Router();
 
 // router.post('/',);
 
-router.get('/', isAuthenticated, listSubcriptions);
+router.get('/', listSubcriptions);
 router.post('/', isAuthenticated, isAdmin, create);
