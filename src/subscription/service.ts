@@ -8,10 +8,14 @@ import { ORDER_ITEMS } from '../config/constants';
 export const subscriptionService = {
     async create(data: {
         title: string;
-        slug: string;
         amount: number;
     }) {
-        return Subscription.create(data);
+        const subscriptions = await Subscription.find();
+        const slug = `${data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${subscriptions.length + 1}`; // this ensures the slug is unique and readable
+        return Subscription.create({
+            ...data,
+            slug
+        });
     },
 
     async findOne(criteria: object) {
