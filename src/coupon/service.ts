@@ -1,5 +1,7 @@
 import Coupon from './model';
 
+import Chance from 'chance';
+
 export const couponService = {
     async create(data: {
         title: string,
@@ -25,16 +27,9 @@ export const couponService = {
     ) {
         const coupons = await this.list();
 
-        // used the fisher yates shuffle algorithm because its faster
-        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const shuffledAlphabet = alphabet.split('').sort(() => 0.5 - Math.random());
-        const randomAlphabet = shuffledAlphabet.slice(0, 3).join('');
-
-        let generatedString = randomAlphabet;
-        // this ensures the coupon code is unique
-        generatedString = `${Number(coupons.length) + Number(1)}-${
-            title.toLowerCase().replace(/\s+/g, '-') // Convert title to lowercase and replace spaces with hyphens
-        }-${generatedString}`;
+        const chance = new Chance();
+        let generatedString = chance.string({ length: 5, casing: 'upper', alpha: true, numeric: false, symbols: false });
+        generatedString = `$${generatedString}${Number(coupons.length) + Number(1)}`; // Adding the number of coupons + 1, ensures unique ness of coupon code
 
 
         const coupon = await this.create({
