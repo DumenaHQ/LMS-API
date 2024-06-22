@@ -9,7 +9,7 @@ import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
-import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { PREMIUM_STATES, SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
 import {SchoolSubscription} from '../subscription/model';
@@ -162,9 +162,8 @@ export const userService = {
         if (user.role === USER_TYPES.school){
             const userType = await userModel[user.role].findOne({ user: user.id });
             if (userType) {
-                const premiumStates = ['abuja', 'lagos'];
                 let subscription;
-                if (premiumStates.includes( String(userType.resident_state).toLowerCase()) ){
+                if (PREMIUM_STATES.includes( String(userType.resident_state).toLowerCase()) ){
                     subscription = await subscriptionService.findOne({
                         title: { $regex: /^standard/i }
                     });

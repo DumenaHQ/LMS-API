@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { subscriptionService } from './service';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { School } from '../user/models';
+import { PREMIUM_STATES } from '../config/constants';
 
 export const listSubcriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -41,10 +42,8 @@ export const migrateExistingSchoolsToSubscription = async (req: Request, res: Re
         const schools = await School.find();
 
         await Promise.all(schools.map(async (school) => {
-
-            const premiumStates = ['abuja', 'lagos'];
             let subscription;
-            if (premiumStates.includes( String(school.resident_state).toLowerCase()) ){
+            if (PREMIUM_STATES.includes( String(school.resident_state).toLowerCase()) ){
                 subscription = await subscriptionService.findOne({
                     title: { $regex: /^standard/i }
                 });
