@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
-import { listCoupons } from './controller';
+import { createCoupon, listCoupons } from './controller';
+import validate, { couponCreationRules } from '../middleware/validators/couponValidators';
 
 export const router = Router();
 
-// router.post('/',);
+router.post('/', isAuthenticated, isAdmin, couponCreationRules(), validate, createCoupon);
 
-router.get('/', listCoupons);
+router.get('/', isAuthenticated, isAdmin, listCoupons);
