@@ -8,10 +8,11 @@ import { ORDER_ITEMS } from '../config/constants';
 export const subscriptionService = {
     async create(data: {
         title: string;
+        slug: string;
         amount: number;
     }) {
-        const subscriptions = await Subscription.find();
-        const slug = `${data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${subscriptions.length + 1}`; // this ensures the slug is unique and readable
+
+        const slug = data.slug; // this ensures the slug is unique and readable
         return Subscription.create({
             ...data,
             slug
@@ -72,19 +73,9 @@ export const subscriptionService = {
     },
 
     async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
-        const school = await School.findById(school_id);
-        if (!school) {
-            throw new handleError(400, 'School not found');
-        }
-
-        const subscription = await Subscription.findById(subscription_id);
-        if (!subscription) {
-            throw new handleError(400, 'Subscription not found');
-        }
-
         const schoolSubscription = await SchoolSubscription.create({
-            school: school.id,
-            subscription: subscription.id
+            school: school_id,
+            subscription: subscription_id
         });
         return schoolSubscription;
     },

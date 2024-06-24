@@ -8,6 +8,11 @@ export default validate;
 export const subscriptionCreationRules = () => {
     return [
         body('title').notEmpty().isString().isLength({max: 50, min: 2}).withMessage('Title must be between 2 and 50 characters'),
+        body('slug').notEmpty().isString().toLowerCase().custom(async (slug: string) => {
+            const subscription = await subscriptionService.findOne({ slug });
+            if (subscription) throw new Error('Subscription with this slug already exists, try another slug');
+            return true;
+        }),
         body('amount').notEmpty().isNumeric().withMessage('Amount must be a number'),
     ];
 };
