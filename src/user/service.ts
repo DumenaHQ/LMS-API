@@ -9,9 +9,11 @@ import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
-import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { PREMIUM_STATES, SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
+import {SchoolSubscription} from '../subscription/model';
+import { subscriptionService } from '../subscription/service';
 
 const userModel = {
     [USER_TYPES.learner]: Learner,
@@ -155,6 +157,28 @@ export const userService = {
             throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
         }
         user.status = EUserStatus.Active;
+  
+
+        if (user.role === USER_TYPES.school){
+            const userType = await userModel[user.role].findOne({ user: user.id });
+            if (userType) {
+                let subscription;
+                if (PREMIUM_STATES.includes( String(userType.resident_state).toLowerCase()) ){
+                    subscription = await subscriptionService.findOne({
+                        title: { $regex: /^standard/i }
+                    });
+                } else {
+                    subscription = await subscriptionService.findOne({
+                        title: { $regex: /^basic/i }
+                    });
+                }
+
+                if (subscription){
+                    await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
+                }
+            }
+        }
+        
         await user.save();
         return this.view({ _id: user.id });
     },
@@ -256,6 +280,14 @@ export const userService = {
                 if (user.role === USER_TYPES.admin) {
                     const { role: admin_role, ...userType } = user_type.toJSON();
                     return { ...user, ...userType, admin_role };
+                }
+                if (user.role === USER_TYPES.school) {
+                    const subscription = await SchoolSubscription.findOne({
+                        school: user_type._id,
+                        status: 'active'
+                    }).populate('subscription');
+                    const modifiedUserType= {...user_type.toJSON(), subscription};
+                    return { ...user, ...modifiedUserType };
                 }
                 return { ...user, ...user_type.toJSON() };
             })

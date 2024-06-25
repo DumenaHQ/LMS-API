@@ -1,13 +1,22 @@
 import { handleError } from '../helpers/handleError';
 import { IOrder } from '../order/model';
-import { Learner } from '../user/models';
-import Subscription from './model';
+import { Learner, School } from '../user/models';
+import Subscription, { SchoolSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
 
 export const subscriptionService = {
-    async create(data: object) {
-        return Subscription.create(data);
+    async create(data: {
+        title: string;
+        slug: string;
+        amount: number;
+    }) {
+
+        const slug = data.slug; // this ensures the slug is unique and readable
+        return Subscription.create({
+            ...data,
+            slug
+        });
     },
 
     async findOne(criteria: object) {
@@ -17,7 +26,6 @@ export const subscriptionService = {
     async list() {
         return Subscription.find();
     },
-
 
     async grantAccess(order: IOrder) {
         switch (order.item_type) {
@@ -62,5 +70,19 @@ export const subscriptionService = {
             learnerIds.push({ user_id });
             await classService.addLearners(classId, learnerIds);
         });
+    },
+
+    async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
+        const schoolSubscription = await SchoolSubscription.create({
+            school: school_id,
+            subscription: subscription_id
+        });
+        return schoolSubscription;
+    },
+    
+    async updateSchoolSubscription(schoolSubscriptionId: string, data={}) {
+        const schoolSubscription = await SchoolSubscription.findByIdAndUpdate(schoolSubscriptionId, data);
+        return schoolSubscription;
     }
+
 };
