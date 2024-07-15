@@ -1,4 +1,4 @@
-import Quiz, { QuizLevelType } from './models';
+import Quiz, { QuizLevelType, EQuizLevel } from './models';
 import Course from '../course/model';
 import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
@@ -9,7 +9,14 @@ export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
         if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
 
-        return Quiz.create(quiz) as unknown as IQuiz;
+        const { course_id, module_id, lesson_id, ...quizData } = quiz
+        const newQuiz = await Quiz.create(quizData) as unknown as IQuiz;
+
+        let quiz_level = EQuizLevel.Course;
+        if (lesson_id) quiz_level = EQuizLevel.Lesson;
+        else if (module_id) quiz_level= EQuizLevel.Module;    
+        await this.attachQuiz(newQuiz._id, course_id, quiz_level, module_id, lesson_id);   
+        return newQuiz;
     },
 
     async attachQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, module_id: string, lesson_id: string): Promise<void> {

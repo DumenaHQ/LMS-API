@@ -5,7 +5,7 @@ enum EQuiztype {
     Essay = 'essay'
 }
 
-enum EQuizLevel {
+export enum EQuizLevel {
     Course = 'course',
     Module = 'module',
     Lesson = 'lesson'
