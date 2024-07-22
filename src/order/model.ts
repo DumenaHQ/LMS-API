@@ -12,7 +12,6 @@ export enum EOrderStatus {
 export interface IOrder {
     id: Schema.Types.ObjectId;
     user: Schema.Types.ObjectId; // the id of the user making this payment
-    learner: Schema.Types.ObjectId; // the id of the learner, the school payed for
     item_type: string;
     total_amount: number;
     coupon?: Schema.Types.ObjectId;
@@ -54,12 +53,8 @@ const orderItems = {
 
 const orderSchema = new Schema({
     user: {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId, // The Id Of the user making the payment
         ref: 'User'
-    },
-    learner: {
-        type: Schema.Types.ObjectId, // the id of the learner, the school payed for
-        ref: 'Learner'
     },
     item_type: String,
     reference: {

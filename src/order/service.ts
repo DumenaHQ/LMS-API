@@ -1,48 +1,61 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Order, { IOrder, EOrderStatus } from './model';
 import Coupon from '../coupon/model';
-import Subscription, {SchoolSubscription }from '../subscription/model';
+import Subscription, { UserSubscription }from '../subscription/model';
 import { generateId } from '../helpers/utility';
 import {School} from '../user/models';
+import { userService } from '../user/service';
+import { USER_TYPES } from '../config/constants';
 
 export const orderService = {
-    async create({ items, ...orderData }: IOrder) {
-        // ge the user school profile
-        const school = await School.findOne({user: orderData.user});
-        if (!school) {
-            throw new Error('User is not a school');
-        }
+    async create({ items, ...orderData }: IOrder, userRole: string) {
 
         let totalAmountToPay = 0;
-        // Check if current school has any subscription attached to thier profile, that is active, only one subscription is allowed to be active per school
-        const schoolSubscription = await SchoolSubscription.findOne({school: school._id, status: 'active'});
-        if (!schoolSubscription) {
-            throw new Error('Please Subscribe to a plan');
+        let appliedCoupon = false;
+        let coupon: any = null;
+        let subscription: any = null;
+        if (userRole == USER_TYPES.school) {
+
+            // Check if current user has any subscription attached to thier profile, that is active, only one subscription is allowed to be active per school
+            const userSubscription = await UserSubscription.findOne({user: orderData.user, status: 'active'});
+            if (!userSubscription) {
+                throw new Error('Please Subscribe to a plan');
+            }
+            subscription = await Subscription.findById(userSubscription.subscription);
+            if (!subscription) {
+                throw new Error('Invalid Subscription In Profile');
+            }
+            // We check if the user has any coupon attached on their subscription, and apply the coupon if it is valid
+            coupon = userSubscription.coupon ? await Coupon.findById(userSubscription.coupon): null;
+        }else{
+            // Use the default parent plan
+            subscription = await Subscription.findOne({slug: 'parent-plan'});
+            if (!subscription) {
+                throw new Error('Internal server error, Parent Subscription Not Found');
+            }
         }
-        const subscription = await Subscription.findById(schoolSubscription.subscription);   
-        if (!subscription) {
-            throw new Error('Invalid Subscription In Profile');
-        }
+
+
 
         // We use the subscription to calculate the amount each learner user will pay
         const orderItems = await Promise.all(items.map(async item => {
-            totalAmountToPay += subscription.amount;
-            const {amount, ...itemData} = item;
+
+            let userAmount = subscription.amount;
+            // Apply Coupon if it is valid
+            if (coupon && coupon.expiry_date && coupon.expiry_date > new Date() && coupon.status === 'active' && coupon.disount) {
+                userAmount = userAmount - coupon.disount;
+                appliedCoupon = true;
+            }
+            totalAmountToPay += userAmount;
+            const {amount,slug, ...itemData} = item;
             return {
                 ...itemData,
-                amount: subscription.amount
+                slug: subscription.slug,
+                amount: userAmount
             };
         }));
 
-        // We check if the school has any coupon attached on their subscription, and apply the coupon if it is valid
-        let appliedCoupon = false;
-        if (schoolSubscription.coupon){
-            const coupon = await Coupon.findById(schoolSubscription.coupon);
-            if (coupon && coupon.expiry_date && coupon.expiry_date > new Date() && coupon.status === 'active' && coupon.disount) {
-                totalAmountToPay = totalAmountToPay - coupon.disount;
-                appliedCoupon = true;
-            }
-        }
+
 
         return Order.create({
             reference: generateId('ORD_'),
@@ -50,8 +63,7 @@ export const orderService = {
             user: orderData.user,
             total_amount: totalAmountToPay,
             status: EOrderStatus.Pending,
-            learner: orderData.learner,
-            coupon: appliedCoupon ? schoolSubscription.coupon : undefined
+            coupon: appliedCoupon && coupon ? coupon.id : undefined
         });
     },
 

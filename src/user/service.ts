@@ -174,7 +174,7 @@ export const userService = {
                 }
 
                 if (subscription){
-                    await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
+                    await subscriptionService.migrateSchoolToSubscription(user.id, subscription.id);
                 }
             }
         }

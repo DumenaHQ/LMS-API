@@ -54,7 +54,7 @@ export const migrateExistingSchoolsToSubscription = async (req: Request, res: Re
             }
             console.log('subscription', subscription);
             if (subscription){
-                await subscriptionService.migrateSchoolToSubscription(school.id, subscription.id);
+                await subscriptionService.migrateSchoolToSubscription(school.user, subscription.id);
             }
             
         }));
