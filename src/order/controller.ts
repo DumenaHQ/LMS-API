@@ -11,7 +11,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 
         // Initiate payment 
         const payment = await paymentService.initializePayment(req.user.email, order.total_amount, order.reference);
-        console.log(payment);
+
         sendResponse(res, 201, 'Order created', {authorization_url: payment.data.authorization_url, order });
     } catch (err) {
         next(err);
