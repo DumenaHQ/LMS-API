@@ -6,6 +6,7 @@ import { generateId } from '../helpers/utility';
 import {School} from '../user/models';
 import { userService } from '../user/service';
 import { USER_TYPES } from '../config/constants';
+import { handleError } from '../helpers/handleError';
 
 export const orderService = {
     async create({ items, ...orderData }: IOrder, userRole: string) {
@@ -19,11 +20,11 @@ export const orderService = {
             // Check if current user has any subscription attached to thier profile, that is active, only one subscription is allowed to be active per school
             const userSubscription = await UserSubscription.findOne({user: orderData.user, status: 'active'});
             if (!userSubscription) {
-                throw new Error('Please Subscribe to a plan');
+                throw new handleError(400,'Please Subscribe to a plan');
             }
             subscription = await Subscription.findById(userSubscription.subscription);
             if (!subscription) {
-                throw new Error('Invalid Subscription In Profile');
+                throw new handleError(400,'Invalid Subscription In Profile');
             }
             // We check if the user has any coupon attached on their subscription, and apply the coupon if it is valid
             coupon = userSubscription.coupon ? await Coupon.findById(userSubscription.coupon): null;
@@ -31,7 +32,7 @@ export const orderService = {
             // Use the default parent plan
             subscription = await Subscription.findOne({slug: 'parent-plan'});
             if (!subscription) {
-                throw new Error('Internal server error, Parent Subscription Not Found');
+                throw new handleError(500,'Internal server error, Parent Subscription Not Found');
             }
         }
 
