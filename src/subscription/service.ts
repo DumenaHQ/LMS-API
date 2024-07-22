@@ -75,6 +75,7 @@ export const subscriptionService = {
     async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
         const schoolSubscription = await SchoolSubscription.create({
             school: school_id,
+            status: 'active',
             subscription: subscription_id
         });
         return schoolSubscription;

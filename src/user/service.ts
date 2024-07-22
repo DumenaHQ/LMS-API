@@ -165,11 +165,11 @@ export const userService = {
                 let subscription;
                 if (PREMIUM_STATES.includes( String(userType.resident_state).toLowerCase()) ){
                     subscription = await subscriptionService.findOne({
-                        title: { $regex: /^standard/i }
+                        slug: 'standard-plan'
                     });
                 } else {
                     subscription = await subscriptionService.findOne({
-                        title: { $regex: /^basic/i }
+                        slug:'pro-plan'
                     });
                 }
 

@@ -3,11 +3,16 @@ import { orderService } from './service';
 import { EOrderStatus } from './model';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { USER_TYPES } from '../config/constants';
+import { paymentService } from '../payment/service';
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const order = await orderService.create({ ...req.body, user: req.user.id });
-        sendResponse(res, 201, 'Order created', { order });
+
+        // Initiate payment 
+        const payment = await paymentService.initializePayment(req.user.email, order.total_amount, order.reference);
+        console.log(payment);
+        sendResponse(res, 201, 'Order created', {authorization_url: payment.data.authorization_url, order });
     } catch (err) {
         next(err);
     }
