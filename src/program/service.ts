@@ -36,7 +36,7 @@ export const programService = {
         return Program.create(program);
     },
 
-    async view(criteria: object | string, user: { id: string, role: string } | null): Promise<IProgram | null> {
+    async view(criteria: object | string, user: { roleId: string, role: string }): Promise<IProgram | null> {
         let program: any;
         if (typeof criteria == 'object')
             program = await Program.findOne({ ...criteria, deleted: false });
@@ -50,7 +50,7 @@ export const programService = {
 
         // refactor please!
         if (user && user.role == USER_TYPES.parent || user?.role == USER_TYPES.school) {
-            program.hasJoined = this.hasSponsorJoinedProgram(program, user?.id);
+            program.hasJoined = this.hasSponsorJoinedProgram(program, user?.roleId);
         }
 
         // fetch schools
@@ -175,8 +175,8 @@ export const programService = {
 
     async listEnrolledSchools(programId: string): Promise<object | []> {
         const program = await Program.findById(programId);
-        const schools = program?.sponsors?.filter(sp => sp.sponsor_type == 'school')!;
-        return schools.map(sch => ({ school_id: sch.user_id, name: sch.name, student_count: sch.learners.length }));
+        const schools = program?.sponsors?.filter((sp: Record<string, any>) => sp.sponsor_type == 'school')!;
+        return schools.map((sch: Record<string, any>) => ({ school_id: sch.user_id, name: sch.name, student_count: sch.learners.length }));
     },
 
 
@@ -216,7 +216,7 @@ export const programService = {
         // Detect and return learners already added to program
     },
 
-    async fetchLearners(programId: string, user: { id: string, userType: string }) {
+    async fetchLearners(programId: string, user: { roleId: string, role: string }) {
         const program = await Program.findById(programId);
         if (!program) throw new handleError(400, 'Program not found');
 
@@ -224,20 +224,20 @@ export const programService = {
     },
 
 
-    async fetchLearnerDetails(learners: IAddLearner[], user: { id: string, userType: string }): Promise<IUserView[] | []> {
+    async fetchLearnerDetails(learners: IAddLearner[], user: { roleId: string, role: string }): Promise<IUserView[] | []> {
         let learnerIds;
-        switch (user.userType) {
-        case USER_TYPES.learner:
-            return [];
-        case USER_TYPES.admin:
-            learnerIds = learners.map(learner => learner.user_id);
-            break;
-        case USER_TYPES.school:
-        case USER_TYPES.parent:
-            const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.id));
-            learnerIds = sponsorLearners?.map(learner => learner.user_id);
-            break;
-        default:
+        switch (user.role) {
+            case USER_TYPES.learner:
+                return [];
+            case USER_TYPES.admin:
+                learnerIds = learners.map(learner => learner.user_id);
+                break;
+            case USER_TYPES.school:
+            case USER_TYPES.parent:
+                const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.roleId));
+                learnerIds = sponsorLearners?.map(learner => learner.user_id);
+                break;
+            default:
         }
         return userService.list({ 'user._id': { $in: learnerIds }, 'user.deleted': false }, 'learner');
     },

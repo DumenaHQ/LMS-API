@@ -119,12 +119,8 @@ export const viewProgram = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role, id } = req.user;
-        const user = { role, id };
-        // fix asap!
-        if (role == USER_TYPES.school) {
-            const school = await School.findOne({ user: req.user.id });
-            user.id = school ? school._id : id;
-        }
+        const user = { role, roleId: req.user[`${role}_id`] };
+        
         const program = await programService.view(programId, user);
         sendResponse(res, 200, 'Program fetched', { program });
     } catch (err) {
