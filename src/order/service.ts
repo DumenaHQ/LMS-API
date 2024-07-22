@@ -63,5 +63,8 @@ export const orderService = {
         return Order.find(criteria);
     },
 
+    async update(criteria: object, data: object) {
+        return Order.findOneAndUpdate(criteria, data, { new: true });
+    }
 
 };

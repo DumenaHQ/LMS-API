@@ -4,7 +4,7 @@ import { PAYSTACK_API_URL } from '../config/constants';
 import { paystackConfig } from '../config/config';
 import { handleError } from '../helpers/handleError';
 import { orderService } from '../order/service';
-import { IOrder } from '../order/model';
+import { EOrderStatus, IOrder } from '../order/model';
 
 
 export const paymentService = {
@@ -63,6 +63,9 @@ export const paymentService = {
             throw new handleError(400, 'Amount paid is less than order amount');
         }
 
+        // update order status to successful
+        await orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed });
+        // save payment
         const payment = await Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status });
         return { payment, order };
     },
