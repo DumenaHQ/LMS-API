@@ -9,10 +9,10 @@ import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
-import { PREMIUM_STATES, SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
-import {SchoolSubscription} from '../subscription/model';
+import {UserSubscription} from '../subscription/model';
 import { subscriptionService } from '../subscription/service';
 
 const userModel = {
@@ -162,16 +162,10 @@ export const userService = {
         if (user.role === USER_TYPES.school){
             const userType = await userModel[user.role].findOne({ user: user.id });
             if (userType) {
-                let subscription;
-                if (PREMIUM_STATES.includes( String(userType.resident_state).toLowerCase()) ){
-                    subscription = await subscriptionService.findOne({
-                        slug: 'standard-plan'
-                    });
-                } else {
-                    subscription = await subscriptionService.findOne({
-                        slug:'pro-plan'
-                    });
-                }
+
+                const subscription = await subscriptionService.findOne({
+                    slug: 'standard-plan'
+                });
 
                 if (subscription){
                     await subscriptionService.migrateSchoolToSubscription(user.id, subscription.id);
@@ -282,7 +276,7 @@ export const userService = {
                     return { ...user, ...userType, admin_role };
                 }
                 if (user.role === USER_TYPES.school) {
-                    const subscription = await SchoolSubscription.findOne({
+                    const subscription = await UserSubscription.findOne({
                         school: user_type._id,
                         status: 'active'
                     }).populate('subscription');
