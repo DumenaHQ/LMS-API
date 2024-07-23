@@ -6,7 +6,8 @@ import { USER_TYPES } from '../config/constants';
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const order = await orderService.create({ ...req.body, user: req.user.id });
+        const order = await orderService.create({ ...req.body, user: req.user.id }, req.user.role);
+
         sendResponse(res, 201, 'Order created', { order });
     } catch (err) {
         next(err);

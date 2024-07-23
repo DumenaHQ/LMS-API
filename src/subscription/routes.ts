@@ -12,4 +12,4 @@ router.post('/', isAuthenticated, isAdmin, subscriptionCreationRules(), validate
 
 router.put('/school/:school_sub_id', isAuthenticated, isAdmin, schoolSubscriptionUpdateRules(), validate , updateSchoolSubscription);
 
-router.put('migrate-schools', migrateExistingSchoolsToSubscription);
+router.put('/migrate-schools', migrateExistingSchoolsToSubscription);

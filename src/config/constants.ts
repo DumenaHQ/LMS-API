@@ -50,5 +50,4 @@ export const
             end_date: new Date(`${new Date().getFullYear()}-07-20T00:00:00.000Z`),
         }
     },
-    QUIZ_PASS_MARK = 80,
-    PREMIUM_STATES = ['abuja', 'lagos'];
+    QUIZ_PASS_MARK = 80;

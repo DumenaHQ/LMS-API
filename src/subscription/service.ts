@@ -1,7 +1,7 @@
 import { handleError } from '../helpers/handleError';
 import { IOrder } from '../order/model';
 import { Learner, School } from '../user/models';
-import Subscription, { SchoolSubscription } from './model';
+import Subscription, { UserSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
 
@@ -72,16 +72,17 @@ export const subscriptionService = {
         });
     },
 
-    async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
-        const schoolSubscription = await SchoolSubscription.create({
-            school: school_id,
+    async migrateSchoolToSubscription(user_id: string, subscription_id: string) {
+        const schoolSubscription = await UserSubscription.create({
+            user: user_id,
+            status: 'active',
             subscription: subscription_id
         });
         return schoolSubscription;
     },
     
-    async updateSchoolSubscription(schoolSubscriptionId: string, data={}) {
-        const schoolSubscription = await SchoolSubscription.findByIdAndUpdate(schoolSubscriptionId, data);
+    async updateSchoolSubscription(userSubscriptionId: string, data={}) {
+        const schoolSubscription = await UserSubscription.findByIdAndUpdate(userSubscriptionId, data);
         return schoolSubscription;
     }
 

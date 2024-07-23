@@ -1,4 +1,4 @@
-import Coupon from './model';
+import Coupon,{ICoupon} from './model';
 
 import Chance from 'chance';
 
@@ -39,5 +39,16 @@ export const couponService = {
             expiry_date
         });
         return coupon;
+    },
+
+
+    isValidCoupon(coupon: ICoupon): boolean {
+        return (
+            coupon &&
+          coupon.expiry_date instanceof Date &&
+          coupon.expiry_date > new Date() &&
+          coupon.status === 'active' &&
+          typeof coupon.discount === 'number'
+        );
     }
 };
