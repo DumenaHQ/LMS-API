@@ -1,6 +1,19 @@
 import mongoose, { Schema } from 'mongoose';
 import { ORDER_TYPES } from '../config/constants';
 
+
+export interface ICoupon {
+    title?: string;
+    code: string;
+    discount?: number;
+    deleted?: boolean;
+    status?: 'active' | 'inactive';
+    expiry_date?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+
+
 const couponSchema = new Schema({
     title: {
         type: String

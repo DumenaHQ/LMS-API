@@ -7,6 +7,7 @@ import {School} from '../user/models';
 import { userService } from '../user/service';
 import { USER_TYPES } from '../config/constants';
 import { handleError } from '../helpers/handleError';
+import { couponService } from '../coupon/service';
 
 export const orderService = {
     async create({ items, ...orderData }: IOrder, userRole: string) {
@@ -43,7 +44,7 @@ export const orderService = {
 
             let userAmount = subscription.amount;
             // Apply Coupon if it is valid
-            if (coupon && coupon.expiry_date && coupon.expiry_date > new Date() && coupon.status === 'active' && coupon.disount) {
+            if (coupon && couponService.isValidCoupon(coupon)) {
                 userAmount = userAmount - coupon.disount;
                 appliedCoupon = true;
             }
