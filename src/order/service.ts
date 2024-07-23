@@ -44,7 +44,7 @@ export const orderService = {
 
             let userAmount = subscription.amount;
             // Apply Coupon if it is valid
-            if (coupon && couponService.isValidCoupon(coupon)) {
+            if (couponService.isValidCoupon(coupon)) {
                 userAmount = userAmount - (coupon.disount / 100) * userAmount;
                 appliedCoupon = true;
             }
