@@ -104,6 +104,25 @@ export const quizService = {
         if (!quiz) throw new handleError(400, 'Quiz not found');
     },
 
+    async updateQuizQuestion(quizId: string, questionId: string, questionData: IQuizQuestion) {
+        const criteria = { _id: quizId, 'questions._id': questionId };
+        const quiz = await this.view(criteria);
+        const qq: IQuizQuestion = quiz.questions?.find((question: IQuizQuestion) => question._id == questionId)!;
+        const { question, optA, optB, optC, optD, optE, answer } = questionData;
+        return Quiz.findOneAndUpdate(
+            criteria,
+            { $set: {
+                'question.$.question': question || qq.question,
+                'question.$.optA': optA || qq.optA,
+                'question.$.optB': optB || qq.optB,
+                'question.$.optC': optC || qq.optC,
+                'question.$.optD': optD || qq.optD,
+                'question.$.optE': optE || qq.optE,
+                'question.$.answer': answer || qq.answer,
+            }}
+        );
+    },
+
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
         const quiz = await Quiz.findOneAndUpdate(

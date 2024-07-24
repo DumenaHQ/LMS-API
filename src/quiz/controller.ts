@@ -62,6 +62,16 @@ export const addQuestions = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+export const updateQuizQuestion = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId, questionId } = req.params;
+        await quizService.updateQuizQuestion(quizId, questionId, req.body);
+        sendResponse(res, 200, 'Quiz Question Updated');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const submitQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
