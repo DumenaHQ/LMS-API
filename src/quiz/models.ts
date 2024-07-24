@@ -35,7 +35,7 @@ export const quizAnswers = {
 };
 
 const quizSchema = new Schema({
-    // course_id: Schema.Types.ObjectId,
+    course_id: Schema.Types.ObjectId,
     title: String,
     instruction: String,
     tags: [],

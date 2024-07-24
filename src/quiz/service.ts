@@ -18,11 +18,13 @@ export const quizService = {
             const lesson = module.lessons.find((lesson: ILesson) => lesson._id == lesson_id);
             quiz.title = `${module.title.split(' ').join('-')}: ${lesson.split(' ').join('-')}`;
         }
-        const newQuiz = await Quiz.create(quizData) as unknown as IQuiz;
 
         let quiz_level = EQuizLevel.Course;
         if (lesson_id) quiz_level = EQuizLevel.Lesson;
-        else if (module_id) quiz_level= EQuizLevel.Module;    
+        else if (module_id) quiz_level = EQuizLevel.Module; 
+
+        const newQuiz = await Quiz.create({ ...quizData, course_id, quiz_level }) as unknown as IQuiz;
+   
         await this.attachQuiz(newQuiz._id, course_id, quiz_level, module_id, lesson_id);   
         return newQuiz;
     },
