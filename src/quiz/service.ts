@@ -1,5 +1,6 @@
 import Quiz, { QuizLevelType, EQuizLevel } from './models';
 import Course from '../course/model';
+import { IModule, ILesson } from '../course/interfaces';
 import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
@@ -7,9 +8,16 @@ import { userService } from '../user/service';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
-        if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
+        //if (!quiz.title) throw new handleError(400, 'Quiz must have a title');
+        const { course_id, module_id, lesson_id, ...quizData } = quiz;
+        const course = await Course.findOne({ _id: course_id, 'modules._id': module_id });
+        if (!course) throw new handleError(400, 'Course not found');
 
-        const { course_id, module_id, lesson_id, ...quizData } = quiz
+        if (module_id && lesson_id) {
+            const module = course.modules.find((module: IModule) => module._id == module_id);
+            const lesson = module.lessons.find((lesson: ILesson) => lesson._id == lesson_id);
+            quiz.title = `${module.title.split(' ').join('-')}: ${lesson.split(' ').join('-')}`;
+        }
         const newQuiz = await Quiz.create(quizData) as unknown as IQuiz;
 
         let quiz_level = EQuizLevel.Course;
@@ -20,13 +28,13 @@ export const quizService = {
     },
 
     async attachQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, module_id: string, lesson_id: string): Promise<void> {
-        const [quiz, course] = await Promise.all([
-            Quiz.findById(quizId),
-            Course.findById(courseId)
-        ]);
+        // const [quiz, course] = await Promise.all([
+        //     Quiz.findById(quizId),
+        //     Course.findById(courseId)
+        // ]);
 
-        if (!quiz) throw new handleError(400, 'Quiz not found');
-        if (!course) throw new handleError(400, 'Course not found');
+        // if (!quiz) throw new handleError(400, 'Quiz not found');
+        // if (!course) throw new handleError(400, 'Course not found');
 
         const filter = {
             course: { _id: courseId },

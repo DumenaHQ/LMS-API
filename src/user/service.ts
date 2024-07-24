@@ -157,19 +157,17 @@ export const userService = {
             throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
         }
         user.status = EUserStatus.Active;
-  
 
         if (user.role === USER_TYPES.school){
-            const userType = await userModel[user.role].findOne({ user: user.id });
-            if (userType) {
-
-                const subscription = await subscriptionService.findOne({
+            const [userType, subscription] = await Promise.all([
+                userModel[user.role].findOne({ user: user.id }),
+                subscriptionService.findOne({
                     slug: 'standard-plan'
-                });
+                })
+            ]);
 
-                if (subscription){
-                    await subscriptionService.migrateSchoolToSubscription(user.id, subscription.id);
-                }
+            if (subscription){
+                await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
             }
         }
         
@@ -280,7 +278,7 @@ export const userService = {
                         school: user_type._id,
                         status: 'active'
                     }).populate('subscription');
-                    const modifiedUserType= {...user_type.toJSON(), subscription};
+                    const modifiedUserType = { ...user_type.toJSON(), subscription };
                     return { ...user, ...modifiedUserType };
                 }
                 return { ...user, ...user_type.toJSON() };
@@ -289,7 +287,7 @@ export const userService = {
     },
 
 
-    async listSchoolStudents(schoolId: string, queryParams: object) {
+    async listSchoolStudents(schoolId: string, queryParams: object = {}) {
         const validParams = ['grade'];
         const validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
@@ -352,7 +350,6 @@ export const userService = {
             parent: new mongoose.Types.ObjectId(parentId),
             'user.deleted': false
         };
-
         return this.list(criteria, 'learner');
     },
 
@@ -456,6 +453,4 @@ export const userService = {
         ));
 
     },
-
-
 };

@@ -48,7 +48,6 @@ export const paymentService = {
     },
 
     async save(reference: string): Promise<{ payment: IPayment, order: IOrder }> {
-        // first verify payment status
         const { amount, channel, currency, status } = await this.verifyPayment(reference);
         // verify order reference
         const order = await orderService.view({ reference });

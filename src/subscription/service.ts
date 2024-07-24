@@ -73,17 +73,15 @@ export const subscriptionService = {
     },
 
     async migrateSchoolToSubscription(user_id: string, subscription_id: string) {
-        const schoolSubscription = await UserSubscription.create({
+        return UserSubscription.create({
             user: user_id,
             status: 'active',
             subscription: subscription_id
         });
-        return schoolSubscription;
     },
     
     async updateSchoolSubscription(userSubscriptionId: string, data={}) {
-        const schoolSubscription = await UserSubscription.findByIdAndUpdate(userSubscriptionId, data);
-        return schoolSubscription;
+        return UserSubscription.findByIdAndUpdate(userSubscriptionId, data);
     }
 
 };
