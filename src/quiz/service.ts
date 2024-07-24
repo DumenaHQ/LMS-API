@@ -16,7 +16,7 @@ export const quizService = {
         if (module_id && lesson_id) {
             const module = course.modules.find((module: IModule) => module._id == module_id);
             const lesson = module.lessons.find((lesson: ILesson) => lesson._id == lesson_id);
-            quiz.title = `${module.title.split(' ').join('-')}: ${lesson.title.split(' ').join('-')}`;
+            quizData.title = `${module.title.split(' ').join('-')}: ${lesson.title.split(' ').join('-')}`;
         }
 
         let quiz_level = EQuizLevel.Course;
