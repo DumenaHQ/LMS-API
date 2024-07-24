@@ -42,6 +42,16 @@ export const attachQuiz = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+export const updateQuiz = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId } = req.params;
+        await quizService.updateQuiz(quizId, req.body);
+        sendResponse(res, 200, 'Quiz Updated');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const addQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;

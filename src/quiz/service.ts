@@ -85,6 +85,12 @@ export const quizService = {
         return Quiz.findOne(criteria).select('-answers') as unknown as IQuiz;
     },
 
+    async updateQuiz(quizId:string, quizData: IQuiz) {
+        return Quiz.findOneAndUpdate(
+            { _id: quizId },
+            quizData
+        );
+    },
 
     async saveQuizQuestions(quizId: string, questions: IQuizQuestion[]) {
         const quiz = await Quiz.findOneAndUpdate(
