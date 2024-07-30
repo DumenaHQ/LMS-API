@@ -181,7 +181,6 @@ export const programService = {
 
 
     async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
-        console.log('there')
         const program = await Program.findById(programId);
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
@@ -197,8 +196,8 @@ export const programService = {
 
         const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
             if (learner.user_id) {
-                const foundLearner = await Learner.findById(learner.user_id).populate({ path: 'user' });
-                return foundLearner.user;
+                return User.findById(learner.user_id); //.populate({ path: 'user' });
+                //return foundLearner.user;
             }
             return User.findOne({ username: learner.username });
         }));

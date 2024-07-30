@@ -76,7 +76,6 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role } = req.user;
-        console.log('here')
         const sponsorId = req.user[`${role}_id`];
         const { learners } = req.body;
         await programService.addLearners(programId, learners, sponsorId);
