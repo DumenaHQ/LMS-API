@@ -181,6 +181,7 @@ export const programService = {
 
 
     async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
+        console.log('there')
         const program = await Program.findById(programId);
         if (!program) {
             throw new handleError(400, 'Invalid program ID');

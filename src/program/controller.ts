@@ -76,13 +76,8 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role } = req.user;
-
-        // fix asap!
-        let sponsorId = req.user.id;
-        if (role == USER_TYPES.school) {
-            const school = await School.findOne({ user: req.user.id });
-            sponsorId = school._id;
-        }
+        console.log('here')
+        const sponsorId = req.user[`${role}_id`];
         const { learners } = req.body;
         await programService.addLearners(programId, learners, sponsorId);
         sendResponse(res, 200, 'Learners Added');
