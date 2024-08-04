@@ -4,6 +4,7 @@ import { Learner, School } from '../user/models';
 import Subscription, { UserSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
+import { programService } from '../program/service';
 
 export const subscriptionService = {
     async create(data: {
@@ -58,6 +59,9 @@ export const subscriptionService = {
         case ORDER_ITEMS.class:
             await this.addLearnersToClass(order);
             break;
+        case ORDER_ITEMS.program:
+            await this.addLearnersToProgram(order);
+            break;
         default:
         }
     },
@@ -68,7 +72,17 @@ export const subscriptionService = {
         items.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
-            await classService.addLearners(classId, learnerIds);
+            return classService.addLearners(classId, learnerIds);
+        });
+    },
+
+    async addLearnersToProgram(order: IOrder) {
+        const { items, user: sponsorId } = order;
+        const learnerIds: any = [];
+        items.map(async (item: any) => {
+            const { meta_data: { classId }, user_id } = item;
+            learnerIds.push({ user_id });
+            return programService.addLearners(classId, learnerIds, sponsorId);
         });
     },
 
