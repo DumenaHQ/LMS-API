@@ -42,11 +42,31 @@ export const attachQuiz = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+export const updateQuiz = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId } = req.params;
+        await quizService.updateQuiz(quizId, req.body);
+        sendResponse(res, 200, 'Quiz Updated');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const addQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
         await quizService.saveQuizQuestions(quizId, req.body);
         sendResponse(res, 200, 'Questions Added to quiz');
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateQuizQuestion = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId, questionId } = req.params;
+        await quizService.updateQuizQuestion(quizId, questionId, req.body);
+        sendResponse(res, 200, 'Quiz Question Updated');
     } catch (err) {
         next(err);
     }

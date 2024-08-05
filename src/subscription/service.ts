@@ -1,13 +1,23 @@
 import { handleError } from '../helpers/handleError';
 import { IOrder } from '../order/model';
-import { Learner } from '../user/models';
-import Subscription from './model';
+import { Learner, School } from '../user/models';
+import Subscription, { UserSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
+import { programService } from '../program/service';
 
 export const subscriptionService = {
-    async create(data: object) {
-        return Subscription.create(data);
+    async create(data: {
+        title: string;
+        slug: string;
+        amount: number;
+    }) {
+
+        const slug = data.slug; // this ensures the slug is unique and readable
+        return Subscription.create({
+            ...data,
+            slug
+        });
     },
 
     async findOne(criteria: object) {
@@ -17,7 +27,6 @@ export const subscriptionService = {
     async list() {
         return Subscription.find();
     },
-
 
     async grantAccess(order: IOrder) {
         switch (order.item_type) {
@@ -50,6 +59,9 @@ export const subscriptionService = {
         case ORDER_ITEMS.class:
             await this.addLearnersToClass(order);
             break;
+        case ORDER_ITEMS.program:
+            await this.addLearnersToProgram(order);
+            break;
         default:
         }
     },
@@ -60,7 +72,30 @@ export const subscriptionService = {
         items.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
-            await classService.addLearners(classId, learnerIds);
+            return classService.addLearners(classId, learnerIds);
         });
+    },
+
+    async addLearnersToProgram(order: IOrder) {
+        const { items, user: sponsorId } = order;
+        const learnerIds: any = [];
+        items.map(async (item: any) => {
+            const { meta_data: { classId }, user_id } = item;
+            learnerIds.push({ user_id });
+            return programService.addLearners(classId, learnerIds, sponsorId);
+        });
+    },
+
+    async migrateSchoolToSubscription(user_id: string, subscription_id: string) {
+        return UserSubscription.create({
+            user: user_id,
+            status: 'active',
+            subscription: subscription_id
+        });
+    },
+    
+    async updateSchoolSubscription(userSubscriptionId: string, data={}) {
+        return UserSubscription.findByIdAndUpdate(userSubscriptionId, data);
     }
+
 };

@@ -76,13 +76,7 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role } = req.user;
-
-        // fix asap!
-        let sponsorId = req.user.id;
-        if (role == USER_TYPES.school) {
-            const school = await School.findOne({ user: req.user.id });
-            sponsorId = school._id;
-        }
+        const sponsorId = req.user[`${role}_id`];
         const { learners } = req.body;
         await programService.addLearners(programId, learners, sponsorId);
         sendResponse(res, 200, 'Learners Added');
@@ -119,12 +113,8 @@ export const viewProgram = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id: programId } = req.params;
         const { role, id } = req.user;
-        const user = { role, id };
-        // fix asap!
-        if (role == USER_TYPES.school) {
-            const school = await School.findOne({ user: req.user.id });
-            user.id = school ? school._id : id;
-        }
+        const user = { role, roleId: req.user[`${role}_id`] };
+        
         const program = await programService.view(programId, user);
         sendResponse(res, 200, 'Program fetched', { program });
     } catch (err) {
@@ -149,6 +139,18 @@ export const deleteProgram = async (req: Request, res: Response, next: NextFunct
         const { id: programId } = req.params;
         const program = await programService.delete(programId);
         sendResponse(res, 200, 'Program Deleted', { program });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: programId } = req.params;
+        const { id: userId } = req.user;
+        const { learners } = req.body;
+        const order = await programService.subscribe(programId, userId, learners);
+        sendResponse(res, 200, 'Program Subscription Successful', { order });
     } catch (err) {
         next(err);
     }

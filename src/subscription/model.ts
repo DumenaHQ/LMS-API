@@ -12,13 +12,56 @@ const subscriptionSchema = new Schema({
         type: String,
         unique: true
     },
-    item_id: Schema.Types.ObjectId,
-    months: {
-        type: Number
-    }
 }, { timestamps: true });
 
 export default mongoose.model('Subscription', subscriptionSchema);
+
+
+
+const userSubscriptionSchema = new Schema({
+    subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'Subscription'
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    coupon: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coupon'
+    },
+    status: {
+        type: String,
+        enum: ['active', 'expired'],
+        default: 'active'
+    }
+}, { timestamps: true });
+export const UserSubscription = mongoose.model('UserSubscription', userSubscriptionSchema);
+
+
+const userSubscriptionTransactionSchema = new Schema({
+    user_subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'UserSubscription'
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'success', 'failed'],
+        default: 'pending'
+    },
+    reference: {
+        type: String,
+        unique: true,
+        required: true
+    },
+}, { timestamps: true });
+export const UserSubscriptionTransaction = mongoose.model('UserSubscriptionTransaction', userSubscriptionTransactionSchema);
+
 
 
 const contentAcessSchema = new Schema({

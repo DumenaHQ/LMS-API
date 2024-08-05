@@ -2,7 +2,7 @@ import Course from './model';
 import { ICourseCreate, ICourseEdit, ICourseView, ILesson, IModule } from './interfaces';
 import { uploadFile } from '../helpers/fileUploader';
 import { handleError } from '../helpers/handleError';
-import { UPLOADS, USER_TYPES } from '../config/constants';
+import { UPLOADS, USER_TYPES, QUIZ_PASS_MARK } from '../config/constants';
 import { randomUUID } from 'crypto';
 import path from 'path';
 import mongoose from 'mongoose';
@@ -120,7 +120,7 @@ export const courseService = {
             }
             const duration = await getVideoDurationInSeconds(String(lesson.lesson_video));
             lesson.duration = Math.round(duration);
-        }else{
+        } else {
             delete lesson.lesson_video;
         }
 
@@ -176,19 +176,46 @@ export const courseService = {
         let queryCriteria = {};
 
         switch (userType) {
-        case USER_TYPES.learner:
-            queryCriteria = await this.prepareUserCoursesCriteria(userId);
-            break;
-        case USER_TYPES.admin:
-        default:
+            case USER_TYPES.learner:
+                queryCriteria = await this.prepareUserCoursesCriteria(userId);
+                break;
+            case USER_TYPES.admin:
+            default:
         }
         return this.list({ ...queryCriteria, deleted: false });
+    },
+
+    async isLessonCompleted(courseId: string, moduleId: string, lessonId: string, learnerId: string): Promise<{ canTakeNextLesson: Boolean, message: string }> {
+        const course = await this.findOne({ _id: courseId });
+        if (!course) throw new handleError(400, 'Invalid course');
+
+        const courseModule = course?.modules?.find((module: IModule) => String(module.id) == String(moduleId));
+        if (!courseModule) throw new handleError(404, 'Lesson module not found');
+
+        const lesson = courseModule?.lessons?.find((lesson: Record<string, unknown>) => String(lesson._id) === String(lessonId));
+        if (!lesson) throw new handleError(404, 'Lesson not found');
+
+        const lessonQuizId = lesson.quiz_id || null;
+        if (!lessonQuizId) return { canTakeNextLesson: true, message: 'Lesson doesn\'t have a quiz' };
+
+        try {
+            const quizResult = await quizService.computeLearnerResult(String(lessonQuizId), learnerId);
+            let message = 'Score below pass mark';
+            let isCompleted = false;
+            if (quizResult.percentageScore! >= QUIZ_PASS_MARK) {
+                isCompleted = true;
+                message = 'Passed';
+            }
+            return { canTakeNextLesson: isCompleted, message };
+        } catch (err) {
+            return { canTakeNextLesson: false, message: err.message };
+        }
     },
 
 
     async prepareUserCoursesCriteria(userId: string): Promise<{}> {
         const access = await Learner.findOne({ user: new mongoose.Types.ObjectId(userId) }).select('-_id content_access');
-        const accessSlugs = access.content_access.map((a: { slug: any; }) => a.slug);
+        const accessSlugs = access?.content_access.map((a: { slug: any; }) => a.slug);
         return { access_scopes: { $in: [...accessSlugs, 'free'] } };
     }
 };

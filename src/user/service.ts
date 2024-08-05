@@ -12,6 +12,8 @@ import { paymentService } from '../payment/service';
 import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
+import {UserSubscription} from '../subscription/model';
+import { subscriptionService } from '../subscription/service';
 
 const userModel = {
     [USER_TYPES.learner]: Learner,
@@ -155,6 +157,20 @@ export const userService = {
             throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
         }
         user.status = EUserStatus.Active;
+
+        if (user.role === USER_TYPES.school){
+            const [userType, subscription] = await Promise.all([
+                userModel[user.role].findOne({ user: user.id }),
+                subscriptionService.findOne({
+                    slug: 'standard-plan'
+                })
+            ]);
+
+            if (subscription){
+                await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
+            }
+        }
+        
         await user.save();
         return this.view({ _id: user.id });
     },
@@ -257,13 +273,21 @@ export const userService = {
                     const { role: admin_role, ...userType } = user_type.toJSON();
                     return { ...user, ...userType, admin_role };
                 }
+                if (user.role === USER_TYPES.school) {
+                    const subscription = await UserSubscription.findOne({
+                        school: user_type._id,
+                        status: 'active'
+                    }).populate('subscription');
+                    const modifiedUserType = { ...user_type.toJSON(), subscription };
+                    return { ...user, ...modifiedUserType };
+                }
                 return { ...user, ...user_type.toJSON() };
             })
         );
     },
 
 
-    async listSchoolStudents(schoolId: string, queryParams: object) {
+    async listSchoolStudents(schoolId: string, queryParams: object = {}) {
         const validParams = ['grade'];
         const validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
@@ -326,7 +350,6 @@ export const userService = {
             parent: new mongoose.Types.ObjectId(parentId),
             'user.deleted': false
         };
-
         return this.list(criteria, 'learner');
     },
 
@@ -430,6 +453,4 @@ export const userService = {
         ));
 
     },
-
-
 };
