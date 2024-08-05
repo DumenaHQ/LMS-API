@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { isAdmin, isAuthenticated, isSchoolOrAdmin } from '../middleware/verifyToken';
 
 import { addCourses, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, getClassQuizResults, listClassTemplates, listClasses, listCourses, removeTeacherFromClass, subscribe, updateClass, updateClassTemplate, viewClass, viewClassTemplate } from './controller';
+import { checkClassAccess } from '../middleware/checkClassAccess';
 
 export const router = Router();
 
@@ -19,7 +20,7 @@ router.put('/templates/:id', isAuthenticated, isAdmin, updateClassTemplate);
 
 router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCourses);
 
-router.get('/:id', isAuthenticated, viewClass);
+router.get('/:id', isAuthenticated, checkClassAccess, viewClass);
 
 router.put('/:id', isAuthenticated, updateClass);
 
