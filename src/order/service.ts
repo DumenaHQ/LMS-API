@@ -4,7 +4,6 @@ import Coupon from '../coupon/model';
 import Subscription, { UserSubscription }from '../subscription/model';
 import { generateId } from '../helpers/utility';
 import {School} from '../user/models';
-import { userService } from '../user/service';
 import { USER_TYPES } from '../config/constants';
 import { handleError } from '../helpers/handleError';
 import { couponService } from '../coupon/service';
@@ -37,8 +36,6 @@ export const orderService = {
             }
         }
 
-
-
         // We use the subscription to calculate the amount each learner user will pay
         const orderItems = await Promise.all(items.map(async item => {
 
@@ -57,8 +54,6 @@ export const orderService = {
             };
         }));
 
-
-
         return Order.create({
             reference: generateId('ORD_'),
             items: orderItems,
@@ -66,6 +61,16 @@ export const orderService = {
             total_amount: totalAmountToPay,
             status: EOrderStatus.Pending,
             coupon: appliedCoupon && coupon ? coupon.id : undefined
+        });
+    },
+
+    async createProgramOrder(userId: string, orderItems: Record<string, unknown>[], totalAmount: number) {
+        return Order.create({
+            reference: generateId('ORD_'),
+            items: orderItems,
+            user: userId,
+            total_amount: totalAmount,
+            status: EOrderStatus.Pending
         });
     },
 

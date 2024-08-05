@@ -143,3 +143,15 @@ export const deleteProgram = async (req: Request, res: Response, next: NextFunct
         next(err);
     }
 };
+
+export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: programId } = req.params;
+        const { id: userId } = req.user;
+        const { learners } = req.body;
+        const order = await programService.subscribe(programId, userId, learners);
+        sendResponse(res, 200, 'Program Subscription Successful', { order });
+    } catch (err) {
+        next(err);
+    }
+};

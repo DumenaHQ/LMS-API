@@ -12,6 +12,8 @@ import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
+import { orderService } from '../order/service';
+import { subscriptionService } from '../subscription/service';
 
 export const programService = {
     async saveProgram(program: IProgram, files: File): Promise<IProgram | null> {
@@ -249,5 +251,16 @@ export const programService = {
 
     async delete(programId: string): Promise<void> {
         await Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, { deleted: true });
-    }
+    },
+
+    async subscribe(programId: string, userId: string, learners: []) {
+        const sub = await subscriptionService.findOne({ slug: 'program' });
+        const totalAmount = sub.amount * learners.length;
+        const meta_data = { programId };
+        const orderItems = learners.map((learner: any) => {
+            const { user_id, name } = learner;
+            return { order_type_id: sub._id, user_id, name, order_type: 'program', meta_data };
+        });
+        return orderService.createProgramOrder(userId, orderItems, totalAmount);
+    },
 };
