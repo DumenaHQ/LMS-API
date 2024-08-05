@@ -10,7 +10,6 @@ export const checkClassAccess = async (
     next: NextFunction
 ) => {
     // Please lets leave this comment, its important so that when we look upon it later in the future we will understand why we are doing it this way
-
     // Because of the code that runs immediately an order is verified, the code ensures learner(s) are/is added to class immediately after payment is verified
     // So therefore all i need to do is check if learner is in class already, which is done by default in viewClass
 
