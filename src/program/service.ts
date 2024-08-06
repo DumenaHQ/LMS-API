@@ -75,7 +75,7 @@ export const programService = {
 
 
     async list(criteria: object): Promise<any[] | []> {
-        const programs = await Program.find({ ...criteria, deleted: false });
+        const programs = await Program.find({ ...criteria, deleted: false }).sort({ createdAt: 'desc' });
         return programs.map((prog: IProgram) => {
             const program = prog.toJSON();
             program.learner_count = prog.learners.length;
@@ -159,19 +159,21 @@ export const programService = {
 
     async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
         switch (userType) {
-        case USER_TYPES.school:
-            const schoolUser = await School.findOne({ user: userId });
-            return this.listSponsorPrograms(schoolUser._id);
-        case USER_TYPES.parent:
-            return this.listSponsorPrograms(userId);
-        default:
-            return this.list({ status: 'active' });
+            case USER_TYPES.school:
+                const schoolUser = await School.findOne({ user: userId });
+                return this.listSponsorPrograms(schoolUser._id);
+            case USER_TYPES.parent:
+                return this.listSponsorPrograms(userId);
+            case USER_TYPES.learner:
+                return this.listLearnerPrograms(userId);
+            default:
+                return this.list({ status: 'active' });
         }
     },
 
 
-    async listLearnerPrograms(): Promise<IProgram[] | []> {
-        return this.list({});
+    async listLearnerPrograms(learnerId: string ): Promise<IProgram[] | []> {
+        return this.list({ 'learners.user_id': new mongoose.Types.ObjectId(learnerId) });
     },
 
 

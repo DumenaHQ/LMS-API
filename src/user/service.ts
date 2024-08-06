@@ -27,7 +27,8 @@ const userModel = {
 
 export const userService = {
     async authenticate(emailOrUsername: string, password: string): Promise<object> {
-        const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
+        const usernameOrEmail = emailOrUsername.toLowerCase();
+        const foundUser = await User.findOne({ $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }] });
 
         if (!foundUser) throw new handleError(404, 'Email or password is incorrect');
 
@@ -74,7 +75,8 @@ export const userService = {
 
 
     async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
-        const { user_type } = userData;
+        const { user_type, email } = userData;
+        userData.email = email.toLowerCase();
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
