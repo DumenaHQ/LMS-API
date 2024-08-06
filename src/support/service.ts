@@ -1,15 +1,17 @@
-import { IAddSupportComment, IAddSupportQuestion } from './interface';
+import { IAddSupportComment, IAddSupportQuestion, IQuestion } from './interface';
 import { Comment, Question } from './model';
 
 export const supportService = {
 
-    async createQuestion(question: IAddSupportQuestion){
+    async createQuestion(supportQuestion: IAddSupportQuestion) {
+        const { question, user_id, class_id, program_id, course_id, lesson } = supportQuestion;
         const newQuestion = await Question.create({
-            question: question.question,
-            user: question.user_id,
-            class: question.class_id,
-            course: question.course_id,
-            lesson: question.lesson
+            question: question,
+            user: user_id,
+            class: class_id,
+            program: program_id,
+            course: course_id,
+            lesson: lesson
         });
         return newQuestion;
     },
@@ -22,20 +24,21 @@ export const supportService = {
                 path: 'user', 
                 select: 'id email fullname role' // Exclude the fields from the response
             })
-            .populate({path: 'class', select: 'id name school_id'})
-            .populate({path:'course', select: 'id title difficulty_level course_quadrant'})
+            .populate({ path: 'class', select: 'id name school_id' })
+            .populate({ path: 'program', select: 'id name' })
+            .populate({ path:'course', select: 'id title difficulty_level course_quadrant'})
             .lean();
 
 
         
         // return questions from a given school
         if (school_id){
-            return questions.map((question) => {
+            return questions.map((question: IQuestion) => {
                 if (question.class && String(question.class.school_id) === school_id){
                     return question;
                 }
             }
-            ).filter((question) => question !== null && question !== undefined);
+            ).filter((question: IQuestion) => question !== null && question !== undefined);
         }
         if (!class_id) return questions;
 

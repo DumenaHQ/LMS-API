@@ -11,8 +11,11 @@ const questionSchema = new Schema( {
     },
     class: {
         type: Schema.Types.ObjectId,
-        ref: 'Class',
-        required: true
+        ref: 'Class'
+    },
+    program: {
+        type: Schema.Types.ObjectId,
+        ref: 'Program'
     },
     course: {
         type: Schema.Types.ObjectId,

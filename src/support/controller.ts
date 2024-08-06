@@ -7,15 +7,7 @@ import { send as sendResponse } from '../helpers/httpResponse';
 export const createQuestion = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.user;
-        const {body} = req;
-
-        const question = await supportService.createQuestion({
-            question: body.question,
-            user_id: id,
-            class_id: body.class_id,
-            course_id: body.course_id,
-            lesson: body.lesson,
-        });
+        const question = await supportService.createQuestion({ ...req.body, user_id: id });
         sendResponse(res, 201, 'success', { question });
     } catch (err) {
         next(err);
