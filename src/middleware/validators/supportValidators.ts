@@ -12,12 +12,12 @@ export default validate;
 export const questionCreationRules = () => {
     return [
         body('question').notEmpty().isString().isLength({max: 5000, min: 2}),
-        body('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
-            // Check if class with id actually exist
-            const classExist = await classService.findOne({ _id: class_id });
-            if (!classExist) throw new Error(`Class with id ${class_id} does not exist`);
-            return true;
-        }),
+        // body('class_id').notEmpty().isMongoId().custom(async (class_id: string) => {
+        //     // Check if class with id actually exist
+        //     const classExist = await classService.findOne({ _id: class_id });
+        //     if (!classExist) throw new Error(`Class with id ${class_id} does not exist`);
+        //     return true;
+        // }),
         body('course_id').notEmpty().isMongoId().custom(async (course_id: string) => {
             // Check if course with id actually exist
             const courseExist =  await courseService.findOne({ _id: course_id });
