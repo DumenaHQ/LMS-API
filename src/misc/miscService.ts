@@ -33,7 +33,7 @@ export const miscService = {
         const users = await User.find({ status: 'active', deleted: false, role: { "$ne": 'learner'} }).select('_id email');
         return Promise.all(users.map(
             async user => {
-                if (user.email != user.toLowerCase()) 
+                if (user.email != user.email.toLowerCase()) 
                     return user.email && User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
                 return user;
             }
