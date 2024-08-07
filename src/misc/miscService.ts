@@ -3,6 +3,7 @@ import { TEMPLATE_FILE_PATH } from '../config/constants';
 import * as path from 'path';
 import { Learner, School } from '../user/models';
 import Class from '../class/model';
+import User from '../user/models'
 
 
 export const miscService = {
@@ -28,5 +29,12 @@ export const miscService = {
         const schools = await School.find();
         const res = await Promise.all(schools.map(async school => Class.updateMany({ school_id: school.user }, { school_id: school._id })));
     },
+
+    async normaliseEmails() {
+        const users = await User.find({ status: 'active' }).select('_id email');
+        return Promise.all(users(
+            async user => User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
+        ))
+    }
 };
 
