@@ -250,7 +250,8 @@ export const getUserPayments = async (req: Request, res: Response, next: NextFun
 
 export const downloadUserData = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const dataFile = await userService.downloadUserData('parent');
+        const { role = 'school' } = req.params;
+        const dataFile = await userService.downloadUserData(role);
         res.writeHead(200, {
             'Content-Type': 'application/octet-stream',
             'Content-disposition': 'attachment; filename=parents_mailing_list.xlsx',
