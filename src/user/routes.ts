@@ -18,7 +18,7 @@ router.post('/send-password-reset-email', sendPasswordResetEmail);
 
 router.post('/reset-password', resetPassword);
 
-router.get('/exportdata', downloadUserData);
+router.get('/exportdata/:role', downloadUserData);
 
 router.put('/', isAuthenticated, updateUser);
 

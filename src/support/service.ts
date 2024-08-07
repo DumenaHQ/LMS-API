@@ -16,38 +16,20 @@ export const supportService = {
         return newQuestion;
     },
 
+    async list(criteria = {}, klass: boolean, program: boolean) {
+        const populate = [{ path: 'course', select: 'id title difficulty_level course_quadrant' }];
+        if (klass) populate.push({ path: 'class', select: 'id name school_id' });
+        if (program) populate.push({ path: 'program', select: 'id name' });
 
-    async getQuestions(class_id?: string, school_id?: string) {
-        const questions = await Question.find()
-            .sort({ createdAt: -1 }) 
-            .populate({ 
-                path: 'user', 
-                select: 'id email fullname role' // Exclude the fields from the response
-            })
-            .populate({ path: 'class', select: 'id name school_id' })
-            .populate({ path: 'program', select: 'id name' })
-            .populate({ path:'course', select: 'id title difficulty_level course_quadrant'})
-            .lean();
+        return Question.find(criteria).populate(populate).sort({ createdAt: -1 });
+    },
 
+    async fetchClassQuestions(classId: string) {
+        return this.list({ class: classId }, true, false);
+    },
 
-        
-        // return questions from a given school
-        if (school_id){
-            return questions.map((question: IQuestion) => {
-                if (question.class && String(question.class.school_id) === school_id){
-                    return question;
-                }
-            }
-            ).filter((question: IQuestion) => question !== null && question !== undefined);
-        }
-        if (!class_id) return questions;
-
-        // return questions from a given class id
-        return questions.map(
-            (question) => {
-                if (question.class && String(question.class._id) === class_id) return question;
-            }
-        ).filter((question) => question !== null && question !== undefined);
+    async fetchProgramQuestions(programId: string) {
+        return this.list({ program: programId }, false, true);
     },
 
  
@@ -60,14 +42,11 @@ export const supportService = {
         return newComment;
     },
 
-
-   
     async getComments(question_id: string) {
         const data = await Comment.find({ question: question_id }).populate({ 
             path: 'user', 
-            select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+            select: 'fullname role'
         });
-        return data.map((comment) => comment.toJSON());
-    },
-
+        return data.map((comment: IAddSupportComment) => comment.toJSON());
+    }
 };
