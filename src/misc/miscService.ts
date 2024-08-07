@@ -30,10 +30,10 @@ export const miscService = {
     },
 
     async normaliseEmails() {
-        const users = await User.find({ status: 'active', deleted: false }).select('_id email');
+        const users = await User.find({ status: 'active', deleted: false, role: { "$ne": 'learner'} }).select('_id email');
         console.log({users})
         return Promise.all(users.map(
-            async user => User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
+            async user => user.email && User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
         ))
     }
 };
