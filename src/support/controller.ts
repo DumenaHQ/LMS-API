@@ -8,7 +8,7 @@ export const createQuestion = async (req: Request, res: Response, next: NextFunc
     try {
         const { id } = req.user;
         const question = await supportService.createQuestion({ ...req.body, user_id: id });
-        sendResponse(res, 201, 'success', { question });
+        sendResponse(res, 201, 'Question Posted', { question });
     } catch (err) {
         next(err);
     }
@@ -18,21 +18,28 @@ export const createQuestion = async (req: Request, res: Response, next: NextFunc
 
 export const getQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { class_id }= req.params;
-        const questions = await supportService.getQuestions(class_id);
-        sendResponse(res, 200, 'success', { questions });
+        const questions = await supportService.list({}, true, true);
+        sendResponse(res, 200, 'Questions Fetched', { questions });
     } catch (err) {
         next(err);
     }
 };
 
-
-
-export const getSchoolQuestions = async (req: Request, res: Response, next: NextFunction) => {
+export const getClassQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { school_id } = req.params;
-        const questions = await supportService.getQuestions(undefined, school_id);
-        sendResponse(res, 200, 'success', { questions });
+        const { class_id } = req.params;
+        const questions = await supportService.fetchClassQuestions(class_id);
+        sendResponse(res, 200, 'Questions Fetched', { questions });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getProgramQuestions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { program_id } = req.params;
+        const questions = await supportService.fetchProgramQuestions(program_id);
+        sendResponse(res, 200, 'Questions Fetched', { questions });
     } catch (err) {
         next(err);
     }
@@ -49,7 +56,7 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
             user_id: id,
             question_id
         });
-        sendResponse(res, 201, 'success', { comment });
+        sendResponse(res, 201, 'Comment Posted', { comment });
     } catch (err) {
         next(err);
     }
@@ -61,7 +68,7 @@ export const getComments = async (req: Request, res: Response, next: NextFunctio
     try {
         const { question_id } = req.params;
         const comments = await supportService.getComments(question_id);
-        sendResponse(res, 200, 'success', { comments });
+        sendResponse(res, 200, 'Comments Fetched', { comments });
     } catch (err) {
         next(err);
     }
