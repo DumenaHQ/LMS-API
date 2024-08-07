@@ -1,9 +1,8 @@
 import { handleError } from '../helpers/handleError';
 import { TEMPLATE_FILE_PATH } from '../config/constants';
 import * as path from 'path';
-import { Learner, School } from '../user/models';
+import User, { Learner, School } from '../user/models';
 import Class from '../class/model';
-import User from '../user/models'
 
 
 export const miscService = {
@@ -31,7 +30,8 @@ export const miscService = {
     },
 
     async normaliseEmails() {
-        const users = await User.find({ status: 'active' }).select('_id email');
+        const users = await User.find({ status: 'active', deleted: false }).select('_id email');
+        console.log({users})
         return Promise.all(users.map(
             async user => User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
         ))
