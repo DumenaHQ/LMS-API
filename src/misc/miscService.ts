@@ -32,7 +32,7 @@ export const miscService = {
 
     async normaliseEmails() {
         const users = await User.find({ status: 'active' }).select('_id email');
-        return Promise.all(users(
+        return Promise.all(users.map(
             async user => User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
         ))
     }
