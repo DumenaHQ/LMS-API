@@ -75,8 +75,10 @@ export const userService = {
 
 
     async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
-        const { user_type, email = '' } = userData;
-        userData.email = email.toLowerCase();
+        const { user_type, email = undefined } = userData;
+        if (email != undefined) {
+            userData.email = email.toLowerCase();
+        }
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
