@@ -113,7 +113,7 @@ export const userService = {
 
         // for learners added by parents/schools
         if (user_type == USER_TYPES.learner && (parent || school)) {
-            data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
+            data.username = await this.ensureUniqueUsername(fullname.toLowerCase().split(' ').join('.'));
             data.status = EUserStatus.Active;
         }
 

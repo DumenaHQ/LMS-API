@@ -80,7 +80,7 @@ export const swapClassSchoolId = async (req: Request, res: Response, next: NextF
     sendResponse(res, 200, 'Data corrected!');
 }
 
-export const normaliseEmails = async (req: Request, res: Response, next: NextFunction) => {
-    await miscService.normaliseEmails();
+export const normaliseUsernames = async (req: Request, res: Response, next: NextFunction) => {
+    await miscService.normaliseUsernames();
     sendResponse(res, 200, 'Emails Normalized');
 }

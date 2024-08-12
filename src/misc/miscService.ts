@@ -29,13 +29,22 @@ export const miscService = {
         const res = await Promise.all(schools.map(async school => Class.updateMany({ school_id: school.user }, { school_id: school._id })));
     },
 
-    async normaliseEmails() {
-        const users = await User.find({ status: 'active', deleted: false, role: { "$ne": 'learner'} }).select('_id email');
+    // async normaliseEmails() {
+    //     const users = await User.find({ status: 'active', deleted: false, role: { "$ne": 'learner'} }).select('_id email');
+    //     return Promise.all(users.map(
+    //         async user => {
+    //             if (user.email != user.email.toLowerCase()) 
+    //                 return user.email && User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
+    //             return user;
+    //         }
+    //     ))
+    // }
+
+    async normaliseUsernames() {
+        const users = await User.find({ status: 'active', deleted: false, role: 'learner' }).select('_id username');
         return Promise.all(users.map(
             async user => {
-                if (user.email != user.email.toLowerCase()) 
-                    return user.email && User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
-                return user;
+                return user.email && User.updateOne({ _id: user._id }, { username: user.username.toLowerCase() })
             }
         ))
     }
