@@ -5,6 +5,8 @@ import { handleError } from '../helpers/handleError';
 import { emailService } from '../helpers/email';
 import mongoose from 'mongoose';
 import { USER_TYPES } from '../config/constants';
+import { activityService } from '../activity/service';
+import { EActivityType } from '../activity/enum';
 
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -72,7 +74,22 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const { email, password } = req.body;
         const user = await userService.authenticate(email, password);
+
+        activityService.create(req, user.id, EActivityType.LOGIN, {
+            'timestamp': new Date(),
+        });
         sendResponse(res, 200, 'User Logged in', { user });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        activityService.create(req, req.user.id, EActivityType.LOGIN, {
+            'timestamp': new Date(),
+        });
+        sendResponse(res, 200, 'User logged out', {});
     } catch (err) {
         next(err);
     }
