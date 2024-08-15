@@ -37,7 +37,7 @@ export interface ICourseView extends Document {
 }
 
 export interface IModule {
-    id?: ObjectId;
+    _id?: ObjectId;
     title: string;
     objectives: string;
     further_reading: string;
@@ -52,7 +52,7 @@ export interface IModule {
 }
 
 export interface ILesson {
-    id?: ObjectId;
+    _id?: ObjectId;
     title: string;
     note: string;
     has_video: boolean;

@@ -20,8 +20,8 @@ export const
     },
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
-    ORDER_TYPES = ['sub', 'item', 'class'],
-    // ORDER_ITEMS = { class: 'class', sub: 'sub' },
+    ORDER_TYPES = ['sub', 'item', 'class', 'program'],
+    ORDER_ITEMS = { class: 'class', sub: 'sub', program: 'program' },
     PAYSTACK_API_URL = 'https://api.paystack.co',
     TEMPLATE_FILE_PATH = 'downloads/templates',
     AWS_S3_REGION = 'us-east-1',
@@ -50,5 +50,4 @@ export const
             end_date: new Date(`${new Date().getFullYear()}-07-20T00:00:00.000Z`),
         }
     },
-    QUIZ_PASS_MARK = 80,
-    PREMIUM_STATES = ['abuja', 'lagos'];
+    QUIZ_PASS_MARK = 80;

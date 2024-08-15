@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { subscriptionService } from './service';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { School } from '../user/models';
-import { PREMIUM_STATES } from '../config/constants';
 
 export const listSubcriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -39,24 +38,15 @@ export const updateSchoolSubscription = async (req: Request, res: Response, next
 export const migrateExistingSchoolsToSubscription = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Get all schools
-        const schools = await School.find();
+        const schools = await School.find({});
 
         await Promise.all(schools.map(async (school) => {
-            let subscription;
-            if (PREMIUM_STATES.includes( String(school.resident_state).toLowerCase()) ){
-                subscription = await subscriptionService.findOne({
-                    title: { $regex: /^standard/i }
-                });
-            } else {
-                subscription = await subscriptionService.findOne({
-                    title: { $regex: /^basic/i }
-                });
-            }
-
+            const subscription = await subscriptionService.findOne({
+                slug: 'standard-plan'
+            });
             if (subscription){
-                await subscriptionService.migrateSchoolToSubscription(school.id, subscription.id);
+                await subscriptionService.migrateSchoolToSubscription(school.user, subscription.id);
             }
-            
         }));
 
         sendResponse(res, 201, 'Schools Migrating to Subscriptions');

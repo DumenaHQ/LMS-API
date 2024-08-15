@@ -3,6 +3,8 @@ import { ObjectId, Document } from 'mongoose';
 export interface IQuiz extends Document {
     id?: ObjectId;
     course_id: ObjectId;
+    module_id: ObjectId;
+    lesson_id: ObjectId;
     title: string,
     tags: [],
     difficulty_level: string,

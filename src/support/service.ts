@@ -1,50 +1,35 @@
-import { IAddSupportComment, IAddSupportQuestion } from './interface';
+import { IAddSupportComment, IAddSupportQuestion, IQuestion } from './interface';
 import { Comment, Question } from './model';
 
 export const supportService = {
 
-    async createQuestion(question: IAddSupportQuestion){
+    async createQuestion(supportQuestion: IAddSupportQuestion) {
+        const { question, user_id, class_id, program_id, course_id, lesson } = supportQuestion;
         const newQuestion = await Question.create({
-            question: question.question,
-            user: question.user_id,
-            class: question.class_id,
-            course: question.course_id,
-            lesson: question.lesson
+            question: question,
+            user: user_id,
+            class: class_id,
+            program: program_id,
+            course: course_id,
+            lesson: lesson
         });
         return newQuestion;
     },
 
+    async list(criteria = {}, klass: boolean, program: boolean) {
+        const populate = [{ path: 'course', select: 'id title difficulty_level course_quadrant' }];
+        if (klass) populate.push({ path: 'class', select: 'id name school_id' });
+        if (program) populate.push({ path: 'program', select: 'id name' });
 
-    async getQuestions(class_id?: string, school_id?: string) {
-        const questions = await Question.find()
-            .sort({ createdAt: -1 }) 
-            .populate({ 
-                path: 'user', 
-                select: 'id email fullname role' // Exclude the fields from the response
-            })
-            .populate({path: 'class', select: 'id name school_id'})
-            .populate({path:'course', select: 'id title difficulty_level course_quadrant'})
-            .lean();
+        return Question.find(criteria).populate(populate).sort({ createdAt: -1 });
+    },
 
+    async fetchClassQuestions(classId: string) {
+        return this.list({ class: classId }, true, false);
+    },
 
-        
-        // return questions from a given school
-        if (school_id){
-            return questions.map((question) => {
-                if (question.class && String(question.class.school_id) === school_id){
-                    return question;
-                }
-            }
-            ).filter((question) => question !== null && question !== undefined);
-        }
-        if (!class_id) return questions;
-
-        // return questions from a given class id
-        return questions.map(
-            (question) => {
-                if (question.class && String(question.class._id) === class_id) return question;
-            }
-        ).filter((question) => question !== null && question !== undefined);
+    async fetchProgramQuestions(programId: string) {
+        return this.list({ program: programId }, false, true);
     },
 
  
@@ -57,14 +42,11 @@ export const supportService = {
         return newComment;
     },
 
-
-   
     async getComments(question_id: string) {
         const data = await Comment.find({ question: question_id }).populate({ 
             path: 'user', 
-            select: '-password -isUserOnboarded -status' // Exclude the fields from the response
+            select: 'fullname role'
         });
-        return data.map((comment) => comment.toJSON());
-    },
-
+        return data.map((comment: IAddSupportComment) => comment.toJSON());
+    }
 };

@@ -18,14 +18,14 @@ export default mongoose.model('Subscription', subscriptionSchema);
 
 
 
-const schoolSubscriptionSchema = new Schema({
+const userSubscriptionSchema = new Schema({
     subscription: {
         type: Schema.Types.ObjectId,
         ref: 'Subscription'
     },
-    school: {
+    user: {
         type: Schema.Types.ObjectId,
-        ref: 'School'
+        ref: 'User'
     },
     coupon: {
         type: Schema.Types.ObjectId,
@@ -37,13 +37,13 @@ const schoolSubscriptionSchema = new Schema({
         default: 'active'
     }
 }, { timestamps: true });
-export const SchoolSubscription = mongoose.model('SchoolSubscription', schoolSubscriptionSchema);
+export const UserSubscription = mongoose.model('UserSubscription', userSubscriptionSchema);
 
 
-const schoolSubscriptionTransactionSchema = new Schema({
-    school_subscription: {
+const userSubscriptionTransactionSchema = new Schema({
+    user_subscription: {
         type: Schema.Types.ObjectId,
-        ref: 'SchoolSubscription'
+        ref: 'UserSubscription'
     },
     amount: {
         type: Number,
@@ -60,7 +60,7 @@ const schoolSubscriptionTransactionSchema = new Schema({
         required: true
     },
 }, { timestamps: true });
-export const SchoolSubscriptionTransaction = mongoose.model('SchoolSubscriptionTransaction', schoolSubscriptionTransactionSchema);
+export const UserSubscriptionTransaction = mongoose.model('UserSubscriptionTransaction', userSubscriptionTransactionSchema);
 
 
 

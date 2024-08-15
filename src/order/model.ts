@@ -11,10 +11,10 @@ export enum EOrderStatus {
 
 export interface IOrder {
     id: Schema.Types.ObjectId;
-    user: Schema.Types.ObjectId;
+    user: Schema.Types.ObjectId; // the id of the user making this payment
     item_type: string;
     total_amount: number;
-    coupon: Schema.Types.ObjectId;
+    coupon?: Schema.Types.ObjectId;
     reference: string;
     status?: string;
     items: [
@@ -26,7 +26,7 @@ export interface IOrder {
             slug?: string;
             amount: number;
             user_id: Schema.Types.ObjectId;
-            meta_data: Object;
+            meta_data: object;
         }
     ]
 }
@@ -53,12 +53,13 @@ const orderItems = {
 
 const orderSchema = new Schema({
     user: {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId, // The Id Of the user making the payment
         ref: 'User'
     },
     item_type: String,
     reference: {
         type: String,
+        required: true,
         unique: true
     },
     items: [orderItems],
@@ -66,7 +67,10 @@ const orderSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Coupon'
     },
-    total_amount: Number,
+    total_amount: {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         enum: EOrderStatus,

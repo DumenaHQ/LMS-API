@@ -1,30 +1,76 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Order, { IOrder, EOrderStatus } from './model';
-import Subscription from '../subscription/model';
+import Coupon from '../coupon/model';
+import Subscription, { UserSubscription }from '../subscription/model';
 import { generateId } from '../helpers/utility';
+import {School} from '../user/models';
+import { USER_TYPES } from '../config/constants';
+import { handleError } from '../helpers/handleError';
+import { couponService } from '../coupon/service';
 
 export const orderService = {
-    async create({ items, ...orderData }: IOrder): Promise<IOrder> {
-        // get order item details
-        let total_amount = 0;
+    async create({ items, ...orderData }: IOrder, userRole: string) {
+
+        let totalAmountToPay = 0;
+        let appliedCoupon = false;
+        let coupon: any = null;
+        let subscription: any = null;
+        if (userRole == USER_TYPES.school) {
+
+            // Check if current user has any subscription attached to thier profile, that is active, only one subscription is allowed to be active per school
+            const userSubscription = await UserSubscription.findOne({user: orderData.user, status: 'active'});
+            if (!userSubscription) {
+                throw new handleError(400,'Please Subscribe to a plan');
+            }
+            subscription = await Subscription.findById(userSubscription.subscription);
+            if (!subscription) {
+                throw new handleError(400,'Invalid Subscription In Profile');
+            }
+            // We check if the user has any coupon attached on their subscription, and apply the coupon if it is valid
+            coupon = userSubscription.coupon ? await Coupon.findById(userSubscription.coupon): null;
+        }else{
+            // Use the default parent plan
+            subscription = await Subscription.findOne({slug: 'parent-plan'});
+            if (!subscription) {
+                throw new handleError(500,'Internal server error, Parent Subscription Not Found');
+            }
+        }
+
+        // We use the subscription to calculate the amount each learner user will pay
         const orderItems = await Promise.all(items.map(async item => {
-            const orderDetails = await Subscription.findOne({ item_id: item.order_type_id });
-            total_amount += orderDetails.amount;
+
+            let userAmount = subscription.amount;
+            // Apply Coupon if it is valid
+            if (couponService.isValidCoupon(coupon)) {
+                userAmount = userAmount - (coupon.disount / 100) * userAmount;
+                appliedCoupon = true;
+            }
+            totalAmountToPay += userAmount;
+            const {amount,slug, ...itemData} = item;
             return {
-                ...item,
-                title: orderDetails.title,
-                amount: orderDetails.amount,
-                order_type_id: orderDetails.item_id,
-                slug: orderDetails.slug
+                ...itemData,
+                slug: subscription.slug,
+                amount: userAmount
             };
         }));
 
-        Order.findOneAndUpdate({ user: orderData.user, status: EOrderStatus.Active }, { status: EOrderStatus.Pending });
-
         return Order.create({
-            ...orderData,
-            total_amount,
             reference: generateId('ORD_'),
-            items: orderItems
+            items: orderItems,
+            user: orderData.user,
+            total_amount: totalAmountToPay,
+            status: EOrderStatus.Pending,
+            coupon: appliedCoupon && coupon ? coupon.id : undefined
+        });
+    },
+
+    async createProgramOrder(userId: string, orderItems: Record<string, unknown>[], totalAmount: number) {
+        return Order.create({
+            reference: generateId('ORD_'),
+            items: orderItems,
+            user: userId,
+            total_amount: totalAmount,
+            status: EOrderStatus.Pending
         });
     },
 
@@ -36,7 +82,8 @@ export const orderService = {
         return Order.find(criteria);
     },
 
-    async update(orderId: string, orderStatus: object) {
-
+    async update(criteria: object, data: object) {
+        return Order.findOneAndUpdate(criteria, data, { new: true });
     }
+
 };

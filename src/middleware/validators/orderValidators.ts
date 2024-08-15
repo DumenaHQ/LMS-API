@@ -24,13 +24,13 @@ export const orderValidationRules = () => {
         //     if (!plans.includes(slug)) throw new Error(`Invalid slug, choose from any of these [${plans.join(', ')}]`);
         //     return true;
         // })
-        check('coupon_code').custom(async (code: string, { req }) => {
-            if (code) {
-                const coupon = await Coupon.findOne({ code });
-                if (!coupon) throw new Error('Invalid coupon code');
-                delete req.body.coupon_code;
-                req.body.coupon = coupon._id;
-            }
-        })
+        // check('coupon_code').custom(async (code: string, { req }) => {
+        //     if (code) {
+        //         const coupon = await Coupon.findOne({ code });
+        //         if (!coupon) throw new Error('Invalid coupon code');
+        //         delete req.body.coupon_code;
+        //         req.body.coupon = coupon._id;
+        //     }
+        // })
     ];
 };

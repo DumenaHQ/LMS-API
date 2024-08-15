@@ -1,7 +1,7 @@
 import { handleError } from '../helpers/handleError';
 import { TEMPLATE_FILE_PATH } from '../config/constants';
 import * as path from 'path';
-import { Learner, School } from '../user/models';
+import User, { Learner, School } from '../user/models';
 import Class from '../class/model';
 
 
@@ -28,5 +28,25 @@ export const miscService = {
         const schools = await School.find();
         const res = await Promise.all(schools.map(async school => Class.updateMany({ school_id: school.user }, { school_id: school._id })));
     },
+
+    // async normaliseEmails() {
+    //     const users = await User.find({ status: 'active', deleted: false, role: { "$ne": 'learner'} }).select('_id email');
+    //     return Promise.all(users.map(
+    //         async user => {
+    //             if (user.email != user.email.toLowerCase()) 
+    //                 return user.email && User.updateOne({ _id: user._id }, { email: user.email.toLowerCase() })
+    //             return user;
+    //         }
+    //     ))
+    // }
+
+    async normaliseUsernames() {
+        const users = await User.find({ status: 'active', deleted: false, role: 'learner' }).select('_id username');
+        return Promise.all(users.map(
+            async user => {
+                return user.username && User.updateOne({ _id: user._id }, { username: user.username.toLowerCase() })
+            }
+        ))
+    }
 };
 

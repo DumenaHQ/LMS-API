@@ -71,7 +71,7 @@ const programSchema = new Schema({
     header_photo: String,
     sponsors: [sponsor],
     learners: [learner],
-    courses: [],
+    courses: Array,
     start_date: Date,
     end_date: Date,
     deleted: {

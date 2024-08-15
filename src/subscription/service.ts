@@ -1,9 +1,10 @@
 import { handleError } from '../helpers/handleError';
 import { IOrder } from '../order/model';
 import { Learner, School } from '../user/models';
-import Subscription, { SchoolSubscription } from './model';
+import Subscription, { UserSubscription } from './model';
 import { classService } from '../class/service';
 import { ORDER_ITEMS } from '../config/constants';
+import { programService } from '../program/service';
 
 export const subscriptionService = {
     async create(data: {
@@ -58,6 +59,9 @@ export const subscriptionService = {
         case ORDER_ITEMS.class:
             await this.addLearnersToClass(order);
             break;
+        case ORDER_ITEMS.program:
+            await this.addLearnersToProgram(order);
+            break;
         default:
         }
     },
@@ -68,21 +72,30 @@ export const subscriptionService = {
         items.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
-            await classService.addLearners(classId, learnerIds);
+            return classService.addLearners(classId, learnerIds);
         });
     },
 
-    async migrateSchoolToSubscription(school_id: string, subscription_id: string) {
-        const schoolSubscription = await SchoolSubscription.create({
-            school: school_id,
+    async addLearnersToProgram(order: IOrder) {
+        const { items, user: sponsorId } = order;
+        const learnerIds: any = [];
+        items.map(async (item: any) => {
+            const { meta_data: { classId }, user_id } = item;
+            learnerIds.push({ user_id });
+            return programService.addLearners(classId, learnerIds, sponsorId);
+        });
+    },
+
+    async migrateSchoolToSubscription(user_id: string, subscription_id: string) {
+        return UserSubscription.create({
+            user: user_id,
+            status: 'active',
             subscription: subscription_id
         });
-        return schoolSubscription;
     },
     
-    async updateSchoolSubscription(schoolSubscriptionId: string, data={}) {
-        const schoolSubscription = await SchoolSubscription.findByIdAndUpdate(schoolSubscriptionId, data);
-        return schoolSubscription;
+    async updateSchoolSubscription(userSubscriptionId: string, data={}) {
+        return UserSubscription.findByIdAndUpdate(userSubscriptionId, data);
     }
 
 };

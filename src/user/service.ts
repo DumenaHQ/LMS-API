@@ -9,10 +9,10 @@ import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
 
-import { PREMIUM_STATES, SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
-import {SchoolSubscription} from '../subscription/model';
+import {UserSubscription} from '../subscription/model';
 import { subscriptionService } from '../subscription/service';
 
 const userModel = {
@@ -27,7 +27,8 @@ const userModel = {
 
 export const userService = {
     async authenticate(emailOrUsername: string, password: string): Promise<object> {
-        const foundUser = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
+        const usernameOrEmail = emailOrUsername.toLowerCase();
+        const foundUser = await User.findOne({ $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }] });
 
         if (!foundUser) throw new handleError(404, 'Email or password is incorrect');
 
@@ -74,7 +75,10 @@ export const userService = {
 
 
     async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
-        const { user_type } = userData;
+        const { user_type, email = undefined } = userData;
+        if (email != undefined) {
+            userData.email = email.toLowerCase();
+        }
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
@@ -109,7 +113,7 @@ export const userService = {
 
         // for learners added by parents/schools
         if (user_type == USER_TYPES.learner && (parent || school)) {
-            data.username = await this.ensureUniqueUsername((fullname.split(' ').join('.')).toLowerCase());
+            data.username = await this.ensureUniqueUsername(fullname.toLowerCase().split(' ').join('.'));
             data.status = EUserStatus.Active;
         }
 
@@ -157,25 +161,17 @@ export const userService = {
             throw new handleError(400, 'Invalid hash. couldn\'t verify your email');
         }
         user.status = EUserStatus.Active;
-  
 
         if (user.role === USER_TYPES.school){
-            const userType = await userModel[user.role].findOne({ user: user.id });
-            if (userType) {
-                let subscription;
-                if (PREMIUM_STATES.includes( String(userType.resident_state).toLowerCase()) ){
-                    subscription = await subscriptionService.findOne({
-                        title: { $regex: /^standard/i }
-                    });
-                } else {
-                    subscription = await subscriptionService.findOne({
-                        title: { $regex: /^basic/i }
-                    });
-                }
+            const [userType, subscription] = await Promise.all([
+                userModel[user.role].findOne({ user: user.id }),
+                subscriptionService.findOne({
+                    slug: 'standard-plan'
+                })
+            ]);
 
-                if (subscription){
-                    await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
-                }
+            if (subscription){
+                await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
             }
         }
         
@@ -282,11 +278,11 @@ export const userService = {
                     return { ...user, ...userType, admin_role };
                 }
                 if (user.role === USER_TYPES.school) {
-                    const subscription = await SchoolSubscription.findOne({
+                    const subscription = await UserSubscription.findOne({
                         school: user_type._id,
                         status: 'active'
                     }).populate('subscription');
-                    const modifiedUserType= {...user_type.toJSON(), subscription};
+                    const modifiedUserType = { ...user_type.toJSON(), subscription };
                     return { ...user, ...modifiedUserType };
                 }
                 return { ...user, ...user_type.toJSON() };
@@ -295,7 +291,7 @@ export const userService = {
     },
 
 
-    async listSchoolStudents(schoolId: string, queryParams: object) {
+    async listSchoolStudents(schoolId: string, queryParams: object = {}) {
         const validParams = ['grade'];
         const validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
@@ -358,7 +354,6 @@ export const userService = {
             parent: new mongoose.Types.ObjectId(parentId),
             'user.deleted': false
         };
-
         return this.list(criteria, 'learner');
     },
 
@@ -462,6 +457,4 @@ export const userService = {
         ));
 
     },
-
-
 };
