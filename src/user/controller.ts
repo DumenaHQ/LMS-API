@@ -89,7 +89,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
         activityService.create(req, req.user.id, EActivityType.LOGIN, {
             'timestamp': new Date(),
         });
-        sendResponse(res, 200, 'User logged out', {});
+        sendResponse(res, 200, 'User logged out');
     } catch (err) {
         next(err);
     }
