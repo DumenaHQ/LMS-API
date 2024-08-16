@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild, deleteUser, removeTeacherFromSchool, changeUserStatus } from './controller';
+import { createUser, login, activateUser, updateUser, getUser, getUsers, getParentChildren, getUserPayments, enrollLearner, sendPasswordResetEmail, resetPassword, resendVerificationEmail, downloadUserData, removeChild, deleteUser, removeTeacherFromSchool, changeUserStatus, logout } from './controller';
 import validate, { userCreationRules, loginRules } from '../middleware/validators/userValidators';
 import { enrollLearnerRules } from '../middleware/validators/enrollLearnerValidators';
 import { isAdmin, isAuthenticated, isParent, isSchool } from '../middleware/verifyToken';
@@ -9,6 +9,7 @@ export const router = Router();
 router.post('/', userCreationRules(), validate, createUser);
 
 router.post('/login', loginRules(), validate, login);
+router.post('/logout', isAuthenticated, logout);
 
 router.put('/activate', activateUser);
 

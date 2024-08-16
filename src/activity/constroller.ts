@@ -19,9 +19,13 @@ export const recordUserActivity = async (req: Request, res: Response, next: Next
 
 export const listUserActivities = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.user;
+        const { id, fullname, username, role } = req.user;
         const activities = await activityService.list({user: id});
-        sendResponse(res, 200, 'Activities fetched', activities);
+        const data = {
+            user:{id, role, fullname, username},
+            activities
+        };
+        sendResponse(res, 200, 'Activities fetched', data);
     } catch (err) {
         next(err);
     }
