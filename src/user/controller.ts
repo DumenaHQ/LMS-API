@@ -86,7 +86,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        activityService.create(req, req.user.id, EActivityType.LOGIN, {
+        activityService.create(req, req.user.id, EActivityType.LOGOUT, {
             'timestamp': new Date(),
         });
         sendResponse(res, 200, 'User logged out');
