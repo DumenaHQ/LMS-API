@@ -34,7 +34,7 @@ export const listUserActivities = async (req: Request, res: Response, next: Next
 export const listSchoolLearnersActivities = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { school_id } = req.user;
-        const data = await activityService.listSchoolLearnersActivities(school_id)
+        const data = await activityService.listSchoolLearnersActivities(school_id);
         sendResponse(res, 200, 'Activities fetched', data);
     } catch (err) {
         next(err);

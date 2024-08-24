@@ -37,7 +37,7 @@ export const activityService = {
             students.flatMap(async (student) => {
                 const { id, fullname, username, role } = student;
     
-                const activities = await activityService.list({user: id});
+                const activities = await this.list({user: id});
                 const studentActivities = await Promise.all(
                     activities.flatMap(async (activity) => {
                         return {
@@ -51,6 +51,8 @@ export const activityService = {
             })
         );
 
-        return data;
+        return data.flatMap((student) => {
+            return student;
+        });
     }
 };
