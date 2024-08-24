@@ -292,7 +292,7 @@ export const userService = {
 
 
     async listSchoolStudents(schoolId: string, queryParams: object = {}) {
-        const validParams = ['grade'];
+        const validParams = ['name', 'grade'];
         const validQueryParams: Record<string, any> = {};
         for (const [key, value] of Object.entries(queryParams)) {
             if (validParams.includes(key)) {
@@ -302,7 +302,8 @@ export const userService = {
         const criteria = {
             school: new mongoose.Types.ObjectId(schoolId),
             'user.deleted': false,
-            ...validQueryParams
+            ...(validQueryParams.grade && { grade: validQueryParams.grade }), // Added this: Filters learners by grade if the grade parameter is provided.
+            ...(validQueryParams.name && { 'user.fullname': { $regex: validQueryParams.name, $options: 'i' } }), // Updated this: Searches learners by fullname using a case-insensitive regular expression if the name parameter is provided.    
         };
         const learners = await this.list(criteria, 'learner');
         const grades: any = [];
