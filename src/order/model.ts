@@ -15,6 +15,7 @@ export interface IOrder {
     item_type: string;
     total_amount: number;
     coupon?: Schema.Types.ObjectId;
+    couponCode: string;
     reference: string;
     status?: string;
     items: [

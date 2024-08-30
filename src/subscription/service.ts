@@ -76,6 +76,17 @@ export const subscriptionService = {
         });
     },
 
+    async subLearnersToClass(order: IOrder) {
+        const items = order.items;
+        const learnerIds: any = [];
+        items.map(async (item: any) => {
+            const { meta_data: { classId }, user_id } = item;
+            learnerIds.push({ user_id });
+            return classService.addLearners(classId, learnerIds);
+        });
+    },
+
+
     async addLearnersToProgram(order: IOrder) {
         const { items, user: sponsorId } = order;
         const learnerIds: any = [];

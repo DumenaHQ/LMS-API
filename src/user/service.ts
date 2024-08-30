@@ -206,7 +206,7 @@ export const userService = {
         return User.findOne({ ...criteria, deleted: false });
     },
 
-    async view(criteria: object): Promise<IUserView> {
+    async view(criteria: object) {
         const user = await User.findOne(criteria).select({ password: 0 });
         if (!user) throw new handleError(404, 'User not found');
 

@@ -64,6 +64,26 @@ export const orderService = {
         });
     },
 
+    async createClassOrder({ items, couponCode, ...orderData }: IOrder, userRole: string) {
+        let amount;
+        const subscription = await Subscription.findOne({ slug: 'class-sub' });
+        amount = subscription.amount;
+
+        const { coupon, isValidCoupon } = await couponService.isValidCoupon(couponCode);
+        if (isValidCoupon && coupon?.discount) {
+            amount = amount - (coupon.discount / 100) * amount;
+        }
+        
+        return Order.create({
+            reference: generateId('ORD_'),
+            items: orderItems,
+            user: orderData.user,
+            total_amount: amount * items.length,
+            status: EOrderStatus.Pending,
+            coupon: isValidCoupon ? coupon.id : undefined
+        });
+    },
+
     async createProgramOrder(userId: string, orderItems: Record<string, unknown>[], totalAmount: number) {
         return Order.create({
             reference: generateId('ORD_'),
@@ -85,5 +105,4 @@ export const orderService = {
     async update(criteria: object, data: object) {
         return Order.findOneAndUpdate(criteria, data, { new: true });
     }
-
 };

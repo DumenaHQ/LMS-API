@@ -12,7 +12,7 @@ export const paymentService = {
         return Payment.find(criteria);
     },
 
-    async initializePayment( email: string, amount: number,reference: string){
+    async initializePayment(email: string, amount: number, reference: string){
         const option = {
             headers: { Authorization: `Bearer ${paystackConfig.SECRET_KEY}` },
             baseURL: PAYSTACK_API_URL
@@ -24,7 +24,7 @@ export const paymentService = {
             amount: amount*100,
             reference: reference,
             currency: 'NGN',
-            callback_url: 'https://dev.dumena.com/order/payment/callback',
+            // callback_url: 'https://dev.dumena.com/order/payment/callback',
             channels: ['card', 'ussd', 'mobile_money', 'bank_transfer'],
         });
 
@@ -68,7 +68,4 @@ export const paymentService = {
         const payment = await Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status });
         return { payment, order };
     },
-
-
-
 };

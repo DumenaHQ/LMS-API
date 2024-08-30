@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { subscriptionService } from './service';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { School } from '../user/models';
+import { classSubscriptionService } from './classSubscriptionService';
+import { paymentService } from '../payment/service';
 
 export const listSubcriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -20,6 +22,17 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
         next(err);
     }
 };
+
+export const subscribeToClass = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, school_id } = req.user;
+        const { reference, total_amount } = await classSubscriptionService.create();
+        const { access_code } = await paymentService.initializePayment(email, Number(total_amount), reference);
+        sendResponse(res, 200, 'Class Subscription Initiated', { access_code });
+    } catch (err) {
+        next(err);
+    }
+}
 
 
 export const updateSchoolSubscription = async (req: Request, res: Response, next: NextFunction) => {

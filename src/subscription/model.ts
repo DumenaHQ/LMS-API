@@ -63,6 +63,40 @@ const userSubscriptionTransactionSchema = new Schema({
 export const UserSubscriptionTransaction = mongoose.model('UserSubscriptionTransaction', userSubscriptionTransactionSchema);
 
 
+const classSubscriptionSchema = new Schema({
+    school: {
+        type: Schema.Types.ObjectId,
+        ref: 'School',
+        index: true
+    },
+    class: {
+        type: Schema.Types.ObjectId,
+        ref: 'Class',
+        index: true
+    },
+    subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'Subscription'
+    },
+    reference: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    learners: [String],
+    total_amount: {
+        type: Number
+    },
+    status: {
+        type: String,
+        default: 'pending'
+    },
+    end_date: {
+        type: Date,
+        default: null
+    }
+}, { timestamps: true });
+export const ClassSubscription = mongoose.model('ClassAccess', classSubscriptionSchema);
 
 const contentAcessSchema = new Schema({
     user: {
