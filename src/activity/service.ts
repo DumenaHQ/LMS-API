@@ -4,6 +4,7 @@ import useragent from 'useragent'; // for more info, visit https://www.npmjs.com
 import { EActivityType } from './enum';
 import { Activity } from './model';
 import { handleError } from '../helpers/handleError';
+import { userService } from '../user/service';
 
 
 export const activityService = {
@@ -26,4 +27,32 @@ export const activityService = {
     async list(match = {}){
         return Activity.find(match);
     },
+
+
+    async listSchoolLearnersActivities(school_id: string ) {
+        const { learners: students, grades } = await userService.listSchoolStudents(school_id, {});
+
+        const data = await Promise.all(
+
+            students.flatMap(async (student) => {
+                const { id, fullname, username, role } = student;
+    
+                const activities = await this.list({user: id});
+                const studentActivities = await Promise.all(
+                    activities.flatMap(async (activity) => {
+                        return {
+                            user:{id, role, fullname, username},
+                            activity,
+                        };
+                    })
+                );
+
+                return studentActivities;
+            })
+        );
+
+        return data.flatMap((student) => {
+            return student;
+        });
+    }
 };
