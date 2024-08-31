@@ -35,6 +35,14 @@ export const subscribeToClass = async (req: Request, res: Response, next: NextFu
     }
 }
 
+export const listClassSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const classSubscriptions = await classSubscriptionService.listSubs();
+        sendResponse(res, 200, 'Class Subscription Fetched', { classSubscriptions });
+    } catch (err) {
+        next(err);
+    }
+}
 
 export const updateSchoolSubscription = async (req: Request, res: Response, next: NextFunction) => {
     try {

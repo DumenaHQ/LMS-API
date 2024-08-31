@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
-import { create, listSubcriptions, migrateExistingSchoolsToSubscription, subscribeToClass, updateSchoolSubscription } from './controller';
+import { create, listClassSubscriptions, listSubcriptions, migrateExistingSchoolsToSubscription, subscribeToClass, updateSchoolSubscription } from './controller';
 import validate, { schoolSubscriptionUpdateRules, subscriptionCreationRules } from '../middleware/validators/subscriptionValidator';
 
 export const router = Router();
@@ -13,4 +13,6 @@ router.post('/', isAuthenticated, isAdmin, subscriptionCreationRules(), validate
 router.put('/school/:school_sub_id', isAuthenticated, isAdmin, schoolSubscriptionUpdateRules(), validate , updateSchoolSubscription);
 
 router.post('/class-sub', isAuthenticated, subscribeToClass);
+
+router.get('/class-sub', isAuthenticated, listClassSubscriptions);
 // router.put('/migrate-schools', migrateExistingSchoolsToSubscription);

@@ -30,7 +30,7 @@ export const classSubscriptionService = {
                     continue;
                 }
                     
-                const activeTerm = classService.getClassActiveTerm(_class.terms);
+                //const activeTerm = classService.getClassActiveTerm(_class.terms);
                 // if (activeTerm == null) {
                 //     console.log('term')
                 //     continue;
@@ -67,5 +67,9 @@ export const classSubscriptionService = {
         }
         orderData.total_amount = total_amount;
         return orderService.update({ _id: order.id }, orderData);
+    },
+
+    async listSubs() {
+        return ClassSubscription.find();
     }
 }
