@@ -19,7 +19,7 @@ export const paymentService = {
         };
         const apiRequest = new APIRequest(option);
         const url: string = '/transaction/initialize';
-        const response = await apiRequest.post(url, {
+        return apiRequest.post(url, {
             email: email,
             amount: amount * 100,
             reference: reference,
@@ -27,8 +27,6 @@ export const paymentService = {
             // callback_url: 'https://dev.dumena.com/order/payment/callback',
             channels: ['card', 'ussd', 'mobile_money', 'bank_transfer'],
         });
-
-        return response;
     },
 
     async verifyPayment(reference: string): Promise<{ amount: number, channel: string, currency: string, status: string }> {
@@ -65,7 +63,7 @@ export const paymentService = {
         // update order status to successful
         await orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed });
         // save payment
-        const payment = await Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status });
+        const payment = await Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status }) as unknown as IPayment;
         return { payment, order };
     },
 };
