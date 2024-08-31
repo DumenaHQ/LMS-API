@@ -21,7 +21,7 @@ export const paymentService = {
         const url: string = '/transaction/initialize';
         const response = await apiRequest.post(url, {
             email: email,
-            amount: amount*100,
+            amount: amount * 100,
             reference: reference,
             currency: 'NGN',
             // callback_url: 'https://dev.dumena.com/order/payment/callback',

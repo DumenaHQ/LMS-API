@@ -20,18 +20,28 @@ export const classSubscriptionService = {
         let total_amount = 0, orderData: Record<string, unknown> = {};
         for await (const klass of classes) {
             try {
-                const { id: classId, learners } = klass;
+                const { class_id: classId, learners } = klass;
+                if (!learners.length)
+                    continue;
 
                 const _class = await classService.findOne({ _id: classId });
                 if (!_class)
-                    throw new handleError(400, 'Invalid class ID');
+                    continue;
 
                 const activeTerm = classService.getClassActiveTerm(_class.terms);
                 if (activeTerm == null)
-                    throw new handleError(400, 'Class does not have an active term');
+                    continue;
 
                 const classTotalAmount = subscription.amount * learners.length;
-                
+                console.log({
+                    class: classId,
+                    user: userId,
+                    subscription: subscription.id,
+                    orderId: order._id,
+                    learners,
+                    total_amount: classTotalAmount,
+                    end_date: activeTerm.end_date
+                })
                 await ClassSubscription.create({
                     class: classId,
                     user: userId,
