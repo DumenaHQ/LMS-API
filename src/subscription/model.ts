@@ -94,7 +94,7 @@ const classSubscriptionSchema = new Schema({
         default: null
     }
 }, { timestamps: true });
-export const ClassSubscription = mongoose.model('ClassAccess', classSubscriptionSchema);
+export const ClassSubscription = mongoose.model('ClassSubscription', classSubscriptionSchema);
 
 const contentAcessSchema = new Schema({
     user: {

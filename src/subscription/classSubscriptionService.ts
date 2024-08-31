@@ -35,7 +35,7 @@ export const classSubscriptionService = {
                 //     console.log('term')
                 //     continue;
                 // }
-
+                console.log('here mehn')
                 const classTotalAmount = subscription.amount * learners.length;
                 console.log({
                     class: classId,
@@ -58,6 +58,7 @@ export const classSubscriptionService = {
 
                 total_amount += classTotalAmount;
             } catch (err) {
+                console.log(err)
                 // DO TO: handle errors and return to frontend
             }
         }
