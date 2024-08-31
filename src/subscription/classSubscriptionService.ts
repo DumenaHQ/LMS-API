@@ -35,7 +35,6 @@ export const classSubscriptionService = {
                 //     console.log('term')
                 //     continue;
                 // }
-                console.log('here mehn')
                 const classTotalAmount = subscription.amount * learners.length;
                 console.log({
                     class: classId,
@@ -44,7 +43,7 @@ export const classSubscriptionService = {
                     orderId: order._id,
                     learners,
                     total_amount: classTotalAmount,
-                    end_date: activeTerm.end_date
+                    // end_date: activeTerm.end_date
                 })
                 await ClassSubscription.create({
                     class: classId,
