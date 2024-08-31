@@ -52,7 +52,7 @@ export const classSubscriptionService = {
                     orderId: order._id,
                     learners,
                     total_amount: classTotalAmount,
-                    end_date: activeTerm.end_date
+                    //end_date: activeTerm.end_date
                 });
 
                 total_amount += classTotalAmount;
