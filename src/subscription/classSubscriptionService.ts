@@ -22,21 +22,19 @@ export const classSubscriptionService = {
             try {
                 const { class_id: classId, learners } = klass;
                 if (!learners.length) {
-                    console.log(learners)
                     continue;
                 }
                     
                 const _class = await classService.findOne({ _id: classId });
                 if (!_class) {
-                    console.log({_class})
                     continue;
                 }
                     
                 const activeTerm = classService.getClassActiveTerm(_class.terms);
-                if (activeTerm == null) {
-                    console.log('term')
-                    continue;
-                }
+                // if (activeTerm == null) {
+                //     console.log('term')
+                //     continue;
+                // }
 
                 const classTotalAmount = subscription.amount * learners.length;
                 console.log({
