@@ -42,8 +42,10 @@ export const couponService = {
     },
 
 
-    async isValidCoupon(code: string): Promise<{ coupon: typeof Coupon, isValidCoupon: boolean }> {
+    async isValidCoupon(code: string): Promise<{ coupon: ICoupon | null, isValidCoupon: boolean }> {
         const coupon = await Coupon.findOne({ code, status: 'active', expiry_date: { $gte: new Date()} }).lean();
+        if (!coupon) 
+            return { isValidCoupon: false, coupon };
         return { coupon, isValidCoupon: coupon ? true : false };
     }
 };

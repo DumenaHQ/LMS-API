@@ -64,9 +64,9 @@ export const UserSubscriptionTransaction = mongoose.model('UserSubscriptionTrans
 
 
 const classSubscriptionSchema = new Schema({
-    school: {
+    user: {
         type: Schema.Types.ObjectId,
-        ref: 'School',
+        ref: 'User',
         index: true
     },
     class: {
@@ -78,10 +78,8 @@ const classSubscriptionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Subscription'
     },
-    reference: {
-        type: String,
-        required: true,
-        unique: true
+    orderId: {
+        type: Schema.Types.ObjectId,
     },
     learners: [String],
     total_amount: {

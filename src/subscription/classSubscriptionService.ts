@@ -1,30 +1,57 @@
 import { handleError } from '../helpers/handleError';
-import { generateId } from '../helpers/utility';
 import Subscription, { ClassSubscription } from './model';
 import { classService } from '../class/service';
+import { orderService } from '../order/service';
+import { couponService } from '../coupon/service';
+import { IOrder } from '../order/model';
 
 
 export const classSubscriptionService = {
-    async create(classId: string, schoolId: string, learners: string[]) {
-        const [klass, subscription] = await Promise.all([
-            classService.findOne(classId),
-            Subscription.findOne({ slug: 'class-sub' })
+    async createClassSubscriptions(classes: [], userId: string, couponCode: string): Promise<IOrder> {
+        const [order, subscription, { coupon, isValidCoupon }] = await Promise.all([
+            orderService.createClassOrder(userId),
+            Subscription.findOne({ slug: 'class-sub' }),
+            couponService.isValidCoupon(couponCode)
         ]);
-        if (!klass) {
-            throw new handleError(400, 'Invalid class ID provided');
+
+        if (!subscription)
+            throw new handleError(400, 'Invalid subscription');
+
+        let total_amount = 0, orderData: Record<string, unknown> = {};
+        for await (const klass of classes) {
+            try {
+                const { id: classId, learners } = klass;
+
+                const _class = await classService.findOne({ _id: classId });
+                if (!_class)
+                    throw new handleError(400, 'Invalid class ID');
+
+                const activeTerm = classService.getClassActiveTerm(_class.terms);
+                if (activeTerm == null)
+                    throw new handleError(400, 'Class does not have an active term');
+
+                const classTotalAmount = subscription.amount * learners.length;
+                
+                await ClassSubscription.create({
+                    class: classId,
+                    user: userId,
+                    subscription: subscription.id,
+                    orderId: order._id,
+                    learners,
+                    total_amount: classTotalAmount,
+                    end_date: activeTerm.end_date
+                });
+
+                total_amount += classTotalAmount;
+            } catch (err) {
+                // DO TO: handle errors and return to frontend
+            }
         }
-        if (!subscription) {
-            throw new handleError(400, 'Invalid subscription plan');
+        if (isValidCoupon && coupon?.discount) {
+            total_amount = total_amount - (coupon.discount / 100) * total_amount;
+            orderData = { coupon: coupon.id };
         }
-        const total_amount = subscription.amount * learners.length;
-        
-        return ClassSubscription.create({
-            class: classId,
-            school: schoolId,
-            subscription: subscription.id,
-            reference: generateId('SUB_'),
-            learners,
-            total_amount
-        });
+        orderData.total_amount = total_amount;
+        return orderService.update({ _id: order.id }, orderData);
     }
 }

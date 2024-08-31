@@ -3,6 +3,7 @@ import { ORDER_TYPES } from '../config/constants';
 
 
 export interface ICoupon {
+    id?: string;
     title?: string;
     code: string;
     discount?: number;

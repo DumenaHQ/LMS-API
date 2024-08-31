@@ -20,7 +20,7 @@ export const
     },
     DIFFICULTY_LEVEL = ['Beginner', 'Intermediate', 'Advanced'],
     COURSE_QUADRANT = ['Developer', 'Designer', 'Innovator', 'Maker'],
-    ORDER_TYPES = ['sub', 'item', 'class', 'program'],
+    ORDER_TYPES = { class: 'class', class_sub: 'class-sub', program: 'program' },
     ORDER_ITEMS = { class: 'class', sub: 'sub', program: 'program' },
     PAYSTACK_API_URL = 'https://api.paystack.co',
     TEMPLATE_FILE_PATH = 'downloads/templates',

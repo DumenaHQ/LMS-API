@@ -25,8 +25,9 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
 
 export const subscribeToClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, school_id } = req.user;
-        const { reference, total_amount } = await classSubscriptionService.create();
+        const { email, id } = req.user;
+        const { classes, couponCode } = req.body;
+        const { reference, total_amount } = await classSubscriptionService.createClassSubscriptions(classes, String(id), couponCode);
         const { access_code } = await paymentService.initializePayment(email, Number(total_amount), reference);
         sendResponse(res, 200, 'Class Subscription Initiated', { access_code });
     } catch (err) {
