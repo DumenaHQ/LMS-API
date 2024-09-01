@@ -87,6 +87,7 @@ const classSubscriptionSchema = new Schema({
     },
     status: {
         type: String,
+        enum: ['pending', 'active', 'failed'],
         default: 'pending'
     },
     end_date: {

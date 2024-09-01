@@ -28,7 +28,7 @@ export const verifyPayment = async (req: Request, res: Response, next: NextFunct
 
 export const fetchPayments = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const payments = await paymentService.list();
+        const payments = await paymentService.list({});
         sendResponse(res, 201, 'Payments fetched', { payments });
     } catch (err) {
         next(err);

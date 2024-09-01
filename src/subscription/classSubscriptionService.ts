@@ -61,7 +61,11 @@ export const classSubscriptionService = {
         return orderService.update({ _id: order.id }, orderData);
     },
 
-    async listSubs() {
-        return ClassSubscription.find();
+    async listSubs(criteria: object) {
+        return ClassSubscription.find(criteria);
+    },
+
+    async activateSubs(orderId: string) {
+        return ClassSubscription.updateMany({ orderId }, { status: 'active' });
     }
 }
