@@ -5,6 +5,7 @@ import { paystackConfig } from '../config/config';
 import { handleError } from '../helpers/handleError';
 import { orderService } from '../order/service';
 import { EOrderStatus, IOrder } from '../order/model';
+import mongoose from 'mongoose';
 
 
 export const paymentService = {
@@ -54,16 +55,25 @@ export const paymentService = {
             throw new handleError(400, 'Invalid order reference');
         }
 
-        // verify amount paid
         if (order.total_amount > amount) {
             // log this, alert admin
             throw new handleError(400, 'Amount paid is less than order amount');
         }
 
-        // update order status to successful
-        await orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed });
-        // save payment
-        const payment = await Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status }) as unknown as IPayment;
-        return { payment, order };
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const [payment] = await Promise.all([
+                Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status }) as unknown as IPayment,
+                orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed })
+            ]);
+            await session.commitTransaction();
+            return { payment, order };
+        } catch (err) {
+            await session.abortTransaction();
+            throw new handleError(400, 'Error completing payment');
+        } finally {
+            session.endSession();
+        }
     },
 };
