@@ -222,7 +222,7 @@ export const classService = {
             throw new handleError(400, 'Invalid class ID');
         }
 
-        const addedLearnerIds = _class.learners.map((learner: IAddLearner) => String(learner.user_id));
+        const addedLearnerIds = _class.learners.map((learner: any) => learner.user_id);
 
         const validatedLearners = (await Promise.all(learners.map(async (learner: IAddLearner) => {
             const user = await Learner.findOne({
@@ -232,7 +232,7 @@ export const classService = {
         }))).filter((learner) => learner);
 
         const learnersToAdd = validatedLearners.filter((learner: any) => {
-            return !addedLearnerIds.includes(String(learner.user_id));
+            return !addedLearnerIds.includes(learner.user_id);
         });
 
         _class.learners = [..._class.learners, ...learnersToAdd];

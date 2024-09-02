@@ -19,30 +19,33 @@ export const classSubscriptionService = {
 
         let total_amount = 0, orderData: Record<string, unknown> = {};
         for await (const klass of classes) {
+            let numOfLearners, selectedLearners: any;
             try {
-                const { class_id: classId, learners = [] } = klass;
-                if (!learners.length) {
-                    continue;
-                }
-                    
+                const { class_id: classId, learners } = klass;
+                selectedLearners = learners;
                 const _class = await classService.findOne({ _id: classId });
                 if (!_class) {
                     continue;
                 }
+
+                if (!selectedLearners) {
+                    selectedLearners = _class.learners.map(learner => learner.user_id);
+                }
+                numOfLearners = selectedLearners.length;
                     
                 //const activeTerm = classService.getClassActiveTerm(_class.terms);
                 // if (activeTerm == null) {
                 //     console.log('term')
                 //     continue;
                 // }
-                const classTotalAmount = subscription.amount * learners.length;
+                const classTotalAmount = subscription.amount * numOfLearners;
                 
                 await ClassSubscription.create({
                     class: classId,
                     user: userId,
                     subscription: subscription.id,
                     orderId: order._id,
-                    learners,
+                    learners: selectedLearners,
                     total_amount: classTotalAmount,
                     //end_date: activeTerm.end_date
                 });

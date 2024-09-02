@@ -6,7 +6,7 @@ export enum EStatus {
 }
 
 export interface IAddLearner {
-    user_id?: string,
+    user_id: Schema.Types.ObjectId,
     date_added?: Date
 }
 
