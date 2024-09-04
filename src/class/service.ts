@@ -244,6 +244,17 @@ export const classService = {
         // Detect and return learners already added to class
     },
 
+    async listLearners(classId: string) {
+        const _class = await this.view(classId);
+        if (!_class) {
+            throw new handleError(400, 'Invalid class ID');
+        }
+        
+        const learners = _class.learners || [];
+        
+
+        return learners;
+    },
 
     async removeTeacherFromClass(classId: string): Promise<void> {
         const query = await Class.findByIdAndUpdate(classId, { $set: { teacher_id: null } });
