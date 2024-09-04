@@ -64,8 +64,13 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 
 export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const {id:userId } = req.user;
+
         const { id: classId } = req.params;
-        const learners = await classService.listLearners(classId);
+
+        const {payment_status} = req.query;
+
+        const learners = await classService.listLearners(classId, String(userId), String(payment_status) as 'paid' | 'unpaid');
         sendResponse(res, 200, 'Class Learners Fetched', { learners });
     } catch (err) {
         next(err);

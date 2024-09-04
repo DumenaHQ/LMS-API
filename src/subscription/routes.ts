@@ -15,4 +15,4 @@ router.put('/school/:school_sub_id', isAuthenticated, isAdmin, schoolSubscriptio
 router.post('/class-sub', isAuthenticated, subscribeToClass);
 
 router.get('/class-sub', isAuthenticated, listClassSubscriptions);
-// router.put('/migrate-schools', migrateExistingSchoolsToSubscription);
+router.put('/migrate-schools', migrateExistingSchoolsToSubscription);

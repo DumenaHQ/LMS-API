@@ -13,6 +13,7 @@ const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 import { quizService } from '../quiz/service';
 import { orderService } from '../order/service';
+import { ClassSubscription } from '../subscription/model';
 
 const classOrTemplateModel = {
     'class': Class,
@@ -244,14 +245,26 @@ export const classService = {
         // Detect and return learners already added to class
     },
 
-    async listLearners(classId: string) {
+    async listLearners(classId: string, userId: string, payment_status?: 'paid' | 'unpaid') {
         const _class = await this.view(classId);
         if (!_class) {
             throw new handleError(400, 'Invalid class ID');
         }
         
         const learners = _class.learners || [];
-        
+
+        if (payment_status) {
+            const schoolClassSubscriptions = await ClassSubscription.find({ class: classId, user: userId, status: 'active' });
+
+            const subscribedLearnersId = schoolClassSubscriptions.flatMap((subscription) => subscription.learners);
+
+            if (payment_status === 'paid') {
+                return learners.filter((learner) => subscribedLearnersId.includes(String(learner.id)));
+            }
+            if (payment_status === 'unpaid') {
+                return learners.filter((learner) => !subscribedLearnersId.includes(String(learner.id)));
+            }
+        }
 
         return learners;
     },
