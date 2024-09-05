@@ -11,7 +11,7 @@ export const getValidModelFields = (model: any, rawData: Record<string, any>) =>
     if (!model) return {};
     const validFields: Record<string, any> = {};
 
-    const { email, username, ...userData } = rawData;
+    const {username, ...userData } = rawData;
     model.schema.eachPath((field: string) => {
         if (userData.hasOwnProperty(field)) {
             validFields[field] = userData[field];

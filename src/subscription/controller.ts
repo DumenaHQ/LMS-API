@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { subscriptionService } from './service';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { School } from '../user/models';
+import { classSubscriptionService } from './classSubscriptionService';
+import { paymentService } from '../payment/service';
 
 export const listSubcriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -21,6 +23,29 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+export const subscribeToClass = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, id } = req.user;
+        const { classes, couponCode } = req.body;
+        const order = await classSubscriptionService.createClassSubscriptions(classes, String(id), couponCode);
+        if (!order)
+            throw Error('Something went wrong while creating your order');
+        const { reference, total_amount } = order;
+        const { data: { access_code } } = await paymentService.initializePayment(email, Number(total_amount), reference);
+        sendResponse(res, 200, 'Class Subscription Initiated', { access_code });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const listClassSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const classSubscriptions = await classSubscriptionService.listSubs();
+        sendResponse(res, 200, 'Class Subscription Fetched', { classSubscriptions });
+    } catch (err) {
+        next(err);
+    }
+}
 
 export const updateSchoolSubscription = async (req: Request, res: Response, next: NextFunction) => {
     try {

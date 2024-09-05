@@ -42,13 +42,10 @@ export const couponService = {
     },
 
 
-    isValidCoupon(coupon: ICoupon): boolean {
-        return (
-            coupon &&
-          coupon.expiry_date instanceof Date &&
-          coupon.expiry_date > new Date() &&
-          coupon.status === 'active' &&
-          typeof coupon.discount === 'number'
-        );
+    async isValidCoupon(code: string): Promise<{ coupon: ICoupon | null, isValidCoupon: boolean }> {
+        const coupon = await Coupon.findOne({ code, status: 'active', expiry_date: { $gte: new Date()} }).lean();
+        if (!coupon) 
+            return { isValidCoupon: false, coupon };
+        return { coupon, isValidCoupon: coupon ? true : false };
     }
 };

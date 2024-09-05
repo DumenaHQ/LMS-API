@@ -1,10 +1,10 @@
 import { handleError } from '../helpers/handleError';
-import { IOrder } from '../order/model';
-import { Learner, School } from '../user/models';
+import { IOrder, EOrderStatus } from '../order/model';
 import Subscription, { UserSubscription } from './model';
 import { classService } from '../class/service';
-import { ORDER_ITEMS } from '../config/constants';
+import { ORDER_TYPES } from '../config/constants';
 import { programService } from '../program/service';
+import { classSubscriptionService } from './classSubscriptionService';
 
 export const subscriptionService = {
     async create(data: {
@@ -30,37 +30,14 @@ export const subscriptionService = {
 
     async grantAccess(order: IOrder) {
         switch (order.item_type) {
-        case ORDER_ITEMS.sub:
-            await Promise.all(order.items.map(async item => {
-                const { title, user_id, order_type, order_type_id, slug } = item;
-                const subscription = await Subscription.findById(order_type_id);
-
-                if (!subscription) {
-                    // shouldn't throw inside .map
-                    throw new handleError(500, 'Attempt to grant unknown access');
-                }
-                const durationByDays = subscription.months * 30;
-                const end_date = new Date(Date.now());
-                end_date.setDate(end_date.getDate() + durationByDays + 2);
-
-                const contentAccess = {
-                    title,
-                    order: order.id,
-                    access_type: order_type,
-                    access_type_id: order_type_id,
-                    slug,
-                    end_date
-                };
-                const learner = await Learner.findOne({ user: user_id });
-                learner.content_access ? learner.content_access.push(contentAccess) : learner.content_access = [contentAccess];
-                await learner.save();
-            }));
-            break;
-        case ORDER_ITEMS.class:
+        case ORDER_TYPES.class:
             await this.addLearnersToClass(order);
             break;
-        case ORDER_ITEMS.program:
+        case ORDER_TYPES.program:
             await this.addLearnersToProgram(order);
+            break;
+        case ORDER_TYPES.class_sub:
+            await this.updateClassSubscription(order);
             break;
         default:
         }
@@ -69,21 +46,39 @@ export const subscriptionService = {
     async addLearnersToClass(order: IOrder) {
         const items = order.items;
         const learnerIds: any = [];
-        items.map(async (item: any) => {
+        items?.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
             return classService.addLearners(classId, learnerIds);
         });
     },
 
+    async subLearnersToClass(order: IOrder) {
+        const items = order.items;
+        const learnerIds: any = [];
+        items?.map(async (item: any) => {
+            const { meta_data: { classId }, user_id } = item;
+            learnerIds.push({ user_id });
+            return classService.addLearners(classId, learnerIds);
+        });
+    },
+
+
     async addLearnersToProgram(order: IOrder) {
         const { items, user: sponsorId } = order;
         const learnerIds: any = [];
-        items.map(async (item: any) => {
+        items?.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
             return programService.addLearners(classId, learnerIds, sponsorId);
         });
+    },
+
+    async updateClassSubscription(order: IOrder) {
+        if (order.status !== EOrderStatus.Confirmed)
+            throw new handleError(400, 'Error processing order');
+
+        return classSubscriptionService.activateSubs(String(order.id));
     },
 
     async migrateSchoolToSubscription(user_id: string, subscription_id: string) {

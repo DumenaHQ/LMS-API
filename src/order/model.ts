@@ -15,9 +15,10 @@ export interface IOrder {
     item_type: string;
     total_amount: number;
     coupon?: Schema.Types.ObjectId;
+    couponCode: string;
     reference: string;
     status?: string;
-    items: [
+    items?: [
         {
             title?: string;
             order_type: string;
@@ -69,7 +70,8 @@ const orderSchema = new Schema({
     },
     total_amount: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
     status: {
         type: String,
