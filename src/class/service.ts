@@ -250,9 +250,6 @@ export const classService = {
 
     async listLearners(classId: string, userId: string, payment_status?: 'paid' | 'unpaid') {
         const _class = await this.view(classId);
-        if (!_class) {
-            throw new handleError(400, 'Invalid class ID');
-        }
         
         const learners = _class.learners || [];
 
