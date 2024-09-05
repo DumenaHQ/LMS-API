@@ -196,8 +196,15 @@ export const classService = {
 
         if (model === 'template') {
             try {
-                // await this.distributeModulesToClassTemplateTerms(modelId, courseIds); // commented out and not deleted just in case we still need it later in the future
                 await this.distributeLessonsToClassTemplateTerms(modelId, courseIds);
+            } catch (error: any) {
+                console.log(error.message);
+            }
+        }
+
+        if (model === 'class') {
+            try {
+                await this.distributeLessonsToClassTerms(modelId, courseIds);
             } catch (error: any) {
                 console.log(error.message);
             }
@@ -458,6 +465,90 @@ export const classService = {
             } catch (err: any) {
                 // Log any errors that occur during the save operation
                 console.error('Failed to save class template:', err.message);
+                return;
+            }
+        }
+    },
+
+    async distributeLessonsToClassTerms(classId: string, courseIds: string[]): Promise<void> {
+        // Fetch the class template by ID
+        const _class = await Class.findById(classId);
+        
+        // Check if the class template exists
+        if (!_class) {
+            console.error('Class not found.');
+            return;
+        }
+        
+        // Check if the class template has at least one term
+        if (_class.terms.length < 1) {
+            console.error('Class Template must have at least one term.');
+            return;
+        }
+    
+        // Fetch the courses by their IDs
+        const courses = await Course.find({ _id: { $in: courseIds } });
+    
+        // Iterate over each course
+        for (const course of courses) {
+            let lessonIndex = 0;
+            
+            // Get the total number of lessons across all modules in the course
+            const totalLessons = course.modules.flatMap(module => module.lessons).length;
+            
+            // Calculate the number of weeks for each term
+            const termWeeks = _class.terms.map(term => 
+                Math.ceil((new Date(term.end_date).getTime() - new Date(term.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000))
+            );
+            
+            // Calculate the total number of weeks across all terms
+            const totalWeeks = termWeeks.reduce((acc, weeks) => acc + weeks, 0);
+    
+            // Create a new array of terms with lessons distributed
+            const updatedTerms = _class.terms.map((term, i) => {
+                // Calculate the number of weeks in the current term
+                const weeksInTerm = termWeeks[i];
+                
+                // Calculate the number of lessons to assign to this term based on its proportion of total weeks
+                const termLessonsCount = Math.round((weeksInTerm / totalWeeks) * totalLessons);
+    
+                // Initialize an array to hold the lessons for this term
+                const termLessons = [];
+                
+                // Distribute lessons across weeks in the current term
+                for (let week = 0; week < weeksInTerm && lessonIndex < totalLessons; week++) {
+                    for (const module of course.modules) {
+                        // Check if we have not exceeded the number of lessons needed for this term
+                        if (lessonIndex < module.lessons.length) {
+                            termLessons.push(module.lessons[lessonIndex]);
+                            lessonIndex++;
+                            // Stop if we have assigned enough lessons for this term
+                            if (termLessons.length >= termLessonsCount) {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                    // Stop if we have assigned enough lessons for this term
+                    if (termLessons.length >= termLessonsCount) {
+                        break;
+                    }
+                }
+    
+                // Return the updated term with assigned lessons
+                return { ...term, lessons: termLessons };
+            });
+    
+            // Update the class template with the new terms
+            _class.terms = updatedTerms;
+            
+            try {
+                // Save the updated class template to the database
+                await _class.save();
+            } catch (err: any) {
+                // Log any errors that occur during the save operation
+                console.error('Failed to save class:', err.message);
                 return;
             }
         }
