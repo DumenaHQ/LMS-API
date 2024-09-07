@@ -12,6 +12,7 @@ export interface IUserCreate {
     user_type: string;
     school?: string;
     parent?: string;
+    nickname?: string;
     contact_person?: string;
     phone?: string,
     resident_state?: string;
@@ -32,6 +33,7 @@ export interface IUserModel {
     phone?: string;
     password: string;
     username?: string;
+    nickname?: string;
     role: string;
     active_organization?: Schema.Types.ObjectId;
     isUserOnboarded?: boolean;
@@ -45,6 +47,7 @@ export interface IUserView {
     email: string;
     role: string;
     username?: string;
+    nickname?: string;
     active_organization?: Schema.Types.ObjectId;
     isUserOnboarded: boolean;
     status: string;
@@ -80,6 +83,11 @@ const UserSchema: Schema = new Schema({
     },
     username: {
         type: String,
+        trim: true
+    },
+    nickname: {
+        type: String,
+        default: 'dumena_learner',
         trim: true
     },
     password: {

@@ -1,5 +1,0 @@
-fix th verify token issue
-Api to remove teacher from school
-Api to add existing teacher to school
-
-check out the quiz report (api to get a quiz report) look at dm with chibuzo
