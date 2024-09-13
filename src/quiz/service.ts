@@ -92,6 +92,10 @@ export const quizService = {
         );
     },
 
+    async deleteQuiz(quizId: string) {
+        return Quiz.deleteOne({ _id: quizId });
+    },
+
     async saveQuizQuestions(quizId: string, questions: IQuizQuestion[]) {
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
