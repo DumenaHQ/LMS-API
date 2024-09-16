@@ -17,4 +17,4 @@ router.post('/class-sub', isAuthenticated, subscribeToClass);
 
 router.get('/class-sub', isAuthenticated, listClassSubscriptions);
 
-router.get('/:slug', isAuthenticated, );
+router.get('/slug/:slug', isAuthenticated, );
