@@ -185,15 +185,14 @@ export const quizService = {
 
     async listLearnersResult(quizId: string, learnerIds: []) {
         const [quiz, learners] = await Promise.all([
-            this.findOne({ _id: quizId }),
+            Quiz.findOne({ _id: quizId }) as unknown as IQuiz,
             userService.list({
                 'user._id': { $in: learnerIds.map((learnerUserId: string) => new mongoose.Types.ObjectId(learnerUserId)) },
                 'user.deleted': false
             }, 'learner')
         ]);
         if (!quiz) throw new handleError(404, 'Quiz not found');
-        console.log({learners})
-        console.log(quiz);
+        console.log(quiz.answers);
         return learners.map((learner) => {
             const learnerAns: any = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == String(learner.id));
             if (!learnerAns) {
