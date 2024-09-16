@@ -52,6 +52,16 @@ export const updateQuiz = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+export const deleteQuiz = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId } = req.params;
+        await quizService.deleteQuiz(quizId);
+        sendResponse(res, 200, 'Quiz Deleted');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const addQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
