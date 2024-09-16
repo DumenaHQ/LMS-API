@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
-import { create, listClassSubscriptions, listSubcriptions, migrateExistingSchoolsToSubscription, subscribeToClass, updateSchoolSubscription } from './controller';
+import { create, listClassSubscriptions, listSubcriptions, migrateExistingSchoolsToSubscription, subscribeToClass, updateSchoolSubscription, viewSubscription } from './controller';
 import validate, { schoolSubscriptionUpdateRules, subscriptionCreationRules } from '../middleware/validators/subscriptionValidator';
 
 export const router = Router();
@@ -17,4 +17,4 @@ router.post('/class-sub', isAuthenticated, subscribeToClass);
 
 router.get('/class-sub', isAuthenticated, listClassSubscriptions);
 
-router.get('/slug/:slug', isAuthenticated, );
+router.get('/slug/:slug', isAuthenticated, viewSubscription);
