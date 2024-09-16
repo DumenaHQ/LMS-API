@@ -193,7 +193,7 @@ export const quizService = {
         ]);
         if (!quiz) throw new handleError(404, 'Quiz not found');
         console.log({learners})
-        console.log(quiz.answers);
+        console.log(quiz);
         return learners.map((learner) => {
             const learnerAns: any = quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) == String(learner.id));
             if (!learnerAns) {
