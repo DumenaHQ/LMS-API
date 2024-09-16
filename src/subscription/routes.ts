@@ -8,6 +8,7 @@ export const router = Router();
 // router.post('/',);
 
 router.get('/', listSubcriptions);
+
 router.post('/', isAuthenticated, isAdmin, subscriptionCreationRules(), validate, create);
 
 router.put('/school/:school_sub_id', isAuthenticated, isAdmin, schoolSubscriptionUpdateRules(), validate , updateSchoolSubscription);
@@ -15,3 +16,5 @@ router.put('/school/:school_sub_id', isAuthenticated, isAdmin, schoolSubscriptio
 router.post('/class-sub', isAuthenticated, subscribeToClass);
 
 router.get('/class-sub', isAuthenticated, listClassSubscriptions);
+
+router.get('/:slug', isAuthenticated, );

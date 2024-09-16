@@ -24,6 +24,14 @@ export const subscriptionService = {
         return Subscription.findOne(criteria);
     },
 
+    async view(criteria: object) {
+        const subscription = await this.findOne(criteria);
+        if (!subscription)
+            throw new handleError(404, 'Subscription not found');
+
+        return subscription;
+    },
+
     async list() {
         return Subscription.find();
     },
