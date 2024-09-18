@@ -122,7 +122,8 @@ export const resendVerificationEmail = async (req: Request, res: Response, next:
 
 export const sendPasswordResetEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email } = req.body;
+        const  email  = String(req.body.email).toLowerCase();
+
         const user = await userService.view({ email, status: 'active' });
         if (!user) throw new handleError(400, 'There is no active account associated with this email');
 
