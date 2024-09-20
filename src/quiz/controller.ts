@@ -15,7 +15,8 @@ export const createQuiz = async (req: Request, res: Response, next: NextFunction
 export const viewQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
-        const quiz = await quizService.view({ _id: quizId });
+        const { id, role } = req.user;
+        const quiz = await quizService.view({ _id: quizId }, { id, role });
         sendResponse(res, 200, 'Quiz Fetched', { quiz });
     } catch (err) {
         next(err);

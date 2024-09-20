@@ -5,6 +5,7 @@ import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 import { userService } from '../user/service';
+import { USER_TYPES } from '../config/constants';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {
@@ -64,10 +65,15 @@ export const quizService = {
     },
 
 
-    async view(criteria: object): Promise<IQuiz> {
+    async view(criteria: object, user: Record<string, any>): Promise<IQuiz> {
         const quiz = await this.findOne(criteria) as IQuiz;
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
+        if (user && user.role == USER_TYPES.learner) {
+            const learnerAnswers = this.getLearnerAnswers(quiz, user.id);
+            if (learnerAnswers) 
+                throw new handleError(400, 'Learner has taken this quiz');
+        }
         return quiz;
     },
 
@@ -110,7 +116,7 @@ export const quizService = {
 
     async updateQuizQuestion(quizId: string, questionId: string, questionData: IQuizQuestion) {
         const criteria = { _id: quizId, 'questions._id': questionId };
-        const quiz = await this.view(criteria);
+        const quiz = await this.view(criteria, {});
         const qq: IQuizQuestion = quiz.questions?.find((question: IQuizQuestion) => question._id == questionId)!;
         const { question, optA, optB, optC, optD, optE, answer } = questionData;
         return Quiz.findOneAndUpdate(
@@ -127,8 +133,17 @@ export const quizService = {
         );
     },
 
+    getLearnerAnswers(quiz: Record<string, any>, learnerId: string) {
+        return quiz.answers?.find((answer: Record<string, unknown>) => String(answer.learner) === String(learnerId));
+    },
+
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
+        const foundQuiz = await this.findOne({ _id: quizId });
+        const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
+        if (learnerAns)
+            throw new handleError(400, 'Learner has submitted answers before');
+
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
             {
@@ -149,7 +164,7 @@ export const quizService = {
         const quiz = await Quiz.findOne({ _id: quizId });
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
-        const learnerAnswers = quiz.answers?.find((answer: Record<string, unknown>) => String(answer.learner) === String(learnerId));
+        const learnerAnswers = this.getLearnerAnswers(quiz, learnerId);
         if (!learnerAnswers) throw new handleError(400, 'This Learner hasn\'t taken the quiz yet');
 
         const { answers }: any = learnerAnswers;
@@ -170,6 +185,7 @@ export const quizService = {
             title: quiz.title,
             score: quizScore,
             percentageScore,
+            questionCount: quiz.questions?.length
         };
     },
 
@@ -198,7 +214,12 @@ export const quizService = {
             if (!learnerAns) {
                 return { ...learner, score: 'NIL' };
             }
-            return { ...learner, score: this.computeQuizResult(quiz.questions!, learnerAns.answers) };
+            const score = this.computeQuizResult(quiz.questions!, learnerAns.answers);
+            let percentageScore;
+            if (score) {
+                percentageScore = (score / quiz.questions?.length!) * 100;
+            }
+            return { ...learner, score, percentageScore };
         });
     }
 };
