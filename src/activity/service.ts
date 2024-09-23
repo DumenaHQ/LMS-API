@@ -5,6 +5,7 @@ import { EActivityType } from './enum';
 import { Activity } from './model';
 import { handleError } from '../helpers/handleError';
 import { userService } from '../user/service';
+import { formatTimestampToEnglish } from '../helpers/utility';
 
 
 export const activityService = {
@@ -21,7 +22,7 @@ export const activityService = {
             }
         };
         
-        return Activity.create({ user: userId, activityType, activityData });
+        return Activity.create({ user: userId, title:`${String(activityType).replace(/_/g, ' ')}`, description: `User ${String(activityType).replace(/_/g, ' ')} on ${formatTimestampToEnglish( new Date() )}`, activityType, activityData });
     },
 
     async list(match = {}){
