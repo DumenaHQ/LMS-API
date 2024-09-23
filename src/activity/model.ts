@@ -15,6 +15,16 @@ const ActivitySchema = new Schema(
             type: typeof EActivityType,
         },
 
+        title:{
+            required: false,
+            type: String  
+        },
+
+        description:{
+            required: false,
+            type: String
+        },
+
         activityData: {
             required: true,
             type: Object

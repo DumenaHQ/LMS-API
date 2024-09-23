@@ -39,6 +39,20 @@ export const formatTimestamp = (time: number): string => {
     return `${time_diff_hrs}:${time_diff_mins}:${time_diff_secs}`;
 };
 
+
+export const formatTimestampToEnglish = (isoString: Date)  => 
+    new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Lagos',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(new Date(isoString)) + ' WAT';
+
+
+    
 export const capitalizeFirstLetter = (word: string): string => {
     return word[0].toUpperCase() + word.slice(1);
 };   
