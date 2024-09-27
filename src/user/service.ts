@@ -79,6 +79,8 @@ export const userService = {
         if (email != undefined) {
             userData.email = email.toLowerCase();
         }
+        if (email && email.length < 1) delete userData.email;
+
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
         try {
@@ -86,7 +88,6 @@ export const userService = {
             console.log({isDuplicate})
             if (isDuplicate === true) return userData;
 
-            console.log(userData)
             const newUser = await this.createUserAndUserType(userData);
 
             const rolesWithoutVerificationEmail = [
@@ -122,7 +123,6 @@ export const userService = {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
-            console.log({data})
             const newUser = await User.create([data], { session });
             const userTypeData = getValidModelFields(userModel[user_type], userData);
             userTypeData.user = newUser[0].id;
@@ -131,12 +131,10 @@ export const userService = {
                 data.status = EUserStatus.Active;
                 userTypeData.role = userData.admin_role;
             }
-            console.log({userData})
             await userModel[user_type].create([userTypeData], { session });
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
         } catch (err) {
-            console.log(err)
             await session.abortTransaction();
             throw new handleError(400, 'Error creating user');
         } finally {
