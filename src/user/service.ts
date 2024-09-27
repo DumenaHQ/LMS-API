@@ -87,7 +87,6 @@ export const userService = {
 
         try {
             const isDuplicate = await this.isDuplicateUser(userData);
-            console.log({isDuplicate})
             if (isDuplicate === true) return userData;
 
             const newUser = await this.createUserAndUserType(userData);
@@ -137,7 +136,6 @@ export const userService = {
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
         } catch (err) {
-            console.log(err)
             await session.abortTransaction();
             throw new handleError(400, 'Error creating user');
         } finally {
