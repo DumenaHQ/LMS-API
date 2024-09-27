@@ -122,6 +122,7 @@ export const userService = {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
+            console.log({data})
             const newUser = await User.create([data], { session });
             const userTypeData = getValidModelFields(userModel[user_type], userData);
             userTypeData.user = newUser[0].id;
@@ -130,10 +131,12 @@ export const userService = {
                 data.status = EUserStatus.Active;
                 userTypeData.role = userData.admin_role;
             }
+            console.log({userData})
             await userModel[user_type].create([userTypeData], { session });
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
         } catch (err) {
+            console.log(err)
             await session.abortTransaction();
             throw new handleError(400, 'Error creating user');
         } finally {
