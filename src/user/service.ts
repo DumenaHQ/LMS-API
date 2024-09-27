@@ -83,8 +83,10 @@ export const userService = {
 
         try {
             const isDuplicate = await this.isDuplicateUser(userData);
+            console.log({isDuplicate})
             if (isDuplicate === true) return userData;
 
+            console.log(userData)
             const newUser = await this.createUserAndUserType(userData);
 
             const rolesWithoutVerificationEmail = [
@@ -376,6 +378,7 @@ export const userService = {
     async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<{}> {
         const password = 'dumena';
         return Promise.all(studentsData.map(async (student: any) => {
+            console.log(student)
             const learner = await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
             const { parent_email } = student;
             emailService.emailParentOnchildEnrollment({ ...learner, parent_email, password, schoolName });
