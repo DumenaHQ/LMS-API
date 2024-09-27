@@ -79,7 +79,7 @@ export const userService = {
         if (email != undefined) {
             userData.email = email.toLowerCase();
         }
-        if (email && email.length < 1) delete userData.email;
+        if (userData.email && email.length < 1) delete userData.email;
 
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
@@ -135,6 +135,7 @@ export const userService = {
             await session.commitTransaction();
             return this.view({ _id: newUser[0].id });
         } catch (err) {
+            console.log(err)
             await session.abortTransaction();
             throw new handleError(400, 'Error creating user');
         } finally {
