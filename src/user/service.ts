@@ -79,7 +79,9 @@ export const userService = {
         if (email != undefined) {
             userData.email = email.toLowerCase();
         }
-        if (userData.email && email.length < 1) delete userData.email;
+        if (email === "") {
+            delete userData.email;
+        }
 
         if (user && user.role === USER_TYPES.school) userData.school_id = user.school_id;
 
