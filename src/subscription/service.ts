@@ -83,12 +83,9 @@ export const subscriptionService = {
     },
 
     async updateClassSubscription(order: IOrder) {
-        console.log(order.status)
-        console.log(EOrderStatus.Confirmed)
         if (order.status !== EOrderStatus.Confirmed)
             throw new handleError(400, 'Error processing order');
 
-        console.log('passed')
         return classSubscriptionService.activateSubs(String(order.id));
     },
 
