@@ -35,7 +35,7 @@ export const programService = {
             await Program.updateOne({ _id: new mongoose.Types.ObjectId(programId) }, program);
             return null;
         }
-        return Program.create(program);
+        return Program.create(program) as unknown as IProgram;
     },
 
     async view(criteria: object | string, user: { roleId: string, role: string }): Promise<IProgram | null> {
@@ -76,10 +76,10 @@ export const programService = {
 
     async list(criteria: object): Promise<any[] | []> {
         const programs = await Program.find({ ...criteria, deleted: false }).sort({ createdAt: 'desc' });
-        return programs.map((prog: IProgram) => {
+        return programs.map((prog: Record<string, any>) => {
             const program = prog.toJSON();
             program.learner_count = prog.learners.length;
-            program.school_count = prog?.sponsors?.filter((spon: IAddSponsorPayload) => String(spon.sponsor_type) == String(USER_TYPES.school)).length;
+            program.school_count = prog?.sponsors?.filter((spon: Record<string, any>) => String(spon.sponsor_type) == String(USER_TYPES.school)).length;
             program.course_count = prog?.courses?.length;
             delete program.learners;
             delete program.schools;
@@ -109,8 +109,8 @@ export const programService = {
             }
         }));
 
-        const addedSponsorIds = program.sponsors?.map((sd: IAddSponsorPayload) => String(sd.user_id));
-        const filteredSponors: any = validatedSponsors.filter((spons: IAddSponsorPayload) => (addedSponsorIds?.includes(spons.user_id) === false));
+        const addedSponsorIds = program.sponsors?.map((sd: Record<string, any>) => String(sd.user_id));
+        const filteredSponors: any = validatedSponsors.filter((spons: Record<string, any>) => (addedSponsorIds?.includes(spons.user_id) === false));
         program.sponsors = [...program.sponsors || [], ...filteredSponors];
         await program.save();
     },
@@ -161,11 +161,11 @@ export const programService = {
         switch (userType) {
             case USER_TYPES.school:
                 const schoolUser = await School.findOne({ user: userId });
-                return this.listSponsorPrograms(schoolUser._id);
+                return this.listSponsorPrograms(schoolUser?.id);
             case USER_TYPES.parent:
                 return this.listSponsorPrograms(userId);
             case USER_TYPES.learner:
-                return this.listLearnerPrograms(userId);
+                return this.listLearnerPrograms(String(userId));
             default:
                 return this.list({ status: 'active' });
         }
@@ -184,19 +184,19 @@ export const programService = {
     },
 
 
-    async addLearners(programId: string, learners: [IAddLearner], sponsorId: Types.ObjectId): Promise<void> {
+    async addLearners(programId: string, learners: [IAddLearner], sponsorId: string): Promise<void> {
         const program = await Program.findById(programId);
         if (!program) {
             throw new handleError(400, 'Invalid program ID');
         }
 
-        const sponsor = program.sponsors?.find((spon: IProgramSponsor) => {
+        const sponsor = program.sponsors?.find((spon: Record<string, any>) => {
             return String(spon.user_id) === String(sponsorId);
         });
 
         if (!sponsor) throw new handleError(400, 'User not eligible to enroll a candidate for this program');
 
-        const addedLearnerIds = program.learners.map((learner: IAddLearner) => String(learner.user_id));
+        const addedLearnerIds = program.learners.map((learner: Record<string, any>) => String(learner.user_id));
 
         const validatedLearners = await Promise.all(learners.map(async (learner: IAddLearner) => {
             if (learner.user_id) {
@@ -224,7 +224,8 @@ export const programService = {
         const program = await Program.findById(programId);
         if (!program) throw new handleError(400, 'Program not found');
 
-        return this.fetchLearnerDetails(program.learners, user);
+        const learners: IAddLearner[] = program.learners;
+        return this.fetchLearnerDetails(learners, user);
     },
 
 
@@ -256,7 +257,7 @@ export const programService = {
     },
 
     async subscribe(programId: string, userId: string, learners: []) {
-        const sub = await subscriptionService.findOne({ slug: 'program' });
+        const sub = await subscriptionService.view({ slug: 'program' });
         const totalAmount = sub.amount * learners.length;
         const meta_data = { programId };
         const orderItems = learners.map((learner: any) => {

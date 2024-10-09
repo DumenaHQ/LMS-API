@@ -33,7 +33,7 @@ export const subscriptionService = {
     },
 
     async list() {
-        return Subscription.find();
+        return Subscription.find().sort({ createdAt: 'desc' });
     },
 
     async grantAccess(order: IOrder) {
@@ -78,7 +78,7 @@ export const subscriptionService = {
         items?.map(async (item: any) => {
             const { meta_data: { classId }, user_id } = item;
             learnerIds.push({ user_id });
-            return programService.addLearners(classId, learnerIds, sponsorId);
+            return programService.addLearners(classId, learnerIds, String(sponsorId));
         });
     },
 

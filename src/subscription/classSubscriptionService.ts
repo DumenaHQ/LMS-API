@@ -28,16 +28,19 @@ export const classSubscriptionService = {
                     continue;
                 }
 
+                // if learners were not selected, sub all learners in the class
                 if (!selectedLearners) {
                     selectedLearners = _class.learners.map(learner => learner.user_id);
                 }
+
+                if (!selectedLearners.length) continue;
                 numOfLearners = selectedLearners.length;
                     
                 const activeTerm = classService.getClassActiveTerm(_class.terms);
-                // if (activeTerm == null) {
-                //     console.log('term')
-                //     continue;
-                // }
+                if (activeTerm == null) {
+                    // log this
+                    continue;
+                }
                 const subAmount = this.calculateClassSubAmount(numOfLearners);
                 const classTotalAmount = subAmount * numOfLearners;
                 
@@ -85,7 +88,7 @@ export const classSubscriptionService = {
     },
 
     async listSubs(criteria: object) {
-        return ClassSubscription.find(criteria);
+        return ClassSubscription.find(criteria).sort({ createdAt: 'desc' });
     },
 
     async activateSubs(orderId: string) {
