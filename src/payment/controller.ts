@@ -31,14 +31,13 @@ export const fetchPayments = async (req: Request, res: Response, next: NextFunct
 };
 
 export const handleWebhookEvents = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('Webhook called');
     try {
         const hash = crypto.createHmac('sha512', paystackConfig.SECRET_KEY).update(JSON.stringify(req.body)).digest('hex');
         if (hash == req.headers['x-paystack-signature']) {
             const event = req.body;
             paymentService.handleWebhook(event);    
         }
-        sendResponse(res, 200, 'Payments fetched');
+        sendResponse(res, 200, 'Webhook Event received');
     } catch (err) {
         next(err);
         console.log(err)

@@ -6,7 +6,7 @@ import { handleError } from '../helpers/handleError';
 import { orderService } from '../order/service';
 import { EOrderStatus, IOrder } from '../order/model';
 import mongoose from 'mongoose';
-const subscriptionService = require('../subscription/service');
+import { subscriptionService } from '../subscription/service';
 
 
 export const paymentService = {
