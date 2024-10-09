@@ -55,8 +55,6 @@ export const paymentService = {
             // log this, alert engineer
             throw new handleError(400, 'Invalid order reference');
         }
-        console.log('checking order')
-        console.log({order})
 
         if (order.total_amount > amount) {
             // log this, alert admin
@@ -70,7 +68,6 @@ export const paymentService = {
                 Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status }) as unknown as IPayment,
                 orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed })
             ]);
-            console.log({updatedOrder})
             await session.commitTransaction();
             return { payment, order: updatedOrder };
         } catch (err) {
