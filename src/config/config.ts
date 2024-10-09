@@ -64,13 +64,13 @@ export const lmsBucketName = lmsBucket[env as keyof envKeys];
 
 const paystack_config = {
     test: {
-        SECRET_KEY: process.env.PAYSTACK_TEST_SECRET_KEY
+        SECRET_KEY: process.env.PAYSTACK_TEST_SECRET_KEY || ''
     },
     development: {
-        SECRET_KEY: process.env.PAYSTACK_TEST_SECRET_KEY
+        SECRET_KEY: process.env.PAYSTACK_TEST_SECRET_KEY || ''
     },
     production: {
-        SECRET_KEY: process.env.PAYSTACK_SECRET_KEY
+        SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || ''
     }
 };
 export const paystackConfig = paystack_config[env as keyof envKeys];
