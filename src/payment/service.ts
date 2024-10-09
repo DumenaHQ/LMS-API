@@ -55,6 +55,8 @@ export const paymentService = {
             // log this, alert engineer
             throw new handleError(400, 'Invalid order reference');
         }
+        console.log('checking order')
+        console.log({order})
 
         if (order.total_amount > amount) {
             // log this, alert admin
@@ -64,12 +66,13 @@ export const paymentService = {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
-            const [payment] = await Promise.all([
+            const [payment, updatedOrder] = await Promise.all([
                 Payment.create({ order: order.id, user: order.user, amount, reference, channel, currency, status }) as unknown as IPayment,
                 orderService.update({ _id: order.id }, { status: EOrderStatus.Confirmed })
             ]);
+            console.log({updatedOrder})
             await session.commitTransaction();
-            return { payment, order };
+            return { payment, order: updatedOrder };
         } catch (err) {
             await session.abortTransaction();
             throw new handleError(400, 'Error completing payment');
@@ -80,7 +83,6 @@ export const paymentService = {
 
     async handleWebhook(eventData: Record<string, any>) {
         const { event, data } = eventData;
-        console.log(event);
         switch (event) {
             case 'charge.success':
                 const { payment, order } = await this.save(data);

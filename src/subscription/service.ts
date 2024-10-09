@@ -83,6 +83,7 @@ export const subscriptionService = {
     },
 
     async updateClassSubscription(order: IOrder) {
+        console.log({order})
         if (order.status !== EOrderStatus.Confirmed)
             throw new handleError(400, 'Error processing order');
 
