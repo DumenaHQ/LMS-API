@@ -38,16 +38,16 @@ export const subscriptionService = {
 
     async grantAccess(order: IOrder) {
         switch (order.item_type) {
-        case ORDER_TYPES.class:
-            await this.addLearnersToClass(order);
-            break;
-        case ORDER_TYPES.program:
-            await this.addLearnersToProgram(order);
-            break;
-        case ORDER_TYPES.class_sub:
-            await this.updateClassSubscription(order);
-            break;
-        default:
+            case ORDER_TYPES.class:
+                await this.addLearnersToClass(order);
+                break;
+            case ORDER_TYPES.program:
+                await this.addLearnersToProgram(order);
+                break;
+            case ORDER_TYPES.class_sub:
+                await this.updateClassSubscription(order);
+                break;
+            default:
         }
     },
 

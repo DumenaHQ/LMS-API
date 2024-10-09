@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Order, { IOrder, EOrderStatus } from './model';
-import Coupon from '../coupon/model';
-import Subscription, { UserSubscription }from '../subscription/model';
 import { generateId } from '../helpers/utility';
-import {School} from '../user/models';
-import { USER_TYPES, ORDER_TYPES } from '../config/constants';
+import { ORDER_TYPES } from '../config/constants';
 import { handleError } from '../helpers/handleError';
-import { couponService } from '../coupon/service';
-import { subscriptionService } from '../subscription/service';
-import { classSubscriptionService } from '../subscription/classSubscriptionService';
 
 export const orderService = {
     async createClassOrder(schoolId: string) {        

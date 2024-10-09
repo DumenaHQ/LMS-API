@@ -33,12 +33,13 @@ export const classSubscriptionService = {
                 }
                 numOfLearners = selectedLearners.length;
                     
-                //const activeTerm = classService.getClassActiveTerm(_class.terms);
+                const activeTerm = classService.getClassActiveTerm(_class.terms);
                 // if (activeTerm == null) {
                 //     console.log('term')
                 //     continue;
                 // }
-                const classTotalAmount = subscription.amount * numOfLearners;
+                const subAmount = this.calculateClassSubAmount(numOfLearners);
+                const classTotalAmount = subAmount * numOfLearners;
                 
                 await ClassSubscription.create({
                     class: classId,
@@ -47,7 +48,7 @@ export const classSubscriptionService = {
                     orderId: order._id,
                     learners: selectedLearners,
                     total_amount: classTotalAmount,
-                    //end_date: activeTerm.end_date
+                    end_date: activeTerm && activeTerm.end_date
                 });
 
                 total_amount += classTotalAmount;
@@ -62,6 +63,25 @@ export const classSubscriptionService = {
         }
         orderData.total_amount = total_amount;
         return orderService.update({ _id: order.id }, orderData);
+    },
+
+
+    calculateClassSubAmount(numOfLearners: number) {
+        let subAmount = 0;
+        if (numOfLearners < 101)
+            subAmount = 10000;
+        else if (numOfLearners > 100 && numOfLearners < 201)
+            subAmount = 9500;
+        else if (numOfLearners > 200 && numOfLearners < 301)
+            subAmount = 9000;
+        else if (numOfLearners > 300 && numOfLearners < 401)
+            subAmount = 8500;
+        else if (numOfLearners > 400 && numOfLearners < 501)
+            subAmount = 8000
+        else 
+            subAmount = 7500;
+
+        return subAmount;
     },
 
     async listSubs(criteria: object) {
