@@ -68,6 +68,10 @@ export const classSubscriptionService = {
         return orderService.update({ _id: order.id }, orderData);
     },
 
+    async findOne(criteria: object) {
+        return ClassSubscription.findOne(criteria);
+    },
+
 
     calculateClassSubAmount(numOfLearners: number) {
         let subAmount = 0;

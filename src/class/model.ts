@@ -12,7 +12,7 @@ export interface IAddLearner {
 
 export interface ITerm {
     title: string,
-    defaultDateChanged: boolean,
+    defaultDateChanged?: boolean,
     start_date: Date,
     end_date: Date
 }

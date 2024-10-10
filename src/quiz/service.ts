@@ -199,7 +199,7 @@ export const quizService = {
         }, 0);
     },
 
-    async listLearnersResult(quizId: string, learnerIds: []) {
+    async listLearnersResult(quizId: string, learnerIds: string[]) {
         const [quiz, learners] = await Promise.all([
             Quiz.findOne({ _id: quizId }) as unknown as IQuiz,
             userService.list({

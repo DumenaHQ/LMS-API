@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Order, { IOrder, EOrderStatus } from './model';
 import { generateId } from '../helpers/utility';
 import { ORDER_TYPES } from '../config/constants';
-import { handleError } from '../helpers/handleError';
 
 export const orderService = {
     async createClassOrder(schoolId: string) {        
@@ -29,7 +27,7 @@ export const orderService = {
     },
 
     async list(criteria: object): Promise<IOrder[]> {
-        return Order.find(criteria);
+        return Order.find(criteria).sort({ createdAt: 'desc' });
     },
 
     async update(criteria: object, data: object): Promise<IOrder | null> {

@@ -53,6 +53,9 @@ export interface IUserView {
     status: string;
     createdAt: string;
     updatedAt: string;
+    school_id?: Schema.Types.ObjectId;
+    school?: Schema.Types.ObjectId;
+
 }
 
 const contentAccess = {

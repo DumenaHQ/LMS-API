@@ -15,7 +15,7 @@ import Class from '../class/model';
 import {UserSubscription} from '../subscription/model';
 import { subscriptionService } from '../subscription/service';
 
-const userModel = {
+const userModel: Record<string, any> = {
     [USER_TYPES.learner]: Learner,
     [USER_TYPES.parent]: Parent,
     [USER_TYPES.school]: School,
@@ -55,7 +55,7 @@ export const userService = {
         if (foundUser.role != USER_TYPES.admin) {
             user_type = await userModel[foundUser.role].findOne({ user: foundUser._id }).select({ user: 0 });
 
-            userType = user_type ? user_type.toJSON() : {};
+            userType = user_type ? JSON.parse(JSON.stringify(user_type)) : {};
             userType[`${foundUser.role}_id`] = userType.id;
             if (!userType['school_email']) {
                 payload['school_email'] = foundUser.email;
@@ -100,7 +100,7 @@ export const userService = {
                 emailService.sendVerificationEmail(newUser);
             }
             if (user_type == USER_TYPES.instructor) {
-                emailService.sendSetNewPasswordLink(newUser, String(user?.school));
+                emailService.sendSetNewPasswordLink(newUser, String(user?.school_id));
             }
             return newUser;
         } catch (err: any) {

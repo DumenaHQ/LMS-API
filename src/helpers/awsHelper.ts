@@ -47,6 +47,8 @@ export const upload = async (bucketName: string, key: string, body: Buffer): Pro
     };
 
     return new Promise((resolve, reject) => {
+        // S3 ManagedUpload with callbacks is not supported in AWS SDK for JavaScript (v3).
+        // Please convert to 'await client.upload(params, options).promise()', and re-run aws-sdk-js-codemod.
         s3Service.upload(params, (err: Error, data: any) => {
             if (err) reject(err);
             return resolve(data);

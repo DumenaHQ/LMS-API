@@ -1,5 +1,11 @@
 import mongoose, { Schema } from 'mongoose';
 
+export enum ESubscriptionStatus {
+    Pending = 'pending',
+    Active = 'active',
+    Failed = 'failed'
+}
+
 const subscriptionSchema = new Schema({
     title: {
         type: String
@@ -87,8 +93,8 @@ const classSubscriptionSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'active', 'failed'],
-        default: 'pending'
+        enum: ESubscriptionStatus,
+        default: ESubscriptionStatus.Pending
     },
     end_date: {
         type: Date,

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_ITEMS, TERMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, ORDER_TYPES, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -14,8 +14,9 @@ import path from 'path';
 import { quizService } from '../quiz/service';
 import { orderService } from '../order/service';
 import { ClassSubscription } from '../subscription/model';
+import { classSubscriptionService } from '../subscription/classSubscriptionService';
 
-const classOrTemplateModel = {
+const classOrTemplateModel: Record<string, any> = {
     'class': Class,
     'template': ClassTemplate
 };
@@ -90,7 +91,7 @@ export const classService = {
     },
 
     async viewTemplate(criteria: object): Promise<ITemplate | {}> {
-        const template = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
+        const template: Record<string, any> | null = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
         if (!template) return {};
         template.course_count = template.courses.length;
         template.courses = await courseService.list({
@@ -247,8 +248,10 @@ export const classService = {
             return !addedLearnerIds.includes(learner.user_id);
         });
 
-        _class.learners = [..._class.learners, ...learnersToAdd];
-        await _class.save();
+        if (learnersToAdd.length) {
+            _class.learners = [..._class.learners, ...learnersToAdd];
+            await _class.save();
+        }
 
         //
         // TODO
@@ -258,19 +261,20 @@ export const classService = {
 
     async listLearners(classId: string, userId: string, payment_status?: 'paid' | 'unpaid') {
         const _class = await this.view(classId);
-        
         const learners = _class.learners || [];
 
         if (payment_status) {
-            const schoolClassSubscriptions = await ClassSubscription.find({ class: classId, user: userId, status: 'active' });
+            const schoolClassSubscription = await classSubscriptionService.findOne({ class: classId, user: userId, status: 'active' });
+            if (!schoolClassSubscription)
+                return learners;
 
-            const subscribedLearnersId = schoolClassSubscriptions.flatMap((subscription) => subscription.learners);
+            const subscribedLearnersId = schoolClassSubscription.learners;
 
             if (payment_status === 'paid') {
-                return learners.filter((learner) => subscribedLearnersId.includes(String(learner.id)));
+                return subscribedLearnersId;
             }
             if (payment_status === 'unpaid') {
-                return learners.filter((learner) => !subscribedLearnersId.includes(String(learner.id)));
+                return learners.filter((learner) => !subscribedLearnersId.includes(String(learner.user_id)));
             }
         }
 
@@ -320,7 +324,7 @@ export const classService = {
             data.header_photo = await uploadFile(lmsBucket, header_photo, photoKey);
         }
 
-        let active_term;
+        let active_term: ITerm | null = null;
         if (data.active_term_start_date && data.active_term_end_date) {
             active_term = this.getClassActiveTerm(klass.terms);
             if (active_term) {
@@ -330,15 +334,15 @@ export const classService = {
                     start_date: new Date(String(data.active_term_start_date)),
                     end_date: new Date(String(data.active_term_end_date))
                 };
-                const updatedTerm = klass.terms.findIndex(term => term.title === active_term.title);
+                const updatedTerm = klass.terms.findIndex(term => term.title === active_term?.title);
                 klass.terms[updatedTerm] = active_term;
                 data.terms = klass.terms;
             }
         }
 
-        const result = await Class.findByIdAndUpdate(classId, data, { new: true });
+        const result = await Class.findByIdAndUpdate(classId, data, { new: true }).lean();
 
-        return { ...result._doc, active_term };
+        return { ...result, active_term };
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {
@@ -354,7 +358,7 @@ export const classService = {
         if (!klass) {
             throw new handleError(400, 'Class not found');
         }
-        const classLearnerIds = klass.learners.map((learner: IAddLearner) => learner.user_id);
+        const classLearnerIds = klass.learners.map((learner: Record<string, any>) => String(learner.user_id));
         return quizService.listLearnersResult(quizId, classLearnerIds);
     },
 
@@ -365,14 +369,14 @@ export const classService = {
             const { user_id, name } = learner;
             return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
         });
-        return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_ITEMS.class });
+        //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
     },
 
     getClassActiveTerm(terms: Array<{
         title: string,
         start_date: Date,
         end_date: Date,
-    }>) {
+    }>): ITerm | null {
         if (terms.length === 0) {
             return null;
         }
@@ -382,7 +386,7 @@ export const classService = {
             const endDate = new Date(term.end_date);
             return startDate <= today && today <= endDate;
         });
-        return activeTerm || null;
+        return activeTerm?? null;
     },
 
     async distributeModulesToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {

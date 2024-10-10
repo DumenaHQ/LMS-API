@@ -64,11 +64,9 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 
 export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {id:userId } = req.user;
-
+        const { id:userId } = req.user;
         const { id: classId } = req.params;
-
-        const {payment_status} = req.query;
+        const { payment_status } = req.query;
 
         const learners = await classService.listLearners(classId, String(userId), String(payment_status) as 'paid' | 'unpaid');
         sendResponse(res, 200, 'Class Learners Fetched', { learners });
@@ -91,23 +89,11 @@ export const removeTeacherFromClass = async (req: Request, res: Response, next: 
 };
 
 
-// export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const { id: classId } = req.params;
-//         const { user: { id, role: userType } } = req;
-//         const learners = await classService.fetchLearners(classId, { id, userType });
-//         sendResponse(res, 200, 'Learners Fetched', { learners });
-//     } catch (err) {
-//         next(err)
-//     }
-// }
-
-
 export const listClasses = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { role, id } = req.user;
         const roleUserId = role === USER_TYPES.school ? req.user[`school_id`] : id;
-        const classes = await classService.listClassesForRoles(roleUserId, role);
+        const classes = await classService.listClassesForRoles(String(roleUserId), role);
         sendResponse(res, 200, 'Classes Fetched', { classes });
     } catch (err) {
         next(err);
@@ -119,7 +105,7 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
     try {
         const { id: classId } = req.params;
         const { role, id } = req.user;
-        const roleUserId = role === USER_TYPES.school ? req.user[`school_id`] : id;
+        const roleUserId = role === USER_TYPES.school ? String(req.user[`school_id`]) : String(id);
         const _class = await classService.viewClass(classId, { roleUserId, role });
         sendResponse(res, 200, 'Class fetched', { class: _class });
     } catch (err) {
@@ -202,7 +188,7 @@ export const subscribe = async (req: Request, res: Response, next: NextFunction)
         const { id: classId } = req.params;
         const { id: userId } = req.user;
         const { learners } = req.body;
-        const order = await classService.subscribe(classId, userId, learners);
+        const order = await classService.subscribe(classId, String(userId), learners);
         sendResponse(res, 200, 'Class sub', { order });
     } catch (err) {
         next(err);
