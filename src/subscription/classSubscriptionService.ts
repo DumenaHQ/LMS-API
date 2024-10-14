@@ -46,12 +46,12 @@ export const classSubscriptionService = {
                 
                 await ClassSubscription.create({
                     class: classId,
+                    term: activeTerm,
                     user: userId,
                     subscription: subscription.id,
                     orderId: order._id,
                     learners: selectedLearners,
-                    total_amount: classTotalAmount,
-                    end_date: activeTerm && activeTerm.end_date
+                    total_amount: classTotalAmount
                 });
 
                 total_amount += classTotalAmount;

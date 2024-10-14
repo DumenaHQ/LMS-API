@@ -26,7 +26,7 @@ export const paymentService = {
             amount: amount * 100,
             reference: reference,
             currency: 'NGN',
-            callback_url: process.env.BASE_URL + 'school/payment/confirm-payment',
+            callback_url: process.env.BASE_URL + '#/school/payment/confirm-payment',
             channels: ['card', 'ussd', 'mobile_money', 'bank_transfer'],
         });
     },

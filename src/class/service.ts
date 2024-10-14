@@ -161,7 +161,7 @@ export const classService = {
     },
 
 
-    async list(criteria: object): Promise<any[] | []> {
+    async list(criteria: object, filter: string | null = null): Promise<any[] | []> {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
             .populate({ path: 'template' }).sort({ createdAt: 'desc' });
 
@@ -178,7 +178,13 @@ export const classService = {
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
-            return _class;
+
+            switch (filter) {
+                case 'active_term':
+                    return _class.filter((clas: any) => clas.active_term != null);
+                default:
+                    return _class;
+            }
         });
     },
 
@@ -288,7 +294,7 @@ export const classService = {
         }
     },
 
-    async listClassesForRoles(userId: string, role: string) {
+    async listClassesForRoles(userId: string, role: string, filter: string | null = null) {
         const criteria = {
             [USER_TYPES.learner]: { 'learners.user_id': userId },
             [USER_TYPES.school]: { school_id: userId },
@@ -296,7 +302,7 @@ export const classService = {
             [USER_TYPES.instructor]: { teacher_id: userId },
             [USER_TYPES.admin]: {}
         };
-        return this.list(criteria[role]);
+        return this.list(criteria[role], filter);
     },
 
     async update(classId: string, data: Record<string, unknown>, files: File): Promise<any> {

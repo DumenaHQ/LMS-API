@@ -11,7 +11,7 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         const { school, id } = req.user;
 
         const today = new Date();
-        const criteria = { user: school, classId, status: ESubscriptionStatus.Active, end_date: { $gte: today } };
+        const criteria = { user: school, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
         const classSub = await classSubscriptionService.findOne(criteria);
         if (!classSub)
             throw new handleError(403, message);

@@ -80,6 +80,10 @@ const classSubscriptionSchema = new Schema({
         ref: 'Class',
         index: true
     },
+    term: {
+        type: Object,
+        required: true
+    },
     subscription: {
         type: Schema.Types.ObjectId,
         ref: 'Subscription'
@@ -95,10 +99,6 @@ const classSubscriptionSchema = new Schema({
         type: String,
         enum: ESubscriptionStatus,
         default: ESubscriptionStatus.Pending
-    },
-    end_date: {
-        type: Date,
-        default: null
     }
 }, { timestamps: true });
 export const ClassSubscription = mongoose.model('ClassSubscription', classSubscriptionSchema);
