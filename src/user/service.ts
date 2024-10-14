@@ -449,7 +449,7 @@ export const userService = {
     },
 
     async schoolsAnalytics() {
-        const schools = await School.find();
+        const schools = await School.find().sort({ createdAt: -1 }).limit(10);
 
         return Promise.all(schools.map(
             async (school) => {
@@ -528,7 +528,7 @@ export const userService = {
         return SchoolSetting.findOneAndUpdate(
             { school: schoolId }, 
             settingsFields,
-            { upsert: true })
-        ;
+            { upsert: true }
+        );
     }
 };

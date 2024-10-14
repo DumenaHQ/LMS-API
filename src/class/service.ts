@@ -255,8 +255,9 @@ export const classService = {
         });
 
         if (learnersToAdd.length) {
-            _class.learners = [..._class.learners, ...learnersToAdd];
-            await _class.save();
+            await Class.findByIdAndUpdate(_class._id, { $push: { learners: learnersToAdd }});
+            // _class.learners = [..._class.learners, ...learnersToAdd];
+            // await _class.save();
         }
 
         //
