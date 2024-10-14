@@ -12,9 +12,10 @@ import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 import { quizService } from '../quiz/service';
-import { orderService } from '../order/service';
-import { ClassSubscription } from '../subscription/model';
+// import { orderService } from '../order/service';
+// import { ClassSubscription } from '../subscription/model';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
+import { ESubscriptionStatus } from '../subscription/model';
 
 const classOrTemplateModel: Record<string, any> = {
     'class': Class,
@@ -165,6 +166,12 @@ export const classService = {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
             .populate({ path: 'template' }).sort({ createdAt: 'desc' });
 
+        const classIds = classes.map(clas => clas._id);
+        const today = new Date();
+        const activeClassSubs = await classSubscriptionService.listSubs({ 
+            class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
+        });
+
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
@@ -174,17 +181,23 @@ export const classService = {
                 _class.course_count = klas?.courses?.length;
             }
 
+            const activeSub = activeClassSubs.find(sub => sub.class == _class._id);
+            _class.sub_status = 'none';
+            if (activeSub) {
+                _class.sub_status = (activeSub.learners.length == _class.learners.length) ? 'full' : 'part';
+            }
+
             _class.active_term = this.getClassActiveTerm(klas.terms);
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
 
-            switch (filter) {
-                case 'active_term':
-                    return _class.filter((clas: any) => clas.active_term != null);
-                default:
-                    return _class;
-            }
+            // switch (filter) {
+            //     case 'active_term':
+            //         return _class.filter((clas: any) => clas.active_term != null);
+            //     default:
+            //         return _class;
+            // }
         });
     },
 
@@ -256,8 +269,6 @@ export const classService = {
 
         if (learnersToAdd.length) {
             await Class.findByIdAndUpdate(_class._id, { $push: { learners: learnersToAdd }});
-            // _class.learners = [..._class.learners, ...learnersToAdd];
-            // await _class.save();
         }
 
         //
