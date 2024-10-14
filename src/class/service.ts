@@ -166,12 +166,12 @@ export const classService = {
         const classes = await Class.find({ ...criteria, status: EStatus.Active, deleted: false })
             .populate({ path: 'template' }).sort({ createdAt: 'desc' });
 
-        const classIds = classes.map(clas => clas._id);
+        const classIds = classes.map(clas => String(clas._id));
         const today = new Date();
         const activeClassSubs = await classSubscriptionService.listSubs({ 
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
-        console.log({classIds})
+        
         console.log({activeClassSubs})
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
@@ -192,6 +192,8 @@ export const classService = {
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
+
+            return _class;
 
             // switch (filter) {
             //     case 'active_term':
