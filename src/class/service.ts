@@ -174,7 +174,6 @@ export const classService = {
         
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
-            console.log(_class)
             _class.learner_count = klas.learners.length;
             if (klas.template) {
                 _class.course_count = _class.template.courses?.length;
@@ -182,7 +181,8 @@ export const classService = {
                 _class.course_count = klas?.courses?.length;
             }
 
-            const activeSub = activeClassSubs.find(sub => sub.class == _class.id);
+            const activeSub = activeClassSubs.find(sub => String(sub.class) == String(_class.id));
+            console.log({activeSub})
             _class.sub_status = 'none';
             if (activeSub) {
                 _class.sub_status = (activeSub.learners.length == _class.learners.length) ? 'full' : 'part';
