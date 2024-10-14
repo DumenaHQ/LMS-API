@@ -14,6 +14,7 @@ export interface IUserCreate {
     parent?: string;
     nickname?: string;
     contact_person?: string;
+    parent_email?: string;
     phone?: string,
     resident_state?: string;
     address?: string;
@@ -66,6 +67,13 @@ const contentAccess = {
     slug: String,
     expiry_date: Date
 };
+
+const term = {
+    title: String,
+    defaultDateChanged: Boolean,
+    start_date: Date,
+    end_date: Date
+}
 
 
 const UserSchema: Schema = new Schema({
@@ -220,7 +228,20 @@ const AdminSchema: Schema = new Schema({
         required: true,
     },
 }, { timestamps: true });
-
 export const Admin = mongoose.model('Admin', AdminSchema);
+
+
+const SchoolSettingsSchema: Schema = new Schema({
+    school: {
+        type: Schema.Types.ObjectId,
+        ref: 'School'
+    },
+    active_term: {
+        type: term
+    }
+    ,   
+}, { timestamps: true });
+
+export const SchoolSetting = mongoose.model('SchoolSetting', SchoolSettingsSchema);
 
 export default mongoose.model<IUserModel>('User', UserSchema);

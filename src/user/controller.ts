@@ -19,7 +19,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(err);
     }
-};
+};  
 
 export const onboardAdmin = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -172,7 +172,7 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: userId, role: user_type } = req.user;
-        const user = await userService.update(userId, { ...req.body, user_type });
+        const user = await userService.update(String(userId), { ...req.body, user_type });
         sendResponse(res, 200, 'User Updated', { user });
     } catch (err) {
         next(err);
@@ -183,7 +183,7 @@ export const addSchoolStudents = async (req: Request, res: Response, next: NextF
     try {
         const { school_id, school } = req.user;
         const { learners } = req.body;
-        await userService.addSchoolStudents(school_id, learners, school);
+        await userService.addSchoolStudents(String(school_id), learners, String(school));
         //if (resp.status) throw new Error(resp.message)
         sendResponse(res, 200, 'Students Added');
     } catch (err) {
@@ -196,7 +196,7 @@ export const listSchoolStudents = async (req: Request, res: Response, next: Next
     try {
         const { school_id } = req.user;
         const queryParams = req.query;
-        const { learners: students, grades } = await userService.listSchoolStudents(school_id, queryParams);
+        const { learners: students, grades } = await userService.listSchoolStudents(String(school_id), queryParams);
         sendResponse(res, 200, 'Students Fetched', { students, grades: [...grades] });
     } catch (err) {
         next(err);
@@ -208,7 +208,7 @@ export const listSchoolTeachers = async (req: Request, res: Response, next: Next
         const { school_id } = req.user;
 
         // const queryParams = req.query;
-        const teachers = await userService.listSchoolTeachers(school_id);
+        const teachers = await userService.listSchoolTeachers(String(school_id));
         sendResponse(res, 200, 'Teachers Fetched', { teachers });
     } catch (err) {
         next(err);
@@ -259,7 +259,7 @@ export const removeChild = async (req: Request, res: Response, next: NextFunctio
 export const getUserPayments = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: userId } = req.user;
-        const payments = await userService.getUserPayments(userId);
+        const payments = await userService.getUserPayments(String(userId));
         sendResponse(res, 200, 'Payments fetched', { payments });
     } catch (err) {
         next(err);
@@ -324,6 +324,26 @@ export const schoolsAnalytics = async (req: Request, res: Response, next: NextFu
 
         const schoolsAnalytics = await userService.schoolsAnalytics();
         sendResponse(res, 200, 'Schools Analytics Fetched', schoolsAnalytics);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getSchoolSettings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { school_id } = req.user;
+        const settings = await userService.getSchoolSettings(String(school_id));
+        sendResponse(res, 200, 'Schools Settings Fetched', { settings });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateSchoolSettings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { school_id } = req.user;
+        await userService.updateSchoolSettings(String(school_id), req.body);
+        sendResponse(res, 200, 'Schools Settings Updated');
     } catch (err) {
         next(err);
     }

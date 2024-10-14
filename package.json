@@ -19,6 +19,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/chai-as-promised": "^7.1.5",
     "@types/jsonwebtoken": "^8.5.8",
+    "aws-sdk": "^2.1691.0",
     "aws-sdk-js-codemod": "^2.3.2",
     "axios": "^1.6.8",
     "bcrypt": "^5.0.1",

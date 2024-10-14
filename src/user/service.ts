@@ -1,4 +1,4 @@
-import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, Admin } from './models';
+import User, { IUserView, IUserCreate, Parent, School, Learner, Instructor, EUserStatus, Admin, SchoolSetting } from './models';
 import { sign } from 'jsonwebtoken';
 import { handleError } from '../helpers/handleError';
 import * as bcrypt from 'bcrypt';
@@ -8,12 +8,12 @@ import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
-
-import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, TERMS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
 import {UserSubscription} from '../subscription/model';
 import { subscriptionService } from '../subscription/service';
+import { classService } from '../class/service';
 
 const userModel: Record<string, any> = {
     [USER_TYPES.learner]: Learner,
@@ -74,7 +74,7 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate, user: { school_id: string; role: string; } | null): Promise<IUserView | { status: string, message: string, data: {} }> {
+    async create(userData: IUserCreate, user: { school_id: string; role: string; } | null = null): Promise<IUserView | { status: string, message: string, data: {} }> {
         const { user_type, email = undefined } = userData;
         if (email != undefined) {
             userData.email = email.toLowerCase();
@@ -444,6 +444,7 @@ export const userService = {
 
     async deleteUser(email: string) {
         const user = await User.findOneAndDelete({ email });
+        if (!user) return;
         await userModel[user.role].deleteOne({ user: user._id });
     },
 
@@ -469,4 +470,65 @@ export const userService = {
         ));
 
     },
+
+    async getSchoolSettings(schoolId: string) {
+        const settings = await SchoolSetting.findOne({ school: schoolId });
+
+        // see if active term dates are set
+        if (!settings || !settings.active_term) {
+            const terms = [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ];
+            const activeTerm = classService.getClassActiveTerm(terms);
+            return { school: schoolId, active_term: activeTerm };
+        }
+        return settings;
+    },
+
+    async updateSchoolSettings(schoolId: string, settings: Record<string, any>) {
+        const { active_term } = settings;
+        const settingsFields: Record<string, unknown> = {};
+        // validate fields
+        if (active_term.start_date && active_term.end_date) {
+            const terms = [
+                {
+                    ...TERMS.first_term
+                    
+                },
+                {
+                    ...TERMS.second_term
+                    
+                },
+                {
+                    ...TERMS.third_term
+                    
+                }
+            ];
+            const activeTerm = classService.getClassActiveTerm(terms);
+            if (activeTerm) {
+                settingsFields.active_term = {
+                    title: activeTerm.title,
+                    defaultDateChanged: true,
+                    start_date: new Date(String(active_term.start_date)),
+                    end_date: new Date(String(active_term.end_date))
+                };
+            }
+        }
+        return SchoolSetting.findOneAndUpdate(
+            { school: schoolId }, 
+            settingsFields,
+            { upsert: true })
+        ;
+    }
 };
