@@ -182,7 +182,6 @@ export const classService = {
             }
 
             const activeSub = activeClassSubs.find(sub => String(sub.class) == String(_class.id));
-            console.log({activeSub})
             _class.sub_status = 'none';
             if (activeSub) {
                 _class.sub_status = (activeSub.learners.length == _class.learners.length) ? 'full' : 'part';
