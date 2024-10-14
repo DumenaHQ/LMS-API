@@ -171,7 +171,8 @@ export const classService = {
         const activeClassSubs = await classSubscriptionService.listSubs({ 
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
-
+        console.log({classIds})
+        console.log({activeClassSubs})
         return classes.map((klas: any) => {
             const _class = klas.toJSON();
             _class.learner_count = klas.learners.length;
