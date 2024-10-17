@@ -64,7 +64,7 @@ export const addLearners = async (req: Request, res: Response, next: NextFunctio
 
 export const listLearners = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id:userId } = req.user;
+        const { school_id: userId } = req.user;
         const { id: classId } = req.params;
         const { payment_status } = req.query;
 

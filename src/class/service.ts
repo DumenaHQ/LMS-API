@@ -172,9 +172,13 @@ export const classService = {
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
         
-        return classes.map((klas: any) => {
+        return classes.map(async (klas: any) => {
             const _class = klas.toJSON();
-            _class.learner_count = klas.learners.length;
+            const learners = await userService.list({
+                'user._id': { $in: klas.learners.map((learner: { user_id: string }) => learner.user_id) },
+                'user.deleted': false
+            }, 'learner');
+            _class.learner_count = learners.length;
             if (klas.template) {
                 _class.course_count = _class.template.courses?.length;
             } else {
@@ -280,11 +284,25 @@ export const classService = {
     },
 
     async listLearners(classId: string, userId: string, payment_status?: 'paid' | 'unpaid') {
-        const _class = await this.view(classId);
-        const learners = _class.learners || [];
+        const _class = await Class.findById(classId);
+        if (!_class) throw new handleError(400, 'Class not found');
+
+        let learners: any = (_class.learners && _class.learners.map(learner => learner.user_id)) 
+            || [];
 
         if (payment_status) {
-            const schoolClassSubscription = await classSubscriptionService.findOne({ class: classId, user: userId, status: 'active' });
+            learners = await filterLearners();
+        }
+
+        return userService.list({
+            'user._id': { $in: learners },
+            'user.deleted': false
+        }, 'learner');
+
+        async function filterLearners() {
+            const today = new Date();
+            const criteria = { user: userId, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
+            const schoolClassSubscription = await classSubscriptionService.findOne(criteria);
             if (!schoolClassSubscription)
                 return learners;
 
@@ -294,11 +312,9 @@ export const classService = {
                 return subscribedLearnersId;
             }
             if (payment_status === 'unpaid') {
-                return learners.filter((learner) => !subscribedLearnersId.includes(String(learner.user_id)));
+                return learners.filter((learnerId: any) => !subscribedLearnersId.includes(String(learnerId)));
             }
         }
-
-        return learners;
     },
 
     async removeTeacherFromClass(classId: string): Promise<void> {
