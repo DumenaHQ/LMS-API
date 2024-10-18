@@ -308,13 +308,13 @@ export const classService = {
 
         async function filterLearners() {
             const today = new Date();
-            const criteria = { classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
+            const criteria = { class: classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
             const classSubscriptions = await classSubscriptionService.listSubs(criteria);
             if (!classSubscriptions)
                 return learners;
-            console.log({classSubscriptions})
+
             const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
-    console.log({subscribedLearnersId})
+
             if (payment_status === 'paid') {
                 return subscribedLearnersId;
             }
