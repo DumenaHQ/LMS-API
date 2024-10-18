@@ -192,7 +192,7 @@ export const classService = {
                     return [...learners, ...sub.learners];
                 return learners;
             }, []);
-            console.log({subedLearners})
+            
             _class.sub_status = 'none';
             if (subedLearners && subedLearners.length) {
                 _class.sub_status = (subedLearners.length == _class.learner_count) ? 'full' : 'part';
@@ -308,12 +308,12 @@ export const classService = {
 
         async function filterLearners() {
             const today = new Date();
-            const criteria = { user: userId, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
-            const schoolClassSubscription = await classSubscriptionService.findOne(criteria);
-            if (!schoolClassSubscription)
+            const criteria = { classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
+            const classSubscriptions = await classSubscriptionService.listSubs(criteria);
+            if (!classSubscriptions)
                 return learners;
 
-            const subscribedLearnersId = schoolClassSubscription.learners;
+            const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
 
             if (payment_status === 'paid') {
                 return subscribedLearnersId;

@@ -97,5 +97,11 @@ export const classSubscriptionService = {
 
     async activateSubs(orderId: string) {
         return ClassSubscription.updateMany({ orderId }, { status: 'active' });
+    },
+
+    getSubedLearnersForClass(activeClassSubs: any) {
+        return activeClassSubs.reduce((learners: any, sub: any) => {
+            return [...learners, ...sub.learners];
+        }, []);
     }
 }

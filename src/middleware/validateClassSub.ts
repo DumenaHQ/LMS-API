@@ -12,12 +12,14 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
 
         const today = new Date();
         const criteria = { user: school, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
-        const classSub = await classSubscriptionService.findOne(criteria);
-        if (!classSub)
+        const classSubs = await classSubscriptionService.listSubs(criteria);
+        if (!classSubs || classSubs.length)
             throw new handleError(403, message);
 
+        const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubs);
+
         // check if current learner was paid for
-        if (classSub.learners.find(learner => String(learner) === String(id)))
+        if (subscribedLearnersId.find((learner: string) => String(learner) === String(id)))
             throw new handleError(403, message);
     }
     next();
