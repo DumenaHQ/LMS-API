@@ -171,9 +171,10 @@ export const classService = {
         const activeClassSubs = await classSubscriptionService.listSubs({ 
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
-        
+        console.log({classes})
         return classes.map(async (klas: any) => {
             const _class = klas.toJSON();
+            console.log({_class})
             const learners = await userService.list({
                 'user._id': { $in: klas.learners.map((learner: { user_id: string }) => learner.user_id) },
                 'user.deleted': false
