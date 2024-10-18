@@ -171,7 +171,7 @@ export const classService = {
         const activeClassSubs = await classSubscriptionService.listSubs({ 
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
-        console.log({activeClassSubs})
+
         return Promise.all(classes.map(async (klas: any) => {
             const _class = klas.toJSON();
             
@@ -189,7 +189,7 @@ export const classService = {
 
             const subedLearners = activeClassSubs.reduce((learners: any, sub: any) => {
                 if (String(sub.class) == String(_class.id))
-                    return [...learners, sub.learners];
+                    return [...learners, ...sub.learners];
                 return learners;
             }, []);
             console.log({subedLearners})
