@@ -187,10 +187,15 @@ export const classService = {
                 _class.course_count = klas?.courses?.length;
             }
 
-            const activeSub = activeClassSubs.find(sub => String(sub.class) == String(_class.id));
+            const subedLearners = activeClassSubs.reduce((learners: any, sub: any) => {
+                if (String(sub.class) == String(_class.id))
+                    return [...learners, sub.learners];
+                return learners;
+            }, []);
+            
             _class.sub_status = 'none';
-            if (activeSub) {
-                _class.sub_status = (activeSub.learners.length == _class.learners.length) ? 'full' : 'part';
+            if (subedLearners && subedLearners.length) {
+                _class.sub_status = (subedLearners.length == _class.learners.length) ? 'full' : 'part';
             }
 
             _class.active_term = this.getClassActiveTerm(klas.terms);
