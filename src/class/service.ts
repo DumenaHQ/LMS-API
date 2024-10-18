@@ -312,9 +312,9 @@ export const classService = {
             const classSubscriptions = await classSubscriptionService.listSubs(criteria);
             if (!classSubscriptions)
                 return learners;
-
+            console.log({classSubscriptions})
             const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
-
+    console.log({subscribedLearnersId})
             if (payment_status === 'paid') {
                 return subscribedLearnersId;
             }
