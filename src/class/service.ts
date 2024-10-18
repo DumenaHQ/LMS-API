@@ -171,14 +171,15 @@ export const classService = {
         const activeClassSubs = await classSubscriptionService.listSubs({ 
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
-        console.log({classes})
+        
         return classes.map(async (klas: any) => {
             const _class = klas.toJSON();
-            console.log({_class})
+            
             const learners = await userService.list({
-                'user._id': { $in: klas.learners.map((learner: { user_id: string }) => learner.user_id) },
+                'user._id': { $in: _class.learners.map((learner: { user_id: string }) => learner.user_id) },
                 'user.deleted': false
             }, 'learner');
+            console.log({learners})
             _class.learner_count = learners.length;
             if (klas.template) {
                 _class.course_count = _class.template.courses?.length;
@@ -192,7 +193,7 @@ export const classService = {
                 _class.sub_status = (activeSub.learners.length == _class.learners.length) ? 'full' : 'part';
             }
 
-            _class.active_term = this.getClassActiveTerm(klas.terms);
+            // _class.active_term = this.getClassActiveTerm(klas.terms);
             delete _class.learners;
             delete _class.courses;
             delete _class.template;

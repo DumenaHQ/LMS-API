@@ -95,6 +95,7 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
         const { filter } = req.query;
         const roleUserId = role === USER_TYPES.school ? req.user[`school_id`] : id;
         const classes = await classService.listClassesForRoles(String(roleUserId), role, String(filter));
+        console.log({classes})
         sendResponse(res, 200, 'Classes Fetched', { classes });
     } catch (err) {
         next(err);
