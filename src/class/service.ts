@@ -172,7 +172,7 @@ export const classService = {
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
         
-        return Promise.all([classes.map(async (klas: any) => {
+        return Promise.all(classes.map(async (klas: any) => {
             const _class = klas.toJSON();
             
             const learners = await userService.list({
@@ -206,7 +206,7 @@ export const classService = {
             //     default:
             //         return _class;
             // }
-        })]);
+        }));
     },
 
 
