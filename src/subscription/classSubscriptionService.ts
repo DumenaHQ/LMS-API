@@ -80,17 +80,34 @@ export const classSubscriptionService = {
 
 
     calculateClassSubAmount(numOfLearners: number) {
+        // 1-50 = N10,000
+        // 51-100 = N8,000
+        // 101-200 = N7,500
+        // 201-500 = N7,000
+        // >500 = N6,000
         let subAmount = 0;
-        if (numOfLearners < 101)
+        // if (numOfLearners < 101)
+        //     subAmount = 10000;
+        // else if (numOfLearners > 100 && numOfLearners < 201)
+        //     subAmount = 9500;
+        // else if (numOfLearners > 200 && numOfLearners < 301)
+        //     subAmount = 9000;
+        // else if (numOfLearners > 300 && numOfLearners < 401)
+        //     subAmount = 8500;
+        // else if (numOfLearners > 400 && numOfLearners < 501)
+        //     subAmount = 8000
+        // else 
+        //     subAmount = 7500;
+        if (numOfLearners < 50)
             subAmount = 10000;
+        else if (numOfLearners > 50 && numOfLearners < 101)
+            subAmount = 8000;
         else if (numOfLearners > 100 && numOfLearners < 201)
-            subAmount = 9500;
-        else if (numOfLearners > 200 && numOfLearners < 301)
-            subAmount = 9000;
-        else if (numOfLearners > 300 && numOfLearners < 401)
-            subAmount = 8500;
-        else if (numOfLearners > 400 && numOfLearners < 501)
-            subAmount = 8000
+            subAmount = 7500;
+        else if (numOfLearners > 200 && numOfLearners < 501)
+            subAmount = 7000;
+        else if (numOfLearners > 500)
+            subAmount = 6000
         else 
             subAmount = 7500;
 
