@@ -199,6 +199,7 @@ export const classService = {
             }
 
             _class.active_term = this.getClassActiveTerm(klas.terms);
+            _class.unpaid_learner_count = _class.learner_count - subedLearners.length;
             delete _class.learners;
             delete _class.courses;
             delete _class.template;
@@ -386,6 +387,13 @@ export const classService = {
         const result = await Class.findByIdAndUpdate(classId, data, { new: true }).lean();
 
         return { ...result, active_term };
+    },
+
+    async updateDefaultTermsForClass(schoolId: string, defaultTermDates: ITerm) {
+        return Class.updateMany(
+            { school_id: schoolId, 'terms.title': defaultTermDates.title }, 
+            { $set: { 'terms.$': defaultTermDates }}
+        );
     },
 
     async updateTemplate(tempateId: string, data: object): Promise<any> {

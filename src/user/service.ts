@@ -498,7 +498,7 @@ export const userService = {
 
     async updateSchoolSettings(schoolId: string, settings: Record<string, any>) {
         const { active_term } = settings;
-        const settingsFields: Record<string, unknown> = {};
+        const settingsFields: Record<string, any> = {};
         // validate fields
         if (active_term.start_date && active_term.end_date) {
             const terms = [
@@ -523,6 +523,8 @@ export const userService = {
                     start_date: new Date(String(active_term.start_date)),
                     end_date: new Date(String(active_term.end_date))
                 };
+                // update school classes
+                await classService.updateDefaultTermsForClass(schoolId, settingsFields.active_term);
             }
         }
         return SchoolSetting.findOneAndUpdate(
