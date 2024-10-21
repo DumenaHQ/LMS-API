@@ -4,6 +4,7 @@ import { classService } from '../class/service';
 import { orderService } from '../order/service';
 import { couponService } from '../coupon/service';
 import { IOrder } from '../order/model';
+import { userService } from '../user/service';
 
 
 export const classSubscriptionService = {
@@ -31,7 +32,7 @@ export const classSubscriptionService = {
                 // if learners were not selected, sub all learners in the class
                 if (!selectedLearners) {
                     selectedLearners = await userService.list({
-                        'user._id': { $in: _class.learners.map(learner => learner.user_id); },
+                        'user._id': { $in: _class.learners.map(learner => learner.user_id) },
                         'user.deleted': false
                     }, 'learner');
                 }
@@ -53,7 +54,7 @@ export const classSubscriptionService = {
                     user: userId,
                     subscription: subscription.id,
                     orderId: order._id,
-                    learners: selectedLearners.map(learner => learner.id),
+                    learners: selectedLearners.map((learner: any) => learner.id),
                     total_amount: classTotalAmount
                 });
 
