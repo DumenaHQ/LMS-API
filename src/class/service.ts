@@ -203,14 +203,14 @@ export const classService = {
             delete _class.courses;
             delete _class.template;
 
-            return _class;
+            // return _class;
 
-            // switch (filter) {
-            //     case 'active_term':
-            //         return _class.filter((clas: any) => clas.active_term != null);
-            //     default:
-            //         return _class;
-            // }
+            switch (filter) {
+                case 'active_term':
+                    return _class.filter((clas: any) => clas.active_term != null);
+                default:
+                    return _class;
+            }
         }));
     },
 

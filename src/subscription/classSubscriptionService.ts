@@ -30,7 +30,10 @@ export const classSubscriptionService = {
 
                 // if learners were not selected, sub all learners in the class
                 if (!selectedLearners) {
-                    selectedLearners = _class.learners.map(learner => learner.user_id);
+                    selectedLearners = await userService.list({
+                        'user._id': { $in: _class.learners.map(learner => learner.user_id); },
+                        'user.deleted': false
+                    }, 'learner');
                 }
 
                 if (!selectedLearners.length) continue;
@@ -50,7 +53,7 @@ export const classSubscriptionService = {
                     user: userId,
                     subscription: subscription.id,
                     orderId: order._id,
-                    learners: selectedLearners,
+                    learners: selectedLearners.map(learner => learner.id),
                     total_amount: classTotalAmount
                 });
 
