@@ -172,7 +172,7 @@ export const classService = {
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
 
-        return Promise.all(classes.map(async (klas: any) => {
+        const allClasses = await Promise.all(classes.map(async (klas: any) => {
             const _class = klas.toJSON();
             
             const learners = await userService.list({
@@ -204,15 +204,15 @@ export const classService = {
             delete _class.courses;
             delete _class.template;
 
-            // return _class;
-
-            switch (filter) {
-                case 'active_term':
-                    return _class.filter((clas: any) => clas.active_term != null);
-                default:
-                    return _class;
-            }
+            return _class;
         }));
+
+        switch (filter) {
+            case 'active_term':
+                return allClasses.filter((clas: any) => clas.active_term != null);
+            default:
+                return allClasses;
+        }
     },
 
 
