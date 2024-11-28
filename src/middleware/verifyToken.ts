@@ -1,7 +1,6 @@
 import { JwtPayload, verify } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { userService } from '../user/service';
-import { handleError } from '../helpers/handleError';
 
 const JwtSecret = process.env.JWT_SECRET;
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +13,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
             req.user = await userService.view({ _id: payload.id });
             next();
         } catch (err){
-            throw new handleError(401, 'Invalid token');
+            next(err);
         }
 
 
