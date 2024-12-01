@@ -13,6 +13,6 @@ export const send = (res: Response, statusCode: number, message: string | null, 
 
     statusCode = statusCode || 500;
     if (statusCode > 299) response = { ...response, status: false, error: { code: statusCode, errors: data } };
-
+    
     return res.status(statusCode).json(response);
 };
