@@ -119,7 +119,7 @@ export const viewRedactedClass = async (req: Request, res: Response, next: NextF
         const message = 'You currently do not have an active subscription access to this class';
         const { id: classId } = req.params;
         const _class = await classService.viewLimitedClass(classId);
-        sendResponse(res, 402, message, { class: _class });
+        sendResponse(res, 403, message, { class: _class });
     } catch (err) {
         next(err);
     }
