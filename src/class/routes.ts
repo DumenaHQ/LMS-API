@@ -21,7 +21,7 @@ router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCour
 
 router.get('/:id', isAuthenticated, validateClassSub, viewClass);
 
-router.get('/:id', isAuthenticated, viewRedactedClass);
+router.get('/:id', viewRedactedClass);
 
 router.put('/:id', isAuthenticated, updateClass);
 

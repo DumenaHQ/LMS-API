@@ -11,9 +11,11 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
 
         const today = new Date();
         const criteria = { user: school, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
+        console.log({criteria})
         const classSubs = await classSubscriptionService.listSubs(criteria);
         if (!classSubs || classSubs.length) {
             // next(new Error(message));
+            console.log({classSubs})
             next('route')
         }
 
@@ -21,7 +23,8 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
 
         // check if current learner was paid for
         if (subscribedLearnersId.find((learner: string) => String(learner) === String(id))) {
-            next(new Error(message));
+            // next(new Error(message));
+            console.log('here')
             next('route')
         }
     }
