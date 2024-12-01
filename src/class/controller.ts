@@ -114,6 +114,17 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+export const viewRedactedClass = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const message = 'You currently do not have an active subscription access to this class';
+        const { id: classId } = req.params;
+        const _class = await classService.viewLimitedClass(classId);
+        sendResponse(res, 200, message, { class: _class });
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 export const updateClass = async (req: Request, res: Response, next: NextFunction) => {
     try {

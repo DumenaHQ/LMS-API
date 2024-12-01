@@ -148,6 +148,40 @@ export const classService = {
         return { ...classroom, teacher };
     },
 
+
+    async viewLimitedClass(classId: string): Promise<IClass> {
+        let classroom: any;
+        classroom = await this.findOne({ _id: classId });
+        if (!classroom) {
+            throw new handleError(404, 'Class not found');
+        }
+        classroom = classroom.toJSON();
+
+        classroom.learners = await userService.list({
+            'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
+            'user.deleted': false
+        }, 'learner');
+        classroom.learner_count = classroom.learners && classroom.learners.length || 0;
+
+        const courses = classroom.template ? classroom.template.courses : classroom.courses;
+        classroom.course_count = courses.length;
+
+        let teacher;
+        if (classroom.teacher_id) {
+            teacher = await userService.view({ _id: classroom.teacher_id });
+            teacher = {
+                id: teacher.id,
+                fullname: teacher.fullname,
+                email: teacher.email
+            };
+        }
+
+        classroom.active_term = this.getClassActiveTerm(classroom.terms);
+
+        return { ...classroom, teacher };
+    },
+
+
     async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }): Promise<IClass | null> {
         const defaultParam: any = { _id: new mongoose.Types.ObjectId(classId) };
 
