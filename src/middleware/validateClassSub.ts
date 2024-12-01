@@ -4,18 +4,16 @@ import { classSubscriptionService } from '../subscription/classSubscriptionServi
 import { ESubscriptionStatus } from '../subscription/model';
 
 export const validateClassSub = async (req: Request, res: Response, next: NextFunction) => {
-    const message = 'You currently do not have an active subscription access to this class';
+    // const message = 'You currently do not have an active subscription access to this class';
     if (req.user.role == USER_TYPES.learner) {
         const { id: classId } = req.params;
         const { school, id } = req.user;
 
         const today = new Date();
-        const criteria = { user: school, classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
-        console.log({criteria})
+        const criteria = { user: school, class: classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
         const classSubs = await classSubscriptionService.listSubs(criteria);
         if (!classSubs || classSubs.length) {
             // next(new Error(message));
-            console.log({classSubs})
             next('route')
         }
 
@@ -24,7 +22,6 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         // check if current learner was paid for
         if (subscribedLearnersId.find((learner: string) => String(learner) === String(id))) {
             // next(new Error(message));
-            console.log('here')
             next('route')
         }
     }
