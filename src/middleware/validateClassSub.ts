@@ -12,7 +12,6 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         const today = new Date();
         const criteria = { user: school, class: classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
         const classSubs = await classSubscriptionService.listSubs(criteria);
-        console.log({classSubs})
         if (!classSubs || !classSubs.length) {
             // next(new Error(message));
             next('route')
