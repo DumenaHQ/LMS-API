@@ -12,8 +12,6 @@ import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
 import path from 'path';
 import { quizService } from '../quiz/service';
-// import { orderService } from '../order/service';
-// import { ClassSubscription } from '../subscription/model';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
 
@@ -268,7 +266,7 @@ export const classService = {
 
         if (model === 'template') {
             try {
-                await this.distributeLessonsToClassTemplateTerms(modelId, courseIds);
+                await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
             } catch (error: any) {
                 console.log(error.message);
             }
@@ -276,7 +274,7 @@ export const classService = {
 
         if (model === 'class') {
             try {
-                await this.distributeLessonsToClassTerms(modelId, courseIds);
+                await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
             } catch (error: any) {
                 console.log(error.message);
             }
@@ -447,15 +445,15 @@ export const classService = {
         return quizService.listLearnersResult(quizId, classLearnerIds);
     },
 
-    async subscribe(classId: string, userId: string, learners: []) {
-        const klass = await this.findOne({ _id: classId }, false);
-        const meta_data = { classId };
-        const orderItems = learners.map((learner: any) => {
-            const { user_id, name } = learner;
-            return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-        });
-        //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
-    },
+    // async subscribe(classId: string, userId: string, learners: []) {
+    //     const klass = await this.findOne({ _id: classId }, false);
+    //     const meta_data = { classId };
+    //     const orderItems = learners.map((learner: any) => {
+    //         const { user_id, name } = learner;
+    //         return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
+    //     });
+    //     //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
+    // },
 
     getClassActiveTerm(terms: Array<{
         title: string,
@@ -483,27 +481,42 @@ export const classService = {
             throw new Error(`Class Template must have at least one term.`);
         }
         const courses = await Course.find({ _id: { $in: courseIds } });
+        const numOfTerms = classTemplate.terms.length;
+        
         for (const course of courses) {
             const totalModules = course.modules.length;
-            const modulesPerTerm = Math.ceil(totalModules / classTemplate.terms.length);
+            const minModulesPerTerm = Math.floor(totalModules / numOfTerms);
+            const moduleRemainders = totalModules % numOfTerms;
 
-            let moduleIndex = 0;
-            for (let i = 0; i < classTemplate.terms.length; i++) {
-                const term = classTemplate.terms[i];
-                term.modules = course.modules.slice(moduleIndex, moduleIndex + modulesPerTerm);
-                moduleIndex += modulesPerTerm;
+            let modulesPerTerm = minModulesPerTerm;
+            if (moduleRemainders == 2) {
+                modulesPerTerm++;
+                classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
+                classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + 1));
+            } else if (moduleRemainders == 1) {
+                modulesPerTerm++;
+                classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
+                classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + minModulesPerTerm));
+            } else {
+                classTemplate.terms[0].modules.push(...course.modules.slice(0, minModulesPerTerm));
+                classTemplate.terms[1].modules.push(...course.modules.slice(minModulesPerTerm, minModulesPerTerm + minModulesPerTerm));
             }
+            classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
+
+            classTemplate.markModified('terms');
             await classTemplate.save();
         }
+    },
+
+    async mapWeeklyMilestone() {
+
     },
 
 
     // Distribute lessons in a course across the weeks in a session
     async distributeLessonsToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {
-        // Fetch the class template by ID
         const classTemplate = await ClassTemplate.findById(classTemplateId);
         
-        // Check if the class template exists
         if (!classTemplate) {
             console.error('Class Template not found.');
             return;
@@ -584,10 +597,8 @@ export const classService = {
     },
 
     async distributeLessonsToClassTerms(classId: string, courseIds: string[]): Promise<void> {
-        // Fetch the class template by ID
         const _class = await Class.findById(classId);
         
-        // Check if the class template exists
         if (!_class) {
             console.error('Class not found.');
             return;

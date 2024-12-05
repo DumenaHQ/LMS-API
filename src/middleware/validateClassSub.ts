@@ -13,15 +13,13 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         const criteria = { user: school, class: classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
         const classSubs = await classSubscriptionService.listSubs(criteria);
         if (!classSubs || !classSubs.length) {
-            // next(new Error(message));
-            next('route')
+            next('route');
         }
 
         const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubs);
         // check if current learner was paid for
         if (!subscribedLearnersId.find((learner: string) => String(learner) === String(id))) {
-            // next(new Error(message));
-            next('route')
+            next('route');
         }
     }
     next();

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import useragent from 'useragent'; // for more info, visit https://www.npmjs.com/package/useragent
+import useragent from 'useragent';
 
 import { EActivityType } from './enum';
 import { Activity } from './model';
