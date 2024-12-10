@@ -80,10 +80,8 @@ const classSubscriptionSchema = new Schema({
         ref: 'Class',
         index: true
     },
-    term: {
-        type: Object,
-        required: true
-    },
+    term: String,
+    expiry_date: Date,
     subscription: {
         type: Schema.Types.ObjectId,
         ref: 'Subscription'

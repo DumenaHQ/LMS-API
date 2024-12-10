@@ -13,13 +13,14 @@ export interface IAddLearner {
 export interface ITerm {
     title: string,
     defaultDateChanged?: boolean,
-    modules?:[],
+    modules:any[],
     start_date: Date,
     end_date: Date
 }
 
 export interface IClass extends Document {
     name: string;
+    terms: ITerm[];
     template?: Schema.Types.ObjectId;
     description: string;
     school_id: Schema.Types.ObjectId;
@@ -30,10 +31,11 @@ export interface IClass extends Document {
     learners: IAddLearner[];
     courses?: string[];
     status: string;
+    deleted: boolean;
 }
 
 export interface ITemplate extends Document {
-    terms?: [];
+    terms: [ITerm, ITerm, ITerm];
     title: string;
     syllabus: string;
     courses?: string[];

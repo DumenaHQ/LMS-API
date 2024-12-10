@@ -1,9 +1,9 @@
 import Class, { ClassTemplate, IClass, IAddLearner, EStatus, ITemplate, ITerm } from './model';
 import Course from '../course/model';
-import { Learner } from '../user/models';
+import { IUserView, Learner } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
-import { ICourseView } from '../course/interfaces';
+import { ICourseView, IModule } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
 import { USER_TYPES, UPLOADS, ORDER_TYPES, TERMS } from '../config/constants';
@@ -121,10 +121,11 @@ export const classService = {
         }
         classroom = classroom.toJSON();
 
-        classroom.learners = await userService.list({
+        const learners = await userService.list({
             'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
             'user.deleted': false
         }, 'learner');
+        classroom.learners = await markSubedLearners(learners);
         classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
         const courses = classroom.template ? classroom.template.courses : classroom.courses;
@@ -144,6 +145,24 @@ export const classService = {
         classroom.active_term = this.getClassActiveTerm(classroom.terms);
 
         return { ...classroom, teacher };
+
+        async function markSubedLearners(allLearners: IUserView[]) {
+            // TODO: add session
+            const today = new Date();
+            const criteria = { 
+                class: classroom._id,
+                term: classroom.active_term.title,
+                status: ESubscriptionStatus.Active,
+                expiry_date: { $gte: today }
+            };
+            const classSubscriptions = await classSubscriptionService.listSubs(criteria);
+            const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
+            return allLearners.map((learner: IUserView) => {
+                return subscribedLearnersId.includes(learner.id)
+                    ? { ...learner, paid: true }
+                    : { ...learner, paid: false }
+            });
+        }
     },
 
 
@@ -256,29 +275,30 @@ export const classService = {
         }
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
-            const foundCourse = await Course.findById(courseId).select('_id');
-            return foundCourse ? String(foundCourse._id) : null;
+            return Course.findById(courseId).select('_id modules');
+            // return foundCourse ? foundCourse : null;
         }));
-        const validatedCourseIds = validatedCourses.filter((course) => course);
+        const validatedCourseIds = validatedCourses.filter((course) => course?._id);
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
         classOrTemplate.courses = Array.from(courses);
         await classOrTemplate.save();
 
         if (model === 'template') {
             try {
-                await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
+                await this.distributeModulesToClassTemplateTerms(classOrTemplate, courseIds);
+                // this.mapWeeklyMilestone(validatedCourses, classOrTemplate.terms[0]);
             } catch (error: any) {
                 console.log(error.message);
             }
         }
 
-        if (model === 'class') {
-            try {
-                await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
-            } catch (error: any) {
-                console.log(error.message);
-            }
-        }
+        // if (model === 'class') {
+        //     try {
+        //         await this.distributeModulesToClassTemplateTerms(modelId, courseIds);
+        //     } catch (error: any) {
+        //         console.log(error.message);
+        //     }
+        // }
     },
 
     async listCourses(classId: string): Promise<ICourseView[] | []> {
@@ -325,7 +345,10 @@ export const classService = {
 
     async listLearners(classId: string, userId: string, payment_status?: 'paid' | 'unpaid') {
         const _class = await Class.findById(classId);
-        if (!_class) throw new handleError(400, 'Class not found');
+        if (!_class) {
+            throw new handleError(400, 'Class not found');
+        }
+        const active_term = this.getClassActiveTerm(_class.terms);
 
         let learners: any = (_class.learners && _class.learners.map(learner => learner.user_id)) 
             || [];
@@ -340,8 +363,14 @@ export const classService = {
         }, 'learner');
 
         async function filterLearners() {
+            // TODO: add session
             const today = new Date();
-            const criteria = { class: classId, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today } };
+            const criteria = { 
+                class: classId,
+                term: active_term?.title,
+                status: ESubscriptionStatus.Active,
+                expiry_date: { $gte: today }
+            };
             const classSubscriptions = await classSubscriptionService.listSubs(criteria);
             if (!classSubscriptions)
                 return learners;
@@ -407,10 +436,11 @@ export const classService = {
                 active_term = {
                     title: active_term.title,
                     defaultDateChanged: true,
+                    modules: [],
                     start_date: new Date(String(data.active_term_start_date)),
                     end_date: new Date(String(data.active_term_end_date))
                 };
-                const updatedTerm = klass.terms.findIndex(term => term.title === active_term?.title);
+                const updatedTerm = klass.terms.findIndex(term => term.title === active_term?.title)!;
                 klass.terms[updatedTerm] = active_term;
                 data.terms = klass.terms;
             }
@@ -455,11 +485,7 @@ export const classService = {
     //     //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
     // },
 
-    getClassActiveTerm(terms: Array<{
-        title: string,
-        start_date: Date,
-        end_date: Date,
-    }>): ITerm | null {
+    getClassActiveTerm(terms: ITerm[]): ITerm | null {
         if (terms.length === 0) {
             return null;
         }
@@ -472,11 +498,8 @@ export const classService = {
         return activeTerm?? null;
     },
 
-    async distributeModulesToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {
-        const classTemplate = await ClassTemplate.findById(classTemplateId);
-        if (!classTemplate) {
-            throw new Error(`Class Template not found.`);
-        }
+    async distributeModulesToClassTemplateTerms(classTemplate: ITemplate, courseIds: string[]): Promise<void> {
+        if (!classTemplate.terms) return;
         if (classTemplate.terms.length < 1) {
             throw new Error(`Class Template must have at least one term.`);
         }
@@ -501,181 +524,34 @@ export const classService = {
                 classTemplate.terms[0].modules.push(...course.modules.slice(0, minModulesPerTerm));
                 classTemplate.terms[1].modules.push(...course.modules.slice(minModulesPerTerm, minModulesPerTerm + minModulesPerTerm));
             }
-            classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
+            classTemplate.terms[2] && classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
 
             classTemplate.markModified('terms');
             await classTemplate.save();
         }
     },
 
-    async mapWeeklyMilestone() {
+    async mapWeeklyMilestone(course: any, term: ITerm, defaultNumOfStudyingWks = 10) {
+        const totalLessons = course[0].modules.flatMap((module: IModule) => module.lessons);
+        const numOfLessons = totalLessons.length;
 
-    },
+        const numOfWeeksInTerm = Math.ceil((new Date(term.end_date).getTime() - new Date(term.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000))
+        const numOfStudyWks = defaultNumOfStudyingWks < numOfWeeksInTerm 
+            ? defaultNumOfStudyingWks
+            : numOfWeeksInTerm - 3;
+        const lessonsPerWeek = Math.round(numOfLessons / 2);
+        let remainingLessons = numOfLessons % numOfStudyWks;
 
-
-    // Distribute lessons in a course across the weeks in a session
-    async distributeLessonsToClassTemplateTerms(classTemplateId: string, courseIds: string[]): Promise<void> {
-        const classTemplate = await ClassTemplate.findById(classTemplateId);
-        
-        if (!classTemplate) {
-            console.error('Class Template not found.');
-            return;
-        }
-        
-        // Check if the class template has at least one term
-        if (classTemplate.terms.length < 1) {
-            console.error('Class Template must have at least one term.');
-            return;
-        }
+        const week: any = [];
+        for (let lesson = 0; lesson < totalLessons.length; lesson++) {
+            let weekLessons = [];
+            const numOfLessonsPerWk = remainingLessons > 0 ? lessonsPerWeek + 1 : lessonsPerWeek;
     
-        // Fetch the courses by their IDs
-        const courses = await Course.find({ _id: { $in: courseIds } });
-    
-        // Iterate over each course
-        for (const course of courses) {
-            let lessonIndex = 0;
-            
-            // Get the total number of lessons across all modules in the course
-            const totalLessons = course.modules.flatMap(module => module.lessons).length;
-            
-            // Calculate the number of weeks for each term
-            const termWeeks = classTemplate.terms.map(term => 
-                Math.ceil((new Date(term.end_date).getTime() - new Date(term.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000))
-            );
-            
-            // Calculate the total number of weeks across all terms
-            const totalWeeks = termWeeks.reduce((acc, weeks) => acc + weeks, 0);
-    
-            // Create a new array of terms with lessons distributed
-            const updatedTerms = classTemplate.terms.map((term, i) => {
-                // Calculate the number of weeks in the current term
-                const weeksInTerm = termWeeks[i];
-                
-                // Calculate the number of lessons to assign to this term based on its proportion of total weeks
-                const termLessonsCount = Math.round((weeksInTerm / totalWeeks) * totalLessons);
-    
-                // Initialize an array to hold the lessons for this term
-                const termLessons = [];
-                
-                // Distribute lessons across weeks in the current term
-                for (let week = 0; week < weeksInTerm && lessonIndex < totalLessons; week++) {
-                    for (const module of course.modules) {
-                        // Check if we have not exceeded the number of lessons needed for this term
-                        if (lessonIndex < module.lessons.length) {
-                            termLessons.push(module.lessons[lessonIndex]);
-                            lessonIndex++;
-                            // Stop if we have assigned enough lessons for this term
-                            if (termLessons.length >= termLessonsCount) {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                    // Stop if we have assigned enough lessons for this term
-                    if (termLessons.length >= termLessonsCount) {
-                        break;
-                    }
-                }
-    
-                // Return the updated term with assigned lessons
-                return { ...term, lessons: termLessons };
-            });
-    
-            // Update the class template with the new terms
-            classTemplate.terms = updatedTerms;
-            
-            try {
-                // Save the updated class template to the database
-                await classTemplate.save();
-            } catch (err: any) {
-                // Log any errors that occur during the save operation
-                console.error('Failed to save class template:', err.message);
-                return;
+            for (let i = 0; i < numOfLessonsPerWk; i++) {
+                weekLessons.push(totalLessons[i]);
             }
+            week.push(weekLessons);
+            if (remainingLessons > 0) remainingLessons--;
         }
-    },
-
-    async distributeLessonsToClassTerms(classId: string, courseIds: string[]): Promise<void> {
-        const _class = await Class.findById(classId);
-        
-        if (!_class) {
-            console.error('Class not found.');
-            return;
-        }
-        
-        // Check if the class template has at least one term
-        if (_class.terms.length < 1) {
-            console.error('Class Template must have at least one term.');
-            return;
-        }
-    
-        // Fetch the courses by their IDs
-        const courses = await Course.find({ _id: { $in: courseIds } });
-    
-        // Iterate over each course
-        for (const course of courses) {
-            let lessonIndex = 0;
-            
-            // Get the total number of lessons across all modules in the course
-            const totalLessons = course.modules.flatMap(module => module.lessons).length;
-            
-            // Calculate the number of weeks for each term
-            const termWeeks = _class.terms.map(term => 
-                Math.ceil((new Date(term.end_date).getTime() - new Date(term.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000))
-            );
-            
-            // Calculate the total number of weeks across all terms
-            const totalWeeks = termWeeks.reduce((acc, weeks) => acc + weeks, 0);
-    
-            // Create a new array of terms with lessons distributed
-            const updatedTerms = _class.terms.map((term, i) => {
-                // Calculate the number of weeks in the current term
-                const weeksInTerm = termWeeks[i];
-                
-                // Calculate the number of lessons to assign to this term based on its proportion of total weeks
-                const termLessonsCount = Math.round((weeksInTerm / totalWeeks) * totalLessons);
-    
-                // Initialize an array to hold the lessons for this term
-                const termLessons = [];
-                
-                // Distribute lessons across weeks in the current term
-                for (let week = 0; week < weeksInTerm && lessonIndex < totalLessons; week++) {
-                    for (const module of course.modules) {
-                        // Check if we have not exceeded the number of lessons needed for this term
-                        if (lessonIndex < module.lessons.length) {
-                            termLessons.push(module.lessons[lessonIndex]);
-                            lessonIndex++;
-                            // Stop if we have assigned enough lessons for this term
-                            if (termLessons.length >= termLessonsCount) {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                    // Stop if we have assigned enough lessons for this term
-                    if (termLessons.length >= termLessonsCount) {
-                        break;
-                    }
-                }
-    
-                // Return the updated term with assigned lessons
-                return { ...term, lessons: termLessons };
-            });
-    
-            // Update the class template with the new terms
-            _class.terms = updatedTerms;
-            
-            try {
-                // Save the updated class template to the database
-                await _class.save();
-            } catch (err: any) {
-                // Log any errors that occur during the save operation
-                console.error('Failed to save class:', err.message);
-                return;
-            }
-        }
-    }
-    
+    },  
 };

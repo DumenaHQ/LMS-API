@@ -50,14 +50,16 @@ export const classSubscriptionService = {
                 const subAmount = this.calculateClassSubAmount(numOfLearners);
                 const classTotalAmount = subAmount * numOfLearners;
                 
+                // TODO: add session
                 await ClassSubscription.create({
                     class: classId,
-                    term: activeTerm,
+                    term: activeTerm.title,
                     user: userId,
                     subscription: subscription.id,
                     orderId: order._id,
                     learners: selectedLearners,
-                    total_amount: classTotalAmount
+                    total_amount: classTotalAmount,
+                    expiry_date: activeTerm.end_date
                 });
 
                 total_amount += classTotalAmount;
@@ -122,6 +124,9 @@ export const classSubscriptionService = {
         return ClassSubscription.updateMany({ orderId }, { status: 'active' });
     },
 
+    /** 
+     * Merge learners from different sub entries with same class id
+     */
     getSubedLearnersForClass(activeClassSubs: any) {
         return activeClassSubs.reduce((learners: any, sub: any) => {
             return [...learners, ...sub.learners];
