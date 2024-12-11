@@ -150,17 +150,17 @@ export const classService = {
             const term_title = classroom.active_term ? classroom.active_term.title : null;
             const today = new Date();
             const criteria = { 
-                class: classroom._id,
+                class: classroom.id,
                 term: term_title,
                 status: ESubscriptionStatus.Active,
                 expiry_date: { $gte: today }
             };
+            console.log({criteria})
             const classSubscriptions = await classSubscriptionService.listSubs(criteria);
             console.log({classSubscriptions})
             const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
             console.log({subscribedLearnersId})
             return allLearners.map((learner: IUserView) => {
-                console.log(learner)
                 return subscribedLearnersId.includes(learner.id)
                     ? { ...learner, paid: true }
                     : { ...learner, paid: false }
