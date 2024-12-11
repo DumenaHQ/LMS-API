@@ -148,10 +148,12 @@ export const classService = {
 
         async function markSubedLearners(allLearners: IUserView[]) {
             // TODO: add session
+            console.log(classroom.active_term)
+            const term_title = classroom.active_term ? classroom.active_term.title : null;
             const today = new Date();
             const criteria = { 
                 class: classroom._id,
-                term: classroom.active_term.title,
+                term: term_title,
                 status: ESubscriptionStatus.Active,
                 expiry_date: { $gte: today }
             };
