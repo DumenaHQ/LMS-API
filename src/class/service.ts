@@ -125,6 +125,7 @@ export const classService = {
             'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
             'user.deleted': false
         }, 'learner');
+        classroom.active_term = this.getClassActiveTerm(classroom.terms);
         classroom.learners = await markSubedLearners(learners);
         classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
@@ -141,14 +142,11 @@ export const classService = {
                 email: teacher.email
             };
         }
-        console.log(classroom.terms)
-        classroom.active_term = this.getClassActiveTerm(classroom.terms);
 
         return { ...classroom, teacher };
         
         async function markSubedLearners(allLearners: IUserView[]) {
             // TODO: add session
-            console.log(classroom.active_term)
             const term_title = classroom.active_term ? classroom.active_term.title : null;
             const today = new Date();
             const criteria = { 
