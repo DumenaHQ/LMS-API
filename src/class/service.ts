@@ -155,13 +155,10 @@ export const classService = {
                 status: ESubscriptionStatus.Active,
                 expiry_date: { $gte: today }
             };
-            console.log({criteria})
             const classSubscriptions = await classSubscriptionService.listSubs(criteria);
-            console.log({classSubscriptions})
             const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
-            console.log({subscribedLearnersId})
             return allLearners.map((learner: IUserView) => {
-                return subscribedLearnersId.includes(learner.id)
+                return subscribedLearnersId.includes(String(learner.id))
                     ? { ...learner, paid: true }
                     : { ...learner, paid: false }
             });
