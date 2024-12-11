@@ -141,11 +141,11 @@ export const classService = {
                 email: teacher.email
             };
         }
-
+        console.log(classroom.terms)
         classroom.active_term = this.getClassActiveTerm(classroom.terms);
 
         return { ...classroom, teacher };
-
+        
         async function markSubedLearners(allLearners: IUserView[]) {
             // TODO: add session
             console.log(classroom.active_term)
