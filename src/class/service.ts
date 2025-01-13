@@ -490,68 +490,121 @@ export const classService = {
             return null;
         }
         const today = new Date();
-        const activeTerm = terms.find(term => {
+        const todayMonthDay = `${today.getMonth() + 1}-${today.getDate()}`;
+
+        for (const term of terms) {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
-            return startDate <= today && today <= endDate;
-        });
-        return activeTerm?? null;
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                console.warn(`Invalid date format for term: ${term}`);
+                continue;
+            }
+            const startMonthDay = `${startDate.getMonth() + 1}-${startDate.getDate()}`;
+            const endMonthDay = `${endDate.getMonth() + 1}-${endDate.getDate()}`;
+
+            if (startMonthDay <= todayMonthDay && todayMonthDay <= endMonthDay) {
+                return term;
+            }
+        }
+        return null;
     },
+
+    // async distributeModulesToClassTemplateTerms(classTemplate: ITemplate, courseIds: string[]): Promise<void> {
+    //     if (!classTemplate.terms) return;
+    //     if (classTemplate.terms.length < 1) {
+    //         throw new Error(`Class Template must have at least one term.`);
+    //     }
+    //     const courses = await Course.find({ _id: { $in: courseIds } });
+    //     const numOfTerms = classTemplate.terms.length;
+        
+    //     for (const course of courses) {
+    //         const totalModules = course.modules.length;
+    //         const minModulesPerTerm = Math.floor(totalModules / numOfTerms);
+    //         const moduleRemainders = totalModules % numOfTerms;
+
+    //         let modulesPerTerm = minModulesPerTerm;
+    //         if (moduleRemainders == 2) {
+    //             modulesPerTerm++;
+    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
+    //             classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + 1));
+    //         } else if (moduleRemainders == 1) {
+    //             modulesPerTerm++;
+    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
+    //             classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + minModulesPerTerm));
+    //         } else {
+    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, minModulesPerTerm));
+    //             classTemplate.terms[1].modules.push(...course.modules.slice(minModulesPerTerm, minModulesPerTerm + minModulesPerTerm));
+    //         }
+    //         classTemplate.terms[2] && classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
+
+    //         classTemplate.markModified('terms');
+    //         await classTemplate.save();
+    //     }
+    // },
 
     async distributeModulesToClassTemplateTerms(classTemplate: ITemplate, courseIds: string[]): Promise<void> {
-        if (!classTemplate.terms) return;
-        if (classTemplate.terms.length < 1) {
-            throw new Error(`Class Template must have at least one term.`);
+        if (!Array.isArray(classTemplate.terms) || !classTemplate.terms.length) {
+            throw new Error('Class template must have at least one term.');
         }
+    
         const courses = await Course.find({ _id: { $in: courseIds } });
-        const numOfTerms = classTemplate.terms.length;
-        
+    
+        const termCount = classTemplate.terms.length;
+    
         for (const course of courses) {
             const totalModules = course.modules.length;
-            const minModulesPerTerm = Math.floor(totalModules / numOfTerms);
-            const moduleRemainders = totalModules % numOfTerms;
-
-            let modulesPerTerm = minModulesPerTerm;
-            if (moduleRemainders == 2) {
-                modulesPerTerm++;
-                classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
-                classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + 1));
-            } else if (moduleRemainders == 1) {
-                modulesPerTerm++;
-                classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
-                classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + minModulesPerTerm));
-            } else {
-                classTemplate.terms[0].modules.push(...course.modules.slice(0, minModulesPerTerm));
-                classTemplate.terms[1].modules.push(...course.modules.slice(minModulesPerTerm, minModulesPerTerm + minModulesPerTerm));
+            const minModulesPerTerm = Math.floor(totalModules / termCount);
+            const remainderModules = totalModules % termCount;
+    
+            let moduleIndex = 0;
+    
+            for (let i = 0; i < termCount; i++) {
+                const extraModule = i < remainderModules ? 1 : 0;
+                const modulesForTerm = minModulesPerTerm + extraModule;
+    
+                classTemplate.terms[i].modules.push(...course.modules.slice(moduleIndex, moduleIndex + modulesForTerm));
+                moduleIndex += modulesForTerm;
             }
-            classTemplate.terms[2] && classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
-
-            classTemplate.markModified('terms');
-            await classTemplate.save();
         }
+    
+        classTemplate.markModified('terms');
+        await classTemplate.save();
     },
 
-    async mapWeeklyMilestone(course: any, term: ITerm, defaultNumOfStudyingWks = 10) {
+    async getWeeklyMilestone(course: any, term: ITerm, currentDate: Date, defaultNumOfStudyingWks = 10) {
         const totalLessons = course[0].modules.flatMap((module: IModule) => module.lessons);
         const numOfLessons = totalLessons.length;
 
-        const numOfWeeksInTerm = Math.ceil((new Date(term.end_date).getTime() - new Date(term.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000))
-        const numOfStudyWks = defaultNumOfStudyingWks < numOfWeeksInTerm 
-            ? defaultNumOfStudyingWks
-            : numOfWeeksInTerm - 3;
-        const lessonsPerWeek = Math.round(numOfLessons / 2);
+        const termStartDate = new Date(term.start_date).getTime();
+        const termEndDate = new Date(term.end_date).getTime();
+        const givenDate = new Date(currentDate).getTime();
+
+        if (givenDate < termStartDate || givenDate > termEndDate) {
+            throw new Error("Date is out of the term range");
+        }
+
+        const numOfWeeksInTerm = Math.ceil((termEndDate - termStartDate) / (7 * 24 * 60 * 60 * 1000));
+        const numOfStudyWks = Math.min(defaultNumOfStudyingWks, numOfWeeksInTerm - 3);
+        const lessonsPerWeek = Math.floor(numOfLessons / numOfStudyWks);
         let remainingLessons = numOfLessons % numOfStudyWks;
 
-        const week: any = [];
-        for (let lesson = 0; lesson < totalLessons.length; lesson++) {
-            let weekLessons = [];
-            const numOfLessonsPerWk = remainingLessons > 0 ? lessonsPerWeek + 1 : lessonsPerWeek;
-    
-            for (let i = 0; i < numOfLessonsPerWk; i++) {
-                weekLessons.push(totalLessons[i]);
-            }
-            week.push(weekLessons);
+        const weeks: any[] = [];
+        let lessonIndex = 0;
+
+        for (let week = 0; week < numOfStudyWks; week++) {
+            const numOfLessonsPerWk = lessonsPerWeek + (remainingLessons > 0 ? 1 : 0);
+            const weekLessons = totalLessons.slice(lessonIndex, lessonIndex + numOfLessonsPerWk);
+            weeks.push(weekLessons);
+            lessonIndex += numOfLessonsPerWk;
             if (remainingLessons > 0) remainingLessons--;
         }
-    },  
+
+        const weekPosition = Math.ceil((givenDate - termStartDate) / (7 * 24 * 60 * 60 * 1000));
+
+        if (weekPosition < 1 || weekPosition > weeks.length) {
+            throw new Error("Invalid week position");
+        }
+
+        return weeks[weekPosition - 1];
+    },
 };

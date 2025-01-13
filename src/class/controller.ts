@@ -79,9 +79,7 @@ export const listLearners = async (req: Request, res: Response, next: NextFuncti
 export const removeTeacherFromClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-
         await classService.removeTeacherFromClass(classId);
-
         sendResponse(res, 200, 'Teacher Removed');
     } catch (err) {
         next(err);
@@ -190,18 +188,6 @@ export const getClassQuizResults = async (req: Request, res: Response, next: Nex
         const { id: classId, quizId } = req.params;
         const quizResult = await classService.getClassQuizResults(classId, quizId);
         sendResponse(res, 200, 'Quiz Result fetched', { quizResult });
-    } catch (err) {
-        next(err);
-    }
-};
-
-export const subscribe = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id: classId } = req.params;
-        const { id: userId } = req.user;
-        const { learners } = req.body;
-        const order = await classService.subscribe(classId, String(userId), learners);
-        sendResponse(res, 200, 'Class sub', { order });
     } catch (err) {
         next(err);
     }

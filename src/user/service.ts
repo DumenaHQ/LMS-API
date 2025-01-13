@@ -474,26 +474,27 @@ export const userService = {
     async getSchoolSettings(schoolId: string) {
         const settings = await SchoolSetting.findOne({ school: schoolId });
 
+        const terms = [
+            {
+                ...TERMS.first_term
+                
+            },
+            {
+                ...TERMS.second_term
+                
+            },
+            {
+                ...TERMS.third_term
+                
+            }
+        ];
+
         // see if active term dates are set
         if (!settings || !settings.active_term) {
-            const terms = [
-                {
-                    ...TERMS.first_term
-                    
-                },
-                {
-                    ...TERMS.second_term
-                    
-                },
-                {
-                    ...TERMS.third_term
-                    
-                }
-            ];
             const activeTerm = classService.getClassActiveTerm(terms);
             return { school: schoolId, active_term: activeTerm };
         }
-        return settings;
+        return { ...settings, active_term: classService.getClassActiveTerm(terms) };
     },
 
     async updateSchoolSettings(schoolId: string, settings: Record<string, any>) {
