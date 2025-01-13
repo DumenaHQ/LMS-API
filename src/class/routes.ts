@@ -39,5 +39,5 @@ router.delete('/:id', isAuthenticated, deleteClass);
 
 router.get('/:id/quizes/:quizId/result', isAuthenticated, getClassQuizResults);
 
-router.post('/:id/subscribe', isAuthenticated, subscribe);
+// router.post('/:id/subscribe', isAuthenticated, subscribe);
 
