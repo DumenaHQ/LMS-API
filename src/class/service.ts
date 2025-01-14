@@ -14,6 +14,7 @@ import path from 'path';
 import { quizService } from '../quiz/service';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
+import { miscService } from '../misc/miscService';
 
 const classOrTemplateModel: Record<string, any> = {
     'class': Class,
@@ -45,15 +46,15 @@ export const classService = {
             terms: [
                 {
                     ...TERMS.first_term
-                    
+
                 },
                 {
                     ...TERMS.second_term
-                    
+
                 },
                 {
                     ...TERMS.third_term
-                    
+
                 }
             ]
         });
@@ -66,15 +67,15 @@ export const classService = {
             terms: [
                 {
                     ...TERMS.first_term
-                    
+
                 },
                 {
                     ...TERMS.second_term
-                    
+
                 },
                 {
                     ...TERMS.third_term
-                    
+
                 }
             ]
         });
@@ -125,7 +126,7 @@ export const classService = {
             'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
             'user.deleted': false
         }, 'learner');
-        classroom.active_term = this.getClassActiveTerm(classroom.terms);
+        classroom.active_term = this.findActiveTerm(classroom.terms);
         classroom.learners = await markSubedLearners(learners);
         classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
@@ -144,12 +145,12 @@ export const classService = {
         }
 
         return { ...classroom, teacher };
-        
+
         async function markSubedLearners(allLearners: IUserView[]) {
             // TODO: add session
             const term_title = classroom.active_term ? classroom.active_term.title : null;
             const today = new Date();
-            const criteria = { 
+            const criteria = {
                 class: classroom.id,
                 term: term_title,
                 status: ESubscriptionStatus.Active,
@@ -193,7 +194,7 @@ export const classService = {
             };
         }
 
-        classroom.active_term = this.getClassActiveTerm(classroom.terms);
+        classroom.active_term = this.findActiveTerm(classroom.terms);
 
         return { ...classroom, teacher };
     },
@@ -219,18 +220,18 @@ export const classService = {
 
         const classIds = classes.map(clas => String(clas._id));
         const today = new Date();
-        const activeClassSubs = await classSubscriptionService.listSubs({ 
+        const activeClassSubs = await classSubscriptionService.listSubs({
             class: { $in: classIds }, status: ESubscriptionStatus.Active, 'term.end_date': { $gte: today }
         });
 
         const allClasses = await Promise.all(classes.map(async (klas: any) => {
             const _class = klas.toJSON();
-            
+
             const learners = await userService.list({
                 'user._id': { $in: _class.learners.map((learner: { user_id: string }) => learner.user_id) },
                 'user.deleted': false
             }, 'learner');
-            
+
             _class.learner_count = learners.length;
             if (klas.template) {
                 _class.course_count = _class.template.courses?.length;
@@ -243,13 +244,13 @@ export const classService = {
                     return [...learners, ...sub.learners];
                 return learners;
             }, []);
-            
+
             _class.sub_status = 'none';
             if (subedLearners && subedLearners.length) {
                 _class.sub_status = (subedLearners.length == _class.learner_count) ? 'full' : 'part';
             }
 
-            _class.active_term = this.getClassActiveTerm(klas.terms);
+            _class.active_term = this.findActiveTerm(klas.terms);
             _class.unpaid_learner_count = _class.learner_count - subedLearners.length;
             delete _class.learners;
             delete _class.courses;
@@ -334,7 +335,7 @@ export const classService = {
         });
 
         if (learnersToAdd.length) {
-            await Class.findByIdAndUpdate(_class._id, { $push: { learners: learnersToAdd }});
+            await Class.findByIdAndUpdate(_class._id, { $push: { learners: learnersToAdd } });
         }
 
         //
@@ -348,9 +349,9 @@ export const classService = {
         if (!_class) {
             throw new handleError(400, 'Class not found');
         }
-        const active_term = this.getClassActiveTerm(_class.terms);
+        const active_term = this.findActiveTerm(_class.terms);
 
-        let learners: any = (_class.learners && _class.learners.map(learner => learner.user_id)) 
+        let learners: any = (_class.learners && _class.learners.map(learner => learner.user_id))
             || [];
 
         if (payment_status) {
@@ -365,7 +366,7 @@ export const classService = {
         async function filterLearners() {
             // TODO: add session
             const today = new Date();
-            const criteria = { 
+            const criteria = {
                 class: classId,
                 term: active_term?.title,
                 status: ESubscriptionStatus.Active,
@@ -431,7 +432,7 @@ export const classService = {
 
         let active_term: ITerm | null = null;
         if (data.active_term_start_date && data.active_term_end_date) {
-            active_term = this.getClassActiveTerm(klass.terms);
+            active_term = this.findActiveTerm(klass.terms);
             if (active_term) {
                 active_term = {
                     title: active_term.title,
@@ -451,10 +452,16 @@ export const classService = {
         return { ...result, active_term };
     },
 
+    /**
+     * Update default term for all the classes in a school for the current session
+     * @param schoolId 
+     * @param defaultTermDates 
+     * @returns 
+     */
     async updateDefaultTermsForClass(schoolId: string, defaultTermDates: ITerm) {
         return Class.updateMany(
-            { school_id: schoolId, 'terms.title': defaultTermDates.title }, 
-            { $set: { 'terms.$': defaultTermDates }}
+            { school_id: schoolId, 'terms.title': defaultTermDates.title },
+            { $set: { 'terms.$': defaultTermDates } }
         );
     },
 
@@ -485,24 +492,14 @@ export const classService = {
     //     //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
     // },
 
-    getClassActiveTerm(terms: ITerm[]): ITerm | null {
-        if (terms.length === 0) {
-            return null;
-        }
+    findActiveTerm(terms: ITerm[] = []): ITerm | null {
         const today = new Date();
-        const todayMonthDay = `${today.getMonth() + 1}-${today.getDate()}`;
 
         for (const term of terms) {
             const startDate = new Date(term.start_date);
             const endDate = new Date(term.end_date);
-            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-                console.warn(`Invalid date format for term: ${term}`);
-                continue;
-            }
-            const startMonthDay = `${startDate.getMonth() + 1}-${startDate.getDate()}`;
-            const endMonthDay = `${endDate.getMonth() + 1}-${endDate.getDate()}`;
 
-            if (startMonthDay <= todayMonthDay && todayMonthDay <= endMonthDay) {
+            if (startDate <= today && today <= endDate) {
                 return term;
             }
         }
@@ -516,7 +513,7 @@ export const classService = {
     //     }
     //     const courses = await Course.find({ _id: { $in: courseIds } });
     //     const numOfTerms = classTemplate.terms.length;
-        
+
     //     for (const course of courses) {
     //         const totalModules = course.modules.length;
     //         const minModulesPerTerm = Math.floor(totalModules / numOfTerms);
@@ -546,27 +543,27 @@ export const classService = {
         if (!Array.isArray(classTemplate.terms) || !classTemplate.terms.length) {
             throw new Error('Class template must have at least one term.');
         }
-    
+
         const courses = await Course.find({ _id: { $in: courseIds } });
-    
+
         const termCount = classTemplate.terms.length;
-    
+
         for (const course of courses) {
             const totalModules = course.modules.length;
             const minModulesPerTerm = Math.floor(totalModules / termCount);
             const remainderModules = totalModules % termCount;
-    
+
             let moduleIndex = 0;
-    
+
             for (let i = 0; i < termCount; i++) {
                 const extraModule = i < remainderModules ? 1 : 0;
                 const modulesForTerm = minModulesPerTerm + extraModule;
-    
+
                 classTemplate.terms[i].modules.push(...course.modules.slice(moduleIndex, moduleIndex + modulesForTerm));
                 moduleIndex += modulesForTerm;
             }
         }
-    
+
         classTemplate.markModified('terms');
         await classTemplate.save();
     },

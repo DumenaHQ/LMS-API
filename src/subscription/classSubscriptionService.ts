@@ -41,15 +41,15 @@ export const classSubscriptionService = {
 
                 if (!selectedLearners.length) continue;
                 numOfLearners = selectedLearners.length;
-                    
-                const activeTerm = classService.getClassActiveTerm(_class.terms);
+
+                const activeTerm = classService.findActiveTerm(_class.terms);
                 if (activeTerm == null) {
                     // log this
                     continue;
                 }
                 const subAmount = this.calculateClassSubAmount(numOfLearners);
                 const classTotalAmount = subAmount * numOfLearners;
-                
+
                 // TODO: add session
                 await ClassSubscription.create({
                     class: classId,
@@ -110,7 +110,7 @@ export const classSubscriptionService = {
             subAmount = 7000;
         else if (numOfLearners > 500)
             subAmount = 6000
-        else 
+        else
             subAmount = 7500;
 
         return subAmount;

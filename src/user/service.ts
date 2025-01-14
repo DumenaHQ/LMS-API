@@ -11,9 +11,10 @@ import { paymentService } from '../payment/service';
 import { SALT_ROUNDS, TERMS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
-import {UserSubscription} from '../subscription/model';
+import { UserSubscription } from '../subscription/model';
 import { subscriptionService } from '../subscription/service';
 import { classService } from '../class/service';
+import { miscService } from '../misc/miscService';
 
 const userModel: Record<string, any> = {
     [USER_TYPES.learner]: Learner,
@@ -166,7 +167,7 @@ export const userService = {
         }
         user.status = EUserStatus.Active;
 
-        if (user.role === USER_TYPES.school){
+        if (user.role === USER_TYPES.school) {
             const [userType, subscription] = await Promise.all([
                 userModel[user.role].findOne({ user: user.id }),
                 subscriptionService.findOne({
@@ -174,11 +175,11 @@ export const userService = {
                 })
             ]);
 
-            if (subscription){
+            if (subscription) {
                 await subscriptionService.migrateSchoolToSubscription(userType.id, subscription.id);
             }
         }
-        
+
         await user.save();
         return this.view({ _id: user.id });
     },
@@ -474,49 +475,31 @@ export const userService = {
     async getSchoolSettings(schoolId: string) {
         const settings = await SchoolSetting.findOne({ school: schoolId });
 
-        const terms = [
-            {
-                ...TERMS.first_term
-                
-            },
-            {
-                ...TERMS.second_term
-                
-            },
-            {
-                ...TERMS.third_term
-                
-            }
-        ];
+        const currentSession = miscService.fetchCurrentSession();
+        const active_term = miscService.findActiveTerm(currentSession);
 
         // see if active term dates are set
         if (!settings || !settings.active_term) {
-            const activeTerm = classService.getClassActiveTerm(terms);
-            return { school: schoolId, active_term: activeTerm };
+            active_term.defaultDateChanged = false;
+            return { school: schoolId, active_term };
         }
-        return { ...settings, active_term: classService.getClassActiveTerm(terms) };
+
+        if (settings.active_term.title !== active_term.title) {
+            return { ...settings, active_term };
+        }
+
+        return settings;
     },
 
     async updateSchoolSettings(schoolId: string, settings: Record<string, any>) {
         const { active_term } = settings;
         const settingsFields: Record<string, any> = {};
+
         // validate fields
         if (active_term.start_date && active_term.end_date) {
-            const terms = [
-                {
-                    ...TERMS.first_term
-                    
-                },
-                {
-                    ...TERMS.second_term
-                    
-                },
-                {
-                    ...TERMS.third_term
-                    
-                }
-            ];
-            const activeTerm = classService.getClassActiveTerm(terms);
+            const currentSession = miscService.fetchCurrentSession();
+            const activeTerm = miscService.findActiveTerm(currentSession);
+
             if (activeTerm) {
                 settingsFields.active_term = {
                     title: activeTerm.title,
@@ -529,7 +512,7 @@ export const userService = {
             }
         }
         return SchoolSetting.findOneAndUpdate(
-            { school: schoolId }, 
+            { school: schoolId },
             settingsFields,
             { upsert: true }
         );

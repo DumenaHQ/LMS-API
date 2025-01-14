@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { USER_TYPES } from '../config/constants'; 
+import { USER_TYPES } from '../config/constants';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
 import { classService } from '../class/service';
@@ -15,11 +15,11 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
             next('Invalid class');
             return;
         }
-        const activeTerm = classService.getClassActiveTerm(classroom.terms);
+        const activeTerm = classService.findActiveTerm(classroom.terms);
 
         // TODO: add session
         const today = new Date();
-        const criteria = { 
+        const criteria = {
             user: school,
             class: classId,
             term: activeTerm?.title,
