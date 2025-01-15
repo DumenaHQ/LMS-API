@@ -6,7 +6,7 @@ import Class from '../class/model';
 import Session from './model';
 
 export const miscService = {
-    fetchTemplate(name: string) {
+    fetchTemplate(name: 'students_template') {
         if (!name) {
             throw new handleError(400, 'Template sample name not specified');
         }
@@ -53,38 +53,35 @@ export const miscService = {
         }
         const newSession = new Session({
             title: sessionTitle,
-            terms: {
-                first_term: {
+            terms: [
+                {
                     title: 'first term',
-                    start_date: new Date(`${currentYear}-09-03T00:00:00.000Z`),
-                    end_date: new Date(`${currentYear}-12-23T00:00:00.000Z`),
+                    start_date: new Date(String(`${new Date().getFullYear() - 1}-09-03T00:00:00.000Z`)),
+                    end_date: new Date(`${new Date().getFullYear() - 1}-12-23T00:00:00.000Z`)
                 },
-                second_term: {
+                {
                     title: 'second term',
-                    start_date: new Date(`${currentYear + 1}-01-03T00:00:00.000Z`),
-                    end_date: new Date(`${currentYear + 1}-04-07T00:00:00.000Z`),
+                    start_date: new Date(`${new Date().getFullYear()}-01-03T00:00:00.000Z`),
+                    end_date: new Date(`${new Date().getFullYear()}-04-07T00:00:00.000Z`)
                 },
-                third_term: {
+                {
                     title: 'third term',
-                    start_date: new Date(`${currentYear + 1}-04-14T00:00:00.000Z`),
-                    end_date: new Date(`${currentYear + 1}-07-20T00:00:00.000Z`),
+                    start_date: new Date(`${new Date().getFullYear()}-04-14T00:00:00.000Z`),
+                    end_date: new Date(`${new Date().getFullYear()}-07-20T00:00:00.000Z`)
                 }
-            }
+            ]
         });
         return newSession.save();
     },
 
     findActiveTerm(session: any) {
         const currentDate = new Date();
-        if (currentDate >= session.terms.first_term.start_date && currentDate <= session.terms.first_term.end_date) {
-            return session.terms.first_term;
-        } else if (currentDate >= session.terms.second_term.start_date && currentDate <= session.terms.second_term.end_date) {
-            return session.terms.second_term;
-        } else if (currentDate >= session.terms.third_term.start_date && currentDate <= session.terms.third_term.end_date) {
-            return session.terms.third_term;
-        } else {
-            return null;
+        for (let i = 0; i < session.terms.length; i++) {
+            if (currentDate >= session.terms[i].start_date && currentDate <= session.terms[i].end_date) {
+                return session.terms[i];
+            }
         }
+        return null;
     }
 
 }

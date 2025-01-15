@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { ICourseView, IModule } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
-import { USER_TYPES, UPLOADS, ORDER_TYPES, TERMS } from '../config/constants';
+import { USER_TYPES, UPLOADS, TERMS } from '../config/constants';
 import { uploadFile } from '../helpers/fileUploader';
 import { lmsBucketName } from '../config/config';
 const { BUCKET_NAME: lmsBucket } = lmsBucketName;
@@ -14,7 +14,6 @@ import path from 'path';
 import { quizService } from '../quiz/service';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
-import { miscService } from '../misc/miscService';
 
 const classOrTemplateModel: Record<string, any> = {
     'class': Class,
@@ -22,7 +21,7 @@ const classOrTemplateModel: Record<string, any> = {
 };
 
 export const classService = {
-    async create(classData: IClass, files: File): Promise<any> {
+    async create(classData: IClass, files: any): Promise<any> {
         if (classData.template) {
             const template = await ClassTemplate.findById(classData.template);
             if (!template) throw new handleError(400, 'Invalid template ID');

@@ -475,17 +475,17 @@ export const userService = {
     async getSchoolSettings(schoolId: string) {
         const settings = await SchoolSetting.findOne({ school: schoolId });
 
-        const currentSession = miscService.fetchCurrentSession();
+        const currentSession = await miscService.fetchCurrentSession();
         const active_term = miscService.findActiveTerm(currentSession);
+        active_term.defaultDateChanged = false;
 
         // see if active term dates are set
         if (!settings || !settings.active_term) {
-            active_term.defaultDateChanged = false;
             return { school: schoolId, active_term };
         }
 
         if (settings.active_term.title !== active_term.title) {
-            return { ...settings, active_term };
+            return { ...settings.toJSON(), active_term };
         }
 
         return settings;
@@ -497,7 +497,7 @@ export const userService = {
 
         // validate fields
         if (active_term.start_date && active_term.end_date) {
-            const currentSession = miscService.fetchCurrentSession();
+            const currentSession = await miscService.fetchCurrentSession();
             const activeTerm = miscService.findActiveTerm(currentSession);
 
             if (activeTerm) {
