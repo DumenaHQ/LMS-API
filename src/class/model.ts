@@ -13,7 +13,7 @@ export interface IAddLearner {
 export interface ITerm {
     title: string,
     defaultDateChanged?: boolean,
-    modules:any[],
+    modules: any[],
     start_date: Date,
     end_date: Date
 }
@@ -21,7 +21,8 @@ export interface ITerm {
 export interface IClass extends Document {
     name: string;
     terms: ITerm[];
-    template?: Schema.Types.ObjectId;
+    template?: Schema.Types.ObjectId | ITemplate;
+    active_term?: ITerm;
     description: string;
     school_id: Schema.Types.ObjectId;
     parent_id: Schema.Types.ObjectId;

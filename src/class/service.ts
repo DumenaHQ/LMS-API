@@ -129,9 +129,9 @@ export const classService = {
         classroom.learners = await markSubedLearners(learners);
         classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
-        const courses = classroom.template ? classroom.template.courses : classroom.courses;
-        classroom.course_count = courses.length;
-        classroom.courses = await courseService.list({ _id: { $in: courses } });
+        const { courses, classCourses, course_count } = await this.processClassCourses(classroom);
+        classroom.courses = classCourses;
+        classroom.course_count = course_count;
 
         let teacher;
         if (classroom.teacher_id) {
@@ -143,7 +143,8 @@ export const classService = {
             };
         }
 
-        return { ...classroom, teacher };
+        const weeklyLessons = await this.getWeeklyActivities(courses, classroom.active_term);
+        return { ...classroom, weeklyLessons, teacher };
 
         async function markSubedLearners(allLearners: IUserView[]) {
             // TODO: add session
@@ -163,6 +164,27 @@ export const classService = {
                     : { ...learner, paid: false }
             });
         }
+    },
+
+    async processClassCourses(classroom: IClass) {
+        const courseIds = classroom.template ? classroom.template.courses : classroom.courses;
+        const courses = await courseService.list({ _id: { $in: courseIds } });
+        let lesson_count = 0;
+        const classCourses = courses.map((course: ICourseView) => {
+            let modules = course.modules;
+            if (classOrTemplateModel.template) {
+                const active_term = classroom?.template?.terms.find((term: any) => term.title === classroom.active_term?.title);
+                modules = active_term.modules;
+                lesson_count += modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
+            }
+            return { ...course, module_count: modules?.length, lesson_count, modules };
+        });
+        return { courses, classCourses, course_count: courses.length };
+    },
+
+    async getWeeklyActivities(courses: ICourseView[], term: ITerm) {
+        const weeklyLessons = await this.getWeeklyLessons(courses, term, new Date());
+        return weeklyLessons;
     },
 
 
@@ -276,7 +298,6 @@ export const classService = {
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
             return Course.findById(courseId).select('_id modules');
-            // return foundCourse ? foundCourse : null;
         }));
         const validatedCourseIds = validatedCourses.filter((course) => course?._id);
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
@@ -286,7 +307,6 @@ export const classService = {
         if (model === 'template') {
             try {
                 await this.distributeModulesToClassTemplateTerms(classOrTemplate, courseIds);
-                // this.mapWeeklyMilestone(validatedCourses, classOrTemplate.terms[0]);
             } catch (error: any) {
                 console.log(error.message);
             }
@@ -481,15 +501,6 @@ export const classService = {
         return quizService.listLearnersResult(quizId, classLearnerIds);
     },
 
-    // async subscribe(classId: string, userId: string, learners: []) {
-    //     const klass = await this.findOne({ _id: classId }, false);
-    //     const meta_data = { classId };
-    //     const orderItems = learners.map((learner: any) => {
-    //         const { user_id, name } = learner;
-    //         return { order_type_id: klass?.template, user_id, name, order_type: 'class', meta_data };
-    //     });
-    //     //return orderService.create({ items: orderItems, user: new mongoose.Types.ObjectId(userId), item_type: ORDER_TYPES.class });
-    // },
 
     findActiveTerm(terms: ITerm[] = []): ITerm | null {
         const today = new Date();
@@ -505,38 +516,6 @@ export const classService = {
         return null;
     },
 
-    // async distributeModulesToClassTemplateTerms(classTemplate: ITemplate, courseIds: string[]): Promise<void> {
-    //     if (!classTemplate.terms) return;
-    //     if (classTemplate.terms.length < 1) {
-    //         throw new Error(`Class Template must have at least one term.`);
-    //     }
-    //     const courses = await Course.find({ _id: { $in: courseIds } });
-    //     const numOfTerms = classTemplate.terms.length;
-
-    //     for (const course of courses) {
-    //         const totalModules = course.modules.length;
-    //         const minModulesPerTerm = Math.floor(totalModules / numOfTerms);
-    //         const moduleRemainders = totalModules % numOfTerms;
-
-    //         let modulesPerTerm = minModulesPerTerm;
-    //         if (moduleRemainders == 2) {
-    //             modulesPerTerm++;
-    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
-    //             classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + 1));
-    //         } else if (moduleRemainders == 1) {
-    //             modulesPerTerm++;
-    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, modulesPerTerm));
-    //             classTemplate.terms[1].modules.push(...course.modules.slice(modulesPerTerm, modulesPerTerm + minModulesPerTerm));
-    //         } else {
-    //             classTemplate.terms[0].modules.push(...course.modules.slice(0, minModulesPerTerm));
-    //             classTemplate.terms[1].modules.push(...course.modules.slice(minModulesPerTerm, minModulesPerTerm + minModulesPerTerm));
-    //         }
-    //         classTemplate.terms[2] && classTemplate.terms[2].modules.push(...course.modules.slice(-minModulesPerTerm));
-
-    //         classTemplate.markModified('terms');
-    //         await classTemplate.save();
-    //     }
-    // },
 
     async distributeModulesToClassTemplateTerms(classTemplate: ITemplate, courseIds: string[]): Promise<void> {
         if (!Array.isArray(classTemplate.terms) || !classTemplate.terms.length) {
@@ -567,10 +546,7 @@ export const classService = {
         await classTemplate.save();
     },
 
-    async getWeeklyMilestone(course: any, term: ITerm, currentDate: Date, defaultNumOfStudyingWks = 10) {
-        const totalLessons = course[0].modules.flatMap((module: IModule) => module.lessons);
-        const numOfLessons = totalLessons.length;
-
+    async getWeeklyLessons(courses: any[], term: ITerm, currentDate: Date, defaultNumOfStudyingWks = 10) {
         const termStartDate = new Date(term.start_date).getTime();
         const termEndDate = new Date(term.end_date).getTime();
         const givenDate = new Date(currentDate).getTime();
@@ -578,7 +554,9 @@ export const classService = {
         if (givenDate < termStartDate || givenDate > termEndDate) {
             throw new Error("Date is out of the term range");
         }
-
+        // const totalLessons = courses[0].modules.flatMap((module: IModule) => module.lessons);
+        const totalLessons = courses.flatMap((course: any) => course.modules.flatMap((module: IModule) => module.lessons));
+        const numOfLessons = totalLessons.length;
         const numOfWeeksInTerm = Math.ceil((termEndDate - termStartDate) / (7 * 24 * 60 * 60 * 1000));
         const numOfStudyWks = Math.min(defaultNumOfStudyingWks, numOfWeeksInTerm - 3);
         const lessonsPerWeek = Math.floor(numOfLessons / numOfStudyWks);
