@@ -120,16 +120,17 @@ export const classService = {
             throw new handleError(404, 'Class not found');
         }
         classroom = classroom.toJSON();
-
-        const learners = await userService.list({
-            'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
-            'user.deleted': false
-        }, 'learner');
         classroom.active_term = this.findActiveTerm(classroom.terms);
-        classroom.learners = await markSubedLearners(learners);
-        classroom.learner_count = classroom.learners && classroom.learners.length || 0;
 
-        const { courses, classCourses, course_count } = await this.processClassCourses(classroom);
+        const [
+            { learners, learner_count },
+            { courses, classCourses, course_count }
+        ] = await Promise.all([
+            this.processClassLearners(classroom),
+            this.processClassCourses(classroom)
+        ]);
+        classroom.learners = learners;
+        classroom.learner_count = learner_count;
         classroom.courses = classCourses;
         classroom.course_count = course_count;
 
@@ -145,34 +146,43 @@ export const classService = {
 
         const weeklyLessons = await this.getWeeklyActivities(courses, classroom.active_term);
         return { ...classroom, weeklyLessons, teacher };
+    },
 
-        async function markSubedLearners(allLearners: IUserView[]) {
-            // TODO: add session
-            const term_title = classroom.active_term ? classroom.active_term.title : null;
-            const today = new Date();
-            const criteria = {
-                class: classroom.id,
-                term: term_title,
-                status: ESubscriptionStatus.Active,
-                expiry_date: { $gte: today }
-            };
-            const classSubscriptions = await classSubscriptionService.listSubs(criteria);
-            const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
-            return allLearners.map((learner: IUserView) => {
-                return subscribedLearnersId.includes(String(learner.id))
-                    ? { ...learner, paid: true }
-                    : { ...learner, paid: false }
-            });
-        }
+    async processClassLearners(classroom: IClass) {
+        // TODO: add session
+        const term_title = classroom.active_term ? classroom.active_term.title : null;
+        const today = new Date();
+        const criteria = {
+            class: classroom.id,
+            term: term_title,
+            status: ESubscriptionStatus.Active,
+            expiry_date: { $gte: today }
+        };
+        const [classLearners, classSubscriptions] = await Promise.all([
+            userService.list({
+                'user._id': { $in: classroom.learners.map((learner: IAddLearner) => String(learner.user_id)) },
+                'user.deleted': false
+            }, 'learner'),
+            classSubscriptionService.listSubs(criteria)
+        ]);
+        const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
+        const learners = classLearners.map((learner: IUserView) => {
+            return subscribedLearnersId.includes(String(learner.id))
+                ? { ...learner, paid: true }
+                : { ...learner, paid: false }
+        });
+
+        return { learners, learner_count: learners && learners.length || 0 }
     },
 
     async processClassCourses(classroom: IClass) {
         const courseIds = classroom.template ? classroom.template.courses : classroom.courses;
         const courses = await courseService.list({ _id: { $in: courseIds } });
+
         let lesson_count = 0;
         const classCourses = courses.map((course: ICourseView) => {
             let modules = course.modules;
-            if (classOrTemplateModel.template) {
+            if (classroom.template) {
                 const active_term = classroom?.template?.terms.find((term: any) => term.title === classroom.active_term?.title);
                 modules = active_term.modules;
                 lesson_count += modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
@@ -286,6 +296,22 @@ export const classService = {
             default:
                 return allClasses;
         }
+    },
+
+    async fetchClassCourse(classId: string, courseId: string) {
+        const klass = await this.findOne({ _id: classId });
+        if (!klass) {
+            throw new handleError(400, 'Class not found');
+        }
+        const activeTerm = this.findActiveTerm(klass.terms);
+        if (!activeTerm) {
+            throw new handleError(400, 'No active term found');
+        }
+        const klassObj = klass.toObject() as any;
+        klassObj.active_term = activeTerm;
+
+        const { classCourses } = await this.processClassCourses(klassObj);
+        return classCourses.find((course: any) => String(course.id) === courseId);
     },
 
 

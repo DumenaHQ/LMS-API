@@ -123,6 +123,16 @@ export const viewRedactedClass = async (req: Request, res: Response, next: NextF
     }
 };
 
+export const viewClassCourse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: classId, courseId } = req.params;
+        const course = await classService.fetchClassCourse(classId, courseId);
+        sendResponse(res, 200, 'Class Course fetched', { course });
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 export const updateClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
