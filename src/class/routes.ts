@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated, isSchoolOrAdmin } from '../middleware/verifyToken';
 import { validateClassSub } from '../middleware/validateClassSub';
-import { addCourses, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, getClassQuizResults, listClassTemplates, listClasses, listCourses, listLearners, removeTeacherFromClass, updateClass, updateClassTemplate, viewClass, viewClassCourse, viewClassTemplate, viewRedactedClass } from './controller';
+import { addCourses, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, getClassQuizResults, listClassTemplates, listClasses, listCourses, listLearners, removeTeacherFromClass, removeTemplateCourse, updateClass, updateClassTemplate, viewClass, viewClassCourse, viewClassTemplate, viewRedactedClass } from './controller';
 
 export const router = Router();
 
@@ -18,6 +18,8 @@ router.get('/templates/:id', isAuthenticated, viewClassTemplate);
 router.put('/templates/:id', isAuthenticated, isAdmin, updateClassTemplate);
 
 router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCourses);
+
+router.patch('/templates/:id/courses/:courseId/remove', isAuthenticated, isAdmin, removeTemplateCourse);
 
 router.get('/:id', isAuthenticated, validateClassSub, viewClass);
 

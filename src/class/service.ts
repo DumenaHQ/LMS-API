@@ -347,6 +347,30 @@ export const classService = {
         // }
     },
 
+    async removeCourse(model: 'class' | 'template', modelId: string, courseId: string): Promise<void> {
+        const classOrTemplate = await classOrTemplateModel[model].findById(modelId);
+
+        if (!classOrTemplate) {
+            throw new handleError(400, `Invalid ${model} ID`);
+        }
+
+        const courseIndex = classOrTemplate.courses.findIndex((course: any) => String(course._id) === courseId);
+        if (courseIndex === -1) {
+            throw new handleError(400, 'Course not found in class');
+        }
+
+        classOrTemplate.courses.splice(courseIndex, 1);
+        await classOrTemplate.save();
+
+        if (model === 'template') {
+            try {
+                await this.distributeModulesToClassTemplateTerms(classOrTemplate, classOrTemplate.courses.map((course: any) => course._id));
+            } catch (error: any) {
+                console.log(error.message);
+            }
+        }
+    },
+
     async listCourses(classId: string): Promise<ICourseView[] | []> {
         const _class = await Class.findById(classId);
         if (!_class) throw new handleError(400, 'Class not found');
@@ -552,6 +576,12 @@ export const classService = {
 
         const termCount = classTemplate.terms.length;
 
+        // clean up modules in each term
+        for (const term of classTemplate.terms) {
+            term.modules = [];
+        }
+
+        // distribute modules to terms
         for (const course of courses) {
             const totalModules = course.modules.length;
             const minModulesPerTerm = Math.floor(totalModules / termCount);

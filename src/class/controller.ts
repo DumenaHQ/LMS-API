@@ -38,6 +38,16 @@ export const addTemplateCourses = async (req: Request, res: Response, next: Next
     }
 };
 
+export const removeTemplateCourse = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: templateId, courseId } = req.params;
+        await classService.removeCourse('template', templateId, courseId);
+        sendResponse(res, 200, 'Course removed from class template');
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
