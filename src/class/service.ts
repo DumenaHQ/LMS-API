@@ -179,13 +179,13 @@ export const classService = {
         const courseIds = classroom.template ? classroom.template.courses : classroom.courses;
         const courses = await courseService.list({ _id: { $in: courseIds } });
 
-        let lesson_count = 0;
         const classCourses = courses.map((course: ICourseView) => {
-            let modules = course.modules;
+            let modules;
+            let lesson_count = course.lesson_count;
             if (classroom.template) {
                 const active_term = classroom?.template?.terms.find((term: any) => term.title === classroom.active_term?.title);
-                modules = active_term.modules;
-                lesson_count += modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
+                modules = active_term ? active_term.modules : course.modules;
+                lesson_count = modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
             }
             return { ...course, module_count: modules?.length, lesson_count, modules };
         });
