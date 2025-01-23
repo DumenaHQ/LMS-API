@@ -109,8 +109,9 @@ export const classService = {
     },
 
 
-    async view(criteria: object | string): Promise<IClass> {
+    async view(criteria: object | string, subStatus: string | null): Promise<IClass> {
         let classroom: any;
+        console.log({ criteria })
         if (typeof criteria == 'object')
             classroom = await this.findOne(criteria);
         else {
@@ -131,7 +132,7 @@ export const classService = {
         ]);
         classroom.learners = learners;
         classroom.learner_count = learner_count;
-        classroom.courses = classCourses;
+        classroom.courses = subStatus == 'inactive' ? [] : classCourses;
         classroom.course_count = course_count;
 
         let teacher;
@@ -231,8 +232,9 @@ export const classService = {
     },
 
 
-    async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }): Promise<IClass | null> {
+    async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }, subStatus: string | null): Promise<IClass | null> {
         const defaultParam: any = { _id: new mongoose.Types.ObjectId(classId) };
+        console.log({ defaultParam })
 
         const criteria = {
             [USER_TYPES.learner]: { ...defaultParam, 'learners.user_id': roleUserId },
@@ -241,7 +243,7 @@ export const classService = {
             [USER_TYPES.instructor]: { ...defaultParam, teacher_id: roleUserId },
             [USER_TYPES.admin]: defaultParam
         };
-        return this.view(criteria[role]);
+        return this.view(criteria[role], subStatus);
     },
 
 

@@ -52,6 +52,7 @@ export interface IUserView {
     active_organization?: Schema.Types.ObjectId;
     isUserOnboarded: boolean;
     status: string;
+    subStatus?: string;
     createdAt: string;
     updatedAt: string;
     school_id?: Schema.Types.ObjectId;
@@ -187,9 +188,9 @@ const SchoolSchema: Schema = new Schema({
         type: String,
         unique: true
     },
-    school_email:{
+    school_email: {
         type: String,
-        unique: true 
+        unique: true
     },
     address: String,
     resident_state: String,
@@ -239,7 +240,7 @@ const SchoolSettingsSchema: Schema = new Schema({
     active_term: {
         type: term
     }
-    ,   
+    ,
 }, { timestamps: true });
 
 export const SchoolSetting = mongoose.model('SchoolSetting', SchoolSettingsSchema);

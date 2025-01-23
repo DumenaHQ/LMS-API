@@ -28,13 +28,15 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         };
         const classSubs = await classSubscriptionService.listSubs(criteria);
         if (!classSubs || !classSubs.length) {
-            next('route');
+            req.user.subStatus = 'inactive';
+            next();
         }
 
         const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubs);
         // check if current learner was paid for
         if (!subscribedLearnersId.find((learner: string) => String(learner) === String(id))) {
-            next('route');
+            req.user.subStatus = 'inactive';
+            next();
         }
     }
     next();

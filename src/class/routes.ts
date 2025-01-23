@@ -23,7 +23,7 @@ router.patch('/templates/:id/courses/:courseId/remove', isAuthenticated, isAdmin
 
 router.get('/:id', isAuthenticated, validateClassSub, viewClass);
 
-router.get('/:id', isAuthenticated, viewRedactedClass);
+// router.get('/:id', isAuthenticated, viewRedactedClass);
 
 router.put('/:id', isAuthenticated, updateClass);
 

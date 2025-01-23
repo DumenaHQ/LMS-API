@@ -113,25 +113,29 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
 export const viewClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: classId } = req.params;
-        const { role, id } = req.user;
+        const { role, id, subStatus = null } = req.user;
         const roleUserId = role === USER_TYPES.school ? String(req.user[`school_id`]) : String(id);
-        const _class = await classService.viewClass(classId, { roleUserId, role });
+        const _class = await classService.viewClass(classId, { roleUserId, role }, subStatus);
+        if (subStatus === 'inactive')
+            return sendResponse(res, 206, 'You currently do not have an active subscription access to this class', { class: _class });
         sendResponse(res, 200, 'Class fetched', { class: _class });
     } catch (err) {
         next(err);
     }
 };
 
-export const viewRedactedClass = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const message = 'You currently do not have an active subscription access to this class';
-        const { id: classId } = req.params;
-        const _class = await classService.viewLimitedClass(classId);
-        sendResponse(res, 206, message, { class: _class });
-    } catch (err) {
-        next(err);
-    }
-};
+// export const viewRedactedClass = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const message = 'You currently do not have an active subscription access to this class';
+//         console.log({ message })
+//         console.log(req.params)
+//         const { id: classId } = req.params;
+//         const _class = await classService.viewLimitedClass(classId);
+//         sendResponse(res, 206, message, { class: _class });
+//     } catch (err) {
+//         next(err);
+//     }
+// };
 
 export const viewClassCourse = async (req: Request, res: Response, next: NextFunction) => {
     try {
