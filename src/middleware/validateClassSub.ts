@@ -30,6 +30,7 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         if (!classSubs || !classSubs.length) {
             req.user.subStatus = 'inactive';
             next();
+            return;
         }
 
         const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubs);
@@ -37,6 +38,7 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         if (!subscribedLearnersId.find((learner: string) => String(learner) === String(id))) {
             req.user.subStatus = 'inactive';
             next();
+            return;
         }
     }
     next();
