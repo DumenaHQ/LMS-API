@@ -324,7 +324,7 @@ export const classService = {
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
             const course = await Course.findById(courseId).select('_id');
-            return course?._id;
+            return course ? String(course._id) : null;
         }));
         const validatedCourseIds = validatedCourses.filter((course) => course);
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
