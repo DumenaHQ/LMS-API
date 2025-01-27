@@ -22,11 +22,11 @@ export const quizService = {
 
         let quiz_level = EQuizLevel.Course;
         if (lesson_id) quiz_level = EQuizLevel.Lesson;
-        else if (module_id) quiz_level = EQuizLevel.Module; 
+        else if (module_id) quiz_level = EQuizLevel.Module;
 
         const newQuiz = await Quiz.create({ ...quizData, course_id, quiz_level }) as unknown as IQuiz;
-   
-        await this.attachQuiz(newQuiz._id, course_id, quiz_level, module_id, lesson_id);   
+
+        await this.attachQuiz(newQuiz._id, course_id, quiz_level, module_id, lesson_id);
         return newQuiz;
     },
 
@@ -71,7 +71,7 @@ export const quizService = {
 
         if (user && user.role == USER_TYPES.learner) {
             const learnerAnswers = this.getLearnerAnswers(quiz, user.id);
-            if (learnerAnswers) 
+            if (learnerAnswers)
                 throw new handleError(400, 'Learner has taken this quiz');
         }
         return quiz;
@@ -91,7 +91,7 @@ export const quizService = {
         return Quiz.findOne(criteria).select('-answers') as unknown as IQuiz;
     },
 
-    async updateQuiz(quizId:string, quizData: IQuiz) {
+    async updateQuiz(quizId: string, quizData: IQuiz) {
         return Quiz.findOneAndUpdate(
             { _id: quizId },
             quizData
@@ -121,15 +121,17 @@ export const quizService = {
         const { question, optA, optB, optC, optD, optE, answer } = questionData;
         return Quiz.findOneAndUpdate(
             criteria,
-            { $set: {
-                'question.$.question': question || qq.question,
-                'question.$.optA': optA || qq.optA,
-                'question.$.optB': optB || qq.optB,
-                'question.$.optC': optC || qq.optC,
-                'question.$.optD': optD || qq.optD,
-                'question.$.optE': optE || qq.optE,
-                'question.$.answer': answer || qq.answer,
-            }}
+            {
+                $set: {
+                    'question.$.question': question || qq.question,
+                    'question.$.optA': optA || qq.optA,
+                    'question.$.optB': optB || qq.optB,
+                    'question.$.optC': optC || qq.optC,
+                    'question.$.optD': optD || qq.optD,
+                    'question.$.optE': optE || qq.optE,
+                    'question.$.answer': answer || qq.answer,
+                }
+            }
         );
     },
 
@@ -139,10 +141,10 @@ export const quizService = {
 
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
-        const foundQuiz = await this.findOne({ _id: quizId });
-        const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
-        if (learnerAns)
-            throw new handleError(400, 'Learner has submitted answers before');
+        // const foundQuiz = await this.findOne({ _id: quizId });
+        // const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
+        // if (learnerAns)
+        //     throw new handleError(400, 'Learner has submitted answers before');
 
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
