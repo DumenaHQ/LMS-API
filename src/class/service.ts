@@ -323,9 +323,10 @@ export const classService = {
         }
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
-            return Course.findById(courseId).select('_id modules');
+            const course = await Course.findById(courseId).select('_id');
+            return course?._id;
         }));
-        const validatedCourseIds = validatedCourses.filter((course) => course?._id);
+        const validatedCourseIds = validatedCourses.filter((course) => course);
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);
         classOrTemplate.courses = Array.from(courses);
         await classOrTemplate.save();
@@ -354,7 +355,7 @@ export const classService = {
             throw new handleError(400, `Invalid ${model} ID`);
         }
 
-        const courseIndex = classOrTemplate.courses.findIndex((course: any) => String(course._id) === courseId);
+        const courseIndex = classOrTemplate.courses.findIndex((course: any) => String(course) === courseId);
         if (courseIndex === -1) {
             throw new handleError(400, 'Course not found in class');
         }
