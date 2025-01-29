@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createQuiz, addQuestions, listQuizzes, viewQuiz, attachQuiz, submitQuiz, getLearnerQuizResult, updateQuiz, updateQuizQuestion, deleteQuiz } from './controller';
+import { createQuiz, addQuestions, listQuizzes, viewQuiz, attachQuiz, submitQuiz, getLearnerQuizResult, updateQuiz, updateQuizQuestion, deleteQuiz, removeQuiz } from './controller';
 import { isAdmin, isAuthenticated } from '../middleware/verifyToken';
 
 export const router = Router();
@@ -19,6 +19,8 @@ router.delete('/:id', isAuthenticated, isAdmin, deleteQuiz);
 router.put('/:id/questions/questionId', isAuthenticated, isAdmin, updateQuizQuestion);
 
 router.put('/:id/attach', isAuthenticated, isAdmin, attachQuiz);
+
+router.patch('/:id/remove', isAuthenticated, isAdmin, removeQuiz);
 
 router.patch('/:id/submit-answers', isAuthenticated, submitQuiz);
 

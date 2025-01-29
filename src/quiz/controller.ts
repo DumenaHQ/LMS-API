@@ -43,6 +43,17 @@ export const attachQuiz = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+export const removeQuiz = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: quizId } = req.params;
+        const { course_id: courseId, quiz_level, module_id, lesson_id } = req.body;
+        await quizService.removeQuiz(quizId, courseId, quiz_level, module_id, lesson_id);
+        sendResponse(res, 201, 'Quiz removed from course');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const updateQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: quizId } = req.params;
@@ -87,7 +98,7 @@ export const submitQuiz = async (req: Request, res: Response, next: NextFunction
     try {
         const { id: quizId } = req.params;
         const { id: userId, school: school_id } = req.user;
-        await quizService.saveAnswers(quizId, { userId, school_id }, req.body);
+        await quizService.saveAnswers(quizId, { userId: String(userId), school_id: String(school_id) }, req.body);
         sendResponse(res, 200, 'Quiz Submitted');
     } catch (err) {
         next(err);

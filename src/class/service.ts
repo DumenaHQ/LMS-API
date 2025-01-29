@@ -116,6 +116,7 @@ export const classService = {
         else {
             classroom = await this.findOne({ _id: criteria });
         }
+
         if (!classroom) {
             throw new handleError(404, 'Class not found');
         }
@@ -160,11 +161,12 @@ export const classService = {
         };
         const [classLearners, classSubscriptions] = await Promise.all([
             userService.list({
-                'user._id': { $in: classroom.learners.map((learner: IAddLearner) => String(learner.user_id)) },
+                'user._id': { $in: classroom.learners.map((learner: IAddLearner) => learner.user_id) },
                 'user.deleted': false
             }, 'learner'),
             classSubscriptionService.listSubs(criteria)
         ]);
+
         const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
         const learners = classLearners.map((learner: IUserView) => {
             return subscribedLearnersId.includes(String(learner.id))

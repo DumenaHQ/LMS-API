@@ -18,7 +18,7 @@ export interface IQuiz extends Document {
 
 export interface IQuizQuestion {
     answer: any;
-    id: ObjectId;
+    _id?: ObjectId;
     question: string;
     optA: string;
     optB: string;

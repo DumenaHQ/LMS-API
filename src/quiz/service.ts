@@ -1,6 +1,5 @@
 import Quiz, { QuizLevelType, EQuizLevel } from './models';
 import Course from '../course/model';
-import { IModule, ILesson } from '../course/interfaces';
 import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
@@ -15,22 +14,22 @@ export const quizService = {
         if (!course) throw new handleError(400, 'Course not found');
 
         if (module_id && lesson_id) {
-            const module = course.modules.find((module: IModule) => module._id == module_id);
-            const lesson = module.lessons.find((lesson: ILesson) => lesson._id == lesson_id);
-            quizData.title = `${module.title.split(' ').join('-')}: ${lesson.title.split(' ').join('-')}`;
+            const module = course.modules.find((module: any) => module._id == module_id);
+            const lesson = module?.lessons.find((lesson: any) => lesson._id == lesson_id);
+            quizData.title = `${module?.title.split(' ').join('-')}: ${lesson?.title.split(' ').join('-')}`;
         }
 
         let quiz_level = EQuizLevel.Course;
         if (lesson_id) quiz_level = EQuizLevel.Lesson;
-        else if (module_id) quiz_level = EQuizLevel.Module; 
+        else if (module_id) quiz_level = EQuizLevel.Module;
 
         const newQuiz = await Quiz.create({ ...quizData, course_id, quiz_level }) as unknown as IQuiz;
-   
-        await this.attachQuiz(newQuiz._id, course_id, quiz_level, module_id, lesson_id);   
+
+        await this.attachQuiz(String(newQuiz._id), String(course_id), quiz_level, String(module_id), String(lesson_id));
         return newQuiz;
     },
 
-    async attachQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, module_id: string, lesson_id: string): Promise<void> {
+    async attachQuiz(quizId: string, courseId: string, quiz_level: EQuizLevel, module_id: string, lesson_id: string): Promise<void> {
         // const [quiz, course] = await Promise.all([
         //     Quiz.findById(quizId),
         //     Course.findById(courseId)
@@ -64,6 +63,32 @@ export const quizService = {
         );
     },
 
+    async removeQuiz(quizId: string, courseId: string, quiz_level: QuizLevelType, module_id: string, lesson_id: string): Promise<void> {
+        const filter = {
+            course: { _id: courseId },
+            module: { _id: courseId, 'modules._id': module_id },
+            lesson: { _id: courseId }
+        };
+
+        const updateData = {
+            course: { quiz_id: 1 },
+            module: { 'modules.$.quiz_id': 1 },
+            lesson: { 'modules.$[el1].lessons.$[el2].quiz_id': 1 }
+        };
+
+        const arrayFilters = {
+            course: [],
+            module: [],
+            lesson: [{ 'el1._id': module_id }, { 'el2._id': lesson_id }]
+        };
+
+        await Course.findOneAndUpdate(
+            filter[quiz_level as keyof unknown],
+            { $unset: updateData[quiz_level as keyof unknown] },
+            { arrayFilters: arrayFilters[quiz_level as keyof unknown] }
+        );
+    },
+
 
     async view(criteria: object, user: Record<string, any>): Promise<IQuiz> {
         const quiz = await this.findOne(criteria) as IQuiz;
@@ -71,7 +96,7 @@ export const quizService = {
 
         if (user && user.role == USER_TYPES.learner) {
             const learnerAnswers = this.getLearnerAnswers(quiz, user.id);
-            if (learnerAnswers) 
+            if (learnerAnswers)
                 throw new handleError(400, 'Learner has taken this quiz');
         }
         return quiz;
@@ -91,7 +116,7 @@ export const quizService = {
         return Quiz.findOne(criteria).select('-answers') as unknown as IQuiz;
     },
 
-    async updateQuiz(quizId:string, quizData: IQuiz) {
+    async updateQuiz(quizId: string, quizData: IQuiz) {
         return Quiz.findOneAndUpdate(
             { _id: quizId },
             quizData
@@ -117,19 +142,21 @@ export const quizService = {
     async updateQuizQuestion(quizId: string, questionId: string, questionData: IQuizQuestion) {
         const criteria = { _id: quizId, 'questions._id': questionId };
         const quiz = await this.view(criteria, {});
-        const qq: IQuizQuestion = quiz.questions?.find((question: IQuizQuestion) => question._id == questionId)!;
+        const qq: IQuizQuestion = quiz.questions?.find((question: IQuizQuestion) => String(question._id) == questionId)!;
         const { question, optA, optB, optC, optD, optE, answer } = questionData;
         return Quiz.findOneAndUpdate(
             criteria,
-            { $set: {
-                'question.$.question': question || qq.question,
-                'question.$.optA': optA || qq.optA,
-                'question.$.optB': optB || qq.optB,
-                'question.$.optC': optC || qq.optC,
-                'question.$.optD': optD || qq.optD,
-                'question.$.optE': optE || qq.optE,
-                'question.$.answer': answer || qq.answer,
-            }}
+            {
+                $set: {
+                    'question.$.question': question || qq.question,
+                    'question.$.optA': optA || qq.optA,
+                    'question.$.optB': optB || qq.optB,
+                    'question.$.optC': optC || qq.optC,
+                    'question.$.optD': optD || qq.optD,
+                    'question.$.optE': optE || qq.optE,
+                    'question.$.answer': answer || qq.answer,
+                }
+            }
         );
     },
 
