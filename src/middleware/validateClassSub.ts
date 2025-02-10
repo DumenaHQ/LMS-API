@@ -18,18 +18,18 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
         const activeTerm = classService.findActiveTerm(classroom.terms);
 
         // check if grace period of 3 weeks is not over
-        const gracePeriod = activeTerm?.start_date ? findGracePeriod(activeTerm.start_date) : null;
-        if (gracePeriod === null) {
-            next('Invalid term');
-            return;
-        } else {
-            const grace_period = new Date(gracePeriod);
-            const today = new Date();
-            if (today <= grace_period) {
-                next();
-                return;
-            }
-        }
+        // const gracePeriod = activeTerm?.start_date ? findGracePeriod(activeTerm.start_date) : null;
+        // if (gracePeriod === null) {
+        //     next('Invalid term');
+        //     return;
+        // } else {
+        //     const grace_period = new Date(gracePeriod);
+        //     const today = new Date();
+        //     if (today <= grace_period) {
+        //         next();
+        //         return;
+        //     }
+        // }
 
 
         // TODO: add session
