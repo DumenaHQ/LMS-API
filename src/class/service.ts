@@ -163,7 +163,7 @@ export const classService = {
 
         const [classLearners, classSubscriptions] = await Promise.all([
             userService.list({
-                'user._id': { $in: classroom.learners.map((learner: IAddLearner) => String(learner.user_id)) },
+                'user._id': { $in: classroom.learners.map((learner: IAddLearner) => learner.user_id) },
                 'user.deleted': false
             }, 'learner'),
             classSubscriptionService.listSubs(criteria)
