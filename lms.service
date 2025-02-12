@@ -1,0 +1,15 @@
+[Unit]
+Description=Node.js LMS APT Service   	#lms-pai-server service
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ubuntu/lms
+ExecStart=npm start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+#sudo nano /lib/systemd/system/lms.service
+#sudo systemctl daemon-reload
+#sudo systemctl enable lms

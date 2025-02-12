@@ -145,8 +145,8 @@ export const classService = {
             };
         }
 
-        const weeklyLessons = await this.getWeeklyActivities(courses, classroom.active_term);
-        return { ...classroom, weeklyLessons, teacher };
+        // const weeklyLessons = await this.getWeeklyActivities(courses, classroom.active_term);
+        return { ...classroom, teacher };
     },
 
     async processClassLearners(classroom: IClass) {
@@ -187,6 +187,12 @@ export const classService = {
             if (classroom.template) {
                 const active_term = classroom?.template?.terms.find((term: any) => term.title === classroom.active_term?.title);
                 modules = active_term ? active_term.modules : course.modules;
+
+                // THIS IS A HACK. SHOULD BE REMQVED
+                modules = modules.length
+                    ? modules
+                    : classroom?.template?.terms.find((term: any) => term.title == 'first term')?.modules;
+
                 lesson_count = modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
             }
             return { ...course, module_count: modules?.length, lesson_count, modules };
@@ -326,7 +332,7 @@ export const classService = {
 
         const validatedCourses = await Promise.all(courseIds.map(async (courseId: string) => {
             const course = await Course.findById(courseId).select('_id');
-            return course?._id;
+            return course ? String(course._id) : null;
         }));
         const validatedCourseIds = validatedCourses.filter((course) => course);
         const courses = new Set([...classOrTemplate.courses, ...validatedCourseIds]);

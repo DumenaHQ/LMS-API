@@ -166,10 +166,10 @@ export const quizService = {
 
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
-        const foundQuiz = await this.findOne({ _id: quizId });
-        const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
-        if (learnerAns)
-            throw new handleError(400, 'Learner has submitted answers before');
+        // const foundQuiz = await this.findOne({ _id: quizId });
+        // const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
+        // if (learnerAns)
+        //     throw new handleError(400, 'Learner has submitted answers before');
 
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
