@@ -14,6 +14,7 @@ import path from 'path';
 import { quizService } from '../quiz/service';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
+import { activityService } from '../activity/service';
 
 const classOrTemplateModel: Record<string, any> = {
     'class': Class,
@@ -200,43 +201,23 @@ export const classService = {
         return { courses, classCourses, course_count: courses.length };
     },
 
-    async getWeeklyActivities(courses: ICourseView[], term: ITerm) {
-        const weeklyLessons = await this.getWeeklyLessons(courses, term, new Date());
+    async getWeeklyActivities(classroom: Record<string, any>) {
+        const weeklyLessons = await this.getWeeklyLessons(classroom, new Date());
+
+        // get learners' activities
+        const learnersActivies = await activityService.list({ user: { $in: classroom.learners.map((learner: IUserView) => learner.id) } });
+
+        // map learners' fullname and id to their activities
+        const learnersActivitiesMap = learnersActivies.reduce((acc: any, activity: any) => {
+            const { user, ...rest } = activity;
+            if (!acc[user]) acc[user] = [];
+            const activityDetails = activityService.getActivityDetails(rest)
+            acc[user].push(activityDetails);
+            return acc;
+        }, {});
+
         return weeklyLessons;
     },
-
-
-    // async viewLimitedClass(classId: string): Promise<IClass> {
-    //     let classroom: any;
-    //     classroom = await this.findOne({ _id: classId });
-    //     if (!classroom) {
-    //         throw new handleError(404, 'Class not found');
-    //     }
-    //     classroom = classroom.toJSON();
-
-    //     classroom.learners = await userService.list({
-    //         'user._id': { $in: classroom.learners.map((learner: { user_id: string }) => learner.user_id) },
-    //         'user.deleted': false
-    //     }, 'learner');
-    //     classroom.learner_count = classroom.learners && classroom.learners.length || 0;
-
-    //     const courses = classroom.template ? classroom.template.courses : classroom.courses;
-    //     classroom.course_count = courses.length;
-
-    //     let teacher;
-    //     if (classroom.teacher_id) {
-    //         teacher = await userService.view({ _id: classroom.teacher_id });
-    //         teacher = {
-    //             id: teacher.id,
-    //             fullname: teacher.fullname,
-    //             email: teacher.email
-    //         };
-    //     }
-
-    //     classroom.active_term = this.findActiveTerm(classroom.terms);
-
-    //     return { ...classroom, teacher };
-    // },
 
 
     async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }, subStatus: string | null): Promise<IClass | null> {
@@ -611,7 +592,11 @@ export const classService = {
         await classTemplate.save();
     },
 
-    async getWeeklyLessons(courses: any[], term: ITerm, currentDate: Date, defaultNumOfStudyingWks = 10) {
+    async getWeeklyLessons(classroom: Record<string, any>, currentDate: Date, defaultNumOfStudyingWks = 10) {
+        const { active_term: term, courses } = classroom;
+        if (!term) {
+            throw new Error("No active term found");
+        }
         const termStartDate = new Date(term.start_date).getTime();
         const termEndDate = new Date(term.end_date).getTime();
         const givenDate = new Date(currentDate).getTime();
@@ -619,8 +604,18 @@ export const classService = {
         if (givenDate < termStartDate || givenDate > termEndDate) {
             throw new Error("Date is out of the term range");
         }
-        // const totalLessons = courses[0].modules.flatMap((module: IModule) => module.lessons);
-        const totalLessons = courses.flatMap((course: any) => course.modules.flatMap((module: IModule) => module.lessons));
+        const totalLessons = (courses || [])
+            .flatMap((course: any) => course.modules
+                .flatMap((module: IModule) => {
+                    return {
+                        course_title: course.title,
+                        module_title: module.title,
+                        lessons: module.lessons?.map((lesson: any) => {
+                            return { id: lesson.id, title: lesson.title }
+                        }) || [],
+                    }
+                })
+            );
         const numOfLessons = totalLessons.length;
         const numOfWeeksInTerm = Math.ceil((termEndDate - termStartDate) / (7 * 24 * 60 * 60 * 1000));
         const numOfStudyWks = Math.min(defaultNumOfStudyingWks, numOfWeeksInTerm - 3);
