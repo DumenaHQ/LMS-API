@@ -160,6 +160,7 @@ export const classService = {
             status: ESubscriptionStatus.Active,
             expiry_date: { $gte: today }
         };
+        console.log(classroom.learners);
         const [classLearners, classSubscriptions] = await Promise.all([
             userService.list({
                 'user._id': { $in: classroom.learners.map((learner: IAddLearner) => String(learner.user_id)) },
