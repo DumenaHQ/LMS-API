@@ -450,7 +450,7 @@ export const userService = {
     },
 
     async schoolsAnalytics() {
-        const schools = await School.find().sort({ createdAt: -1 }).limit(10);
+        const schools = await School.find().sort({ createdAt: -1 }).limit(15);
 
         return Promise.all(schools.map(
             async (school) => {
