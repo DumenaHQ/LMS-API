@@ -58,7 +58,7 @@ export const classService = {
                 }
             ]
         });
-        return this.view({ _id: klass._id });
+        return this.view({ _id: klass._id }, null);
     },
 
     async createTemplate(templateData: ITemplate) {
@@ -104,7 +104,7 @@ export const classService = {
     async findOne(criteria: object, includeTemplate: boolean = true) {
         const params = { deleted: false, status: EStatus.Active, ...criteria };
         const klass = includeTemplate
-            ? await Class.findOne(params).populate({ path: 'template' })
+            ? await Class.findOne(params).populate({ path: 'template', select: 'terms courses' })
             : await Class.findOne(params);
         return klass;
     },
@@ -201,23 +201,23 @@ export const classService = {
         return { courses, classCourses, course_count: courses.length };
     },
 
-    async getWeeklyActivities(classroom: Record<string, any>) {
-        const weeklyLessons = await this.getWeeklyLessons(classroom, new Date());
+    // async getWeeklyActivities(classroom: Record<string, any>) {
+    //     const weeklyLessons = await this.getWeeklyLessons(classroom, new Date());
 
-        // get learners' activities
-        const learnersActivies = await activityService.list({ user: { $in: classroom.learners.map((learner: IUserView) => learner.id) } });
+    //     // get learners' activities
+    //     const learnersActivies = await activityService.list({ user: { $in: classroom.learners.map((learner: IUserView) => learner.id) } });
 
-        // map learners' fullname and id to their activities
-        const learnersActivitiesMap = learnersActivies.reduce((acc: any, activity: any) => {
-            const { user, ...rest } = activity;
-            if (!acc[user]) acc[user] = [];
-            const activityDetails = activityService.getActivityDetails(rest)
-            acc[user].push(activityDetails);
-            return acc;
-        }, {});
+    //     // map learners' fullname and id to their activities
+    //     const learnersActivitiesMap = learnersActivies.reduce((acc: any, activity: any) => {
+    //         const { user, ...rest } = activity;
+    //         if (!acc[user]) acc[user] = [];
+    //         const activityDetails = activityService.getActivityDetails(rest)
+    //         acc[user].push(activityDetails);
+    //         return acc;
+    //     }, {});
 
-        return weeklyLessons;
-    },
+    //     return weeklyLessons;
+    // },
 
 
     async viewClass(classId: string, { roleUserId, role }: { roleUserId: string, role: string }, subStatus: string | null): Promise<IClass | null> {
