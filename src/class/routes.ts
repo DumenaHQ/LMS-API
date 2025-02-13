@@ -21,7 +21,7 @@ router.patch('/templates/:id/courses', isAuthenticated, isAdmin, addTemplateCour
 
 router.patch('/templates/:id/courses/:courseId/remove', isAuthenticated, isAdmin, removeTemplateCourse);
 
-router.get('/:id', isAuthenticated, validateClassSub, viewClass);
+router.get('/:id', isAuthenticated, viewClass);
 
 // router.get('/:id', isAuthenticated, viewRedactedClass);
 

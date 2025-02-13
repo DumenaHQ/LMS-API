@@ -168,7 +168,6 @@ export const classService = {
             }, 'learner'),
             classSubscriptionService.listSubs(criteria)
         ]);
-        console.log({ classLearners })
 
         const subscribedLearnersId = classSubscriptionService.getSubedLearnersForClass(classSubscriptions);
         const learners = classLearners.map((learner: IUserView) => {
