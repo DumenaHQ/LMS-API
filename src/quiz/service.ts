@@ -160,6 +160,7 @@ export const quizService = {
         const { school_id, userId: learner } = user;
         const foundQuiz = await this.findOne({ _id: quizId });
         const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
+        console.log({ foundQuiz, learnerAns })
         // if (learnerAns)
         //     throw new handleError(400, 'Learner has submitted answers before');
 
