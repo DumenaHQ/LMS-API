@@ -165,14 +165,8 @@ export const quizService = {
 
         // if learner has taken the quiz before, remove the previous answers
         if (learnerAns) {
-            await Quiz.findOneAndUpdate(
-                { _id: new mongoose.Types.ObjectId(quizId) },
-                {
-                    $pull: {
-                        'answers': { learner: new mongoose.Types.ObjectId(learner) }
-                    }
-                }
-            );
+            foundQuiz.answers = foundQuiz.answers?.filter((answer: IQuizAnswer) => String(answer.learner) !== String(learner));
+            await foundQuiz.save();
         }
 
         const quiz = await Quiz.findOneAndUpdate(

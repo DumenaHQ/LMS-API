@@ -13,7 +13,7 @@ export interface IQuiz extends Document {
     quiz_level_id?: ObjectId,
     settings: object,
     questions?: [],
-    answers?: []
+    answers?: IQuizAnswer[]
 }
 
 export interface IQuizQuestion {
