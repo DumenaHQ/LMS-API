@@ -86,11 +86,11 @@ export const quizService = {
         const quiz = await this.findOne(criteria) as IQuiz;
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
-        if (user && user.role == USER_TYPES.learner) {
-            const learnerAnswers = this.getLearnerAnswers(quiz, user.id);
-            if (learnerAnswers)
-                throw new handleError(400, 'Learner has taken this quiz');
-        }
+        // if (user && user.role == USER_TYPES.learner) {
+        //     const learnerAnswers = this.getLearnerAnswers(quiz, user.id);
+        //     if (learnerAnswers)
+        //         throw new handleError(400, 'Learner has taken this quiz');
+        // }
         delete quiz.answers;
         return quiz;
     },
