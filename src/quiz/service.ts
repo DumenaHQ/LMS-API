@@ -169,7 +169,7 @@ export const quizService = {
                 { _id: new mongoose.Types.ObjectId(quizId) },
                 {
                     $pull: {
-                        'answers': { learner }
+                        'answers': { learner: new mongoose.Types.ObjectId(learner) }
                     }
                 }
             );
