@@ -166,6 +166,7 @@ export const quizService = {
         // if learner has taken the quiz before, remove the previous answers
         if (learnerAns) {
             foundQuiz.answers = foundQuiz.answers?.filter((answer: IQuizAnswer) => String(answer.learner) !== String(learner));
+            foundQuiz.markModified('answers');
             await foundQuiz.save();
         }
 
