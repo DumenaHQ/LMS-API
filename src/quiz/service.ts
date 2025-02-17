@@ -161,15 +161,12 @@ export const quizService = {
         const { school_id, userId: learner } = user;
         const foundQuiz = await this.findOne({ _id: quizId });
         const learnerAns = this.getLearnerAnswers(foundQuiz, learner);
-        console.log({ learnerAns })
+
         // if (learnerAns)
         //     throw new handleError(400, 'Learner has submitted answers before');
 
         // if learner has taken the quiz before, remove the previous answers
         if (learnerAns) {
-            // foundQuiz.answers = foundQuiz.answers?.filter((answer: IQuizAnswer) => String(answer.learner) !== String(learner));
-            // foundQuiz.markModified('answers');
-            // await foundQuiz.save();
             await Quiz.updateOne(
                 { _id: new mongoose.Types.ObjectId(quizId) },
                 { $pull: { answers: { learner } } }
