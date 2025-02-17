@@ -30,14 +30,6 @@ export const quizService = {
     },
 
     async attachQuiz(quizId: string, courseId: string, quiz_level: EQuizLevel, module_id: string, lesson_id: string): Promise<void> {
-        // const [quiz, course] = await Promise.all([
-        //     Quiz.findById(quizId),
-        //     Course.findById(courseId)
-        // ]);
-
-        // if (!quiz) throw new handleError(400, 'Quiz not found');
-        // if (!course) throw new handleError(400, 'Course not found');
-
         const filter = {
             course: { _id: courseId },
             module: { _id: courseId, 'modules._id': module_id },
@@ -166,10 +158,22 @@ export const quizService = {
 
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
-        // const foundQuiz = await this.findOne({ _id: quizId });
-        // const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
+        const foundQuiz = await this.findOne({ _id: quizId });
+        const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
         // if (learnerAns)
         //     throw new handleError(400, 'Learner has submitted answers before');
+
+        // if learner has taken the quiz before, remove the previous answers
+        if (learnerAns) {
+            await Quiz.findOneAndUpdate(
+                { _id: new mongoose.Types.ObjectId(quizId) },
+                {
+                    $pull: {
+                        'answers': { learner }
+                    }
+                }
+            );
+        }
 
         const quiz = await Quiz.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(quizId) },
