@@ -91,6 +91,7 @@ export const quizService = {
             if (learnerAnswers)
                 throw new handleError(400, 'Learner has taken this quiz');
         }
+        delete quiz.answers;
         return quiz;
     },
 
@@ -105,7 +106,7 @@ export const quizService = {
     },
 
     async findOne(criteria: object): Promise<IQuiz> {
-        return Quiz.findOne(criteria).select('-answers') as unknown as IQuiz;
+        return Quiz.findOne(criteria) as unknown as IQuiz;
     },
 
     async updateQuiz(quizId: string, quizData: IQuiz) {
@@ -153,22 +154,26 @@ export const quizService = {
     },
 
     getLearnerAnswers(quiz: Record<string, any>, learnerId: string) {
-        return quiz.answers?.find((answer: Record<string, unknown>) => String(answer.learner) === String(learnerId));
+        return quiz.answers?.find((answer: IQuizAnswer) => String(answer.learner) === String(learnerId));
     },
 
     async saveAnswers(quizId: string, user: { userId: string, school_id: string }, selectedOpts: { question_id: string, selected_ans: string }[]) {
         const { school_id, userId: learner } = user;
         const foundQuiz = await this.findOne({ _id: quizId });
-        const learnerAns = this.getLearnerAnswers(foundQuiz, user.userId);
-        console.log({ foundQuiz, learnerAns })
+        const learnerAns = this.getLearnerAnswers(foundQuiz, learner);
+        console.log({ learnerAns })
         // if (learnerAns)
         //     throw new handleError(400, 'Learner has submitted answers before');
 
         // if learner has taken the quiz before, remove the previous answers
         if (learnerAns) {
-            foundQuiz.answers = foundQuiz.answers?.filter((answer: IQuizAnswer) => String(answer.learner) !== String(learner));
-            foundQuiz.markModified('answers');
-            await foundQuiz.save();
+            // foundQuiz.answers = foundQuiz.answers?.filter((answer: IQuizAnswer) => String(answer.learner) !== String(learner));
+            // foundQuiz.markModified('answers');
+            // await foundQuiz.save();
+            await Quiz.updateOne(
+                { _id: new mongoose.Types.ObjectId(quizId) },
+                { $pull: { answers: { learner } } }
+            );
         }
 
         const quiz = await Quiz.findOneAndUpdate(
