@@ -573,7 +573,8 @@ export const classService = {
         }
 
         // distribute modules to terms
-        for (const course of courses) {
+        for (const rawCourse of courses) {
+            const course = rawCourse.toJSON();
             const totalModules = course.modules.length;
             const minModulesPerTerm = Math.floor(totalModules / termCount);
             const remainderModules = totalModules % termCount;
