@@ -38,6 +38,17 @@ export const addTemplateCourses = async (req: Request, res: Response, next: Next
     }
 };
 
+export const addCoursesAcrossTemplateTerms = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id: templateId } = req.params;
+        const { term_courses } = req.body;
+        await classService.addCoursesAcrossClassTemplateTerms(templateId, term_courses);
+        sendResponse(res, 200, 'Courses added to class template terms');
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const removeTemplateCourse = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: templateId, courseId } = req.params;

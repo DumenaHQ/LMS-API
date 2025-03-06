@@ -338,6 +338,30 @@ export const classService = {
         // }
     },
 
+    /**
+     * Add courses to all terms in a class template
+     * @param classTemplateId 
+     * @param termCourses
+     */
+    async addCoursesAcrossClassTemplateTerms(classTemplateId: string, termCourses: string[]): Promise<void> {
+        const classTemplate = await ClassTemplate.findById(classTemplateId);
+        if (!classTemplate) {
+            throw new handleError(400, 'Invalid class template ID');
+        }
+
+        // distribute course ids across terms in class template
+        const terms = classTemplate.terms;
+        for (const term of terms) {
+            termCourses.find((termCourse: any) => {
+                if (termCourse.term === term.title) {
+                    term.courses = termCourse.courses;
+                }
+            });
+        }
+        classTemplate.markModified('terms');
+        await classTemplate.save();
+    },
+
     async removeCourse(model: 'class' | 'template', modelId: string, courseId: string): Promise<void> {
         const classOrTemplate = await classOrTemplateModel[model].findById(modelId);
 
