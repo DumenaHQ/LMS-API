@@ -3,29 +3,29 @@ import { orderService } from './service';
 import { EOrderStatus } from './model';
 import { send as sendResponse } from '../helpers/httpResponse';
 import { USER_TYPES } from '../config/constants';
-import { classSubscriptionService } from '../subscription/classSubscriptionService';
-import { paymentService } from '../payment/service';
+// import { classSubscriptionService } from '../subscription/classSubscriptionService';
+// import { paymentService } from '../payment/service';
 
-export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
-    // try {
-    //     const order = await orderService.create({ ...req.body, user: req.user.id }, req.user.role);
-    //     sendResponse(res, 201, 'Order created', { order });
-    // } catch (err) {
-    //     next(err);
-    // }
-};
+// export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
+// try {
+//     const order = await orderService.create({ ...req.body, user: req.user.id }, req.user.role);
+//     sendResponse(res, 201, 'Order created', { order });
+// } catch (err) {
+//     next(err);
+// }
+// };
 
-export const createClassOrder = async (req: Request, res: Response, next: NextFunction) => {
-    // try {
-    //     const { email, id } = req.user;
-    //     const { classes } = req.body;
-    //     const { access_code } = await paymentService.initializePayment(email, Number(total_amount), reference);
-    //     const order = await orderService.create({ ...req.body, user: req.user.id }, req.user.role);
-    //     sendResponse(res, 201, 'Class Order created', { access_code });
-    // } catch (err) {
-    //     next(err);
-    // }
-};
+// export const createClassOrder = async (req: Request, res: Response, next: NextFunction) => {
+// try {
+//     const { email, id } = req.user;
+//     const { classes } = req.body;
+//     const { access_code } = await paymentService.initializePayment(email, Number(total_amount), reference);
+//     const order = await orderService.create({ ...req.body, user: req.user.id }, req.user.role);
+//     sendResponse(res, 201, 'Class Order created', { access_code });
+// } catch (err) {
+//     next(err);
+// }
+// };
 
 
 export const listOrders = async (req: Request, res: Response, next: NextFunction) => {

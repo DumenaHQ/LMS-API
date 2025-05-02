@@ -1,4 +1,4 @@
-const { check } = require('express-validator');
+import { check } from 'express-validator';
 import { DIFFICULTY_LEVEL, COURSE_QUADRANT } from '../../config/constants';
 import { validate } from './validate';
 

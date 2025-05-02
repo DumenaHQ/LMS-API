@@ -1,4 +1,4 @@
-import { IAddSupportComment, IAddSupportQuestion, IQuestion } from './interface';
+import { IAddSupportComment, IAddSupportQuestion } from './interface';
 import { Comment, Question } from './model';
 
 export const supportService = {
@@ -32,7 +32,7 @@ export const supportService = {
         return this.list({ program: programId }, false, true);
     },
 
- 
+
     async createComment(comment: IAddSupportComment) {
         const newComment = await Comment.create({
             comment: comment.comment,
@@ -43,8 +43,8 @@ export const supportService = {
     },
 
     async getComments(question_id: string) {
-        const data = await Comment.find({ question: question_id }).populate({ 
-            path: 'user', 
+        const data = await Comment.find({ question: question_id }).populate({
+            path: 'user',
             select: 'fullname role'
         });
         return data.map((comment: IAddSupportComment) => comment.toJSON());

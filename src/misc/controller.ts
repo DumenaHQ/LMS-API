@@ -7,7 +7,10 @@ import Subscription from '../subscription/model';
 export const downloadTemplateFile = (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name = '' } = req.query;
-        const templateFile = miscService.fetchTemplate(name);
+        if (name !== 'students_template') {
+            throw new Error('Invalid template sample name');
+        }
+        const templateFile = miscService.fetchTemplate('students_template');
 
         res.download(templateFile);
     } catch (err) {
@@ -70,17 +73,17 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const swapLearnerSchoolId = async (req: Request, res: Response, next: NextFunction) => {
+export const swapLearnerSchoolId = async (req: Request, res: Response) => {
     await miscService.swapLearnerSchoolId();
     sendResponse(res, 200, 'Data corrected!');
 }
 
-export const swapClassSchoolId = async (req: Request, res: Response, next: NextFunction) => {
+export const swapClassSchoolId = async (req: Request, res: Response) => {
     await miscService.swapClassSchoolId();
     sendResponse(res, 200, 'Data corrected!');
 }
 
-export const normaliseUsernames = async (req: Request, res: Response, next: NextFunction) => {
+export const normaliseUsernames = async (req: Request, res: Response) => {
     await miscService.normaliseUsernames();
     sendResponse(res, 200, 'Emails Normalized');
 }

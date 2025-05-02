@@ -4,7 +4,6 @@ import { IQuiz, IQuizQuestion, IQuizAnswer } from './interfaces';
 import { handleError } from '../helpers/handleError';
 import mongoose from 'mongoose';
 import { userService } from '../user/service';
-import { USER_TYPES } from '../config/constants';
 
 export const quizService = {
     async create(quiz: IQuiz): Promise<IQuiz> {

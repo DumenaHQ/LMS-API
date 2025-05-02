@@ -7,7 +7,7 @@ export enum EUserStatus {
 
 export interface IUserCreate {
     fullname: string;
-    email: string;
+    email?: string;
     password: string;
     user_type: string;
     school?: string;
@@ -30,7 +30,7 @@ export enum AdminRole {
 
 export interface IUserModel {
     fullname: string;
-    email: string;
+    email?: string;
     phone?: string;
     password: string;
     username?: string;
@@ -45,7 +45,7 @@ export interface IUserModel {
 export interface IUserView {
     id: Schema.Types.ObjectId;
     fullname: string;
-    email: string;
+    email?: string;
     role: string;
     username?: string;
     nickname?: string;

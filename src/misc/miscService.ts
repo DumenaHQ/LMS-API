@@ -21,12 +21,12 @@ export const miscService = {
 
     async swapLearnerSchoolId() {
         const schools = await School.find();
-        const res = await Promise.all(schools.map(async school => Learner.updateMany({ school: school.user }, { school: school._id })));
+        await Promise.all(schools.map(async school => Learner.updateMany({ school: school.user }, { school: school._id })));
     },
 
     async swapClassSchoolId() {
         const schools = await School.find();
-        const res = await Promise.all(schools.map(async school => Class.updateMany({ school_id: school.user }, { school_id: school._id })));
+        await Promise.all(schools.map(async school => Class.updateMany({ school_id: school.user }, { school_id: school._id })));
     },
 
     async normaliseUsernames() {

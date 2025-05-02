@@ -1,6 +1,6 @@
 import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } from './model';
 import Course from '../course/model';
-import User, { Learner, School } from '../user/models';
+import User, { School } from '../user/models';
 import { handleError } from '../helpers/handleError';
 import mongoose, { ObjectId, Types } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
@@ -16,7 +16,7 @@ import { orderService } from '../order/service';
 import { subscriptionService } from '../subscription/service';
 
 export const programService = {
-    async saveProgram(program: IProgram, files: File): Promise<IProgram | null> {
+    async saveProgram(program: IProgram, files: any): Promise<IProgram | null> {
         const { thumbnail, header_photo }: any = files || {};
         if (thumbnail) {
             const thumbKey = `${UPLOADS.program_thumbs}/${program.name.split(' ').join('-')}${path.extname(thumbnail.name)}`;
@@ -172,7 +172,7 @@ export const programService = {
     },
 
 
-    async listLearnerPrograms(learnerId: string ): Promise<IProgram[] | []> {
+    async listLearnerPrograms(learnerId: string): Promise<IProgram[] | []> {
         return this.list({ 'learners.user_id': new mongoose.Types.ObjectId(learnerId) });
     },
 
@@ -224,7 +224,11 @@ export const programService = {
         const program = await Program.findById(programId);
         if (!program) throw new handleError(400, 'Program not found');
 
-        const learners: IAddLearner[] = program.learners;
+        const learners: IAddLearner[] = program.learners.map((learner: any) => ({
+            ...learner,
+            user_id: learner.user_id ? String(learner.user_id) : undefined,
+            sponsor_id: learner.sponsor_id ? String(learner.sponsor_id) : undefined,
+        }));
         return this.fetchLearnerDetails(learners, user);
     },
 

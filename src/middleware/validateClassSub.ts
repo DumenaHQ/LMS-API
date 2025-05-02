@@ -59,10 +59,10 @@ export const validateClassSub = async (req: Request, res: Response, next: NextFu
     next();
 };
 
-function findGracePeriod(start_date: Date | string) {
-    const startDate = new Date(start_date);
-    const gracePeriod = new Date(startDate);
-    gracePeriod.setDate(gracePeriod.getDate() + 21);
-    //return gracePeriod;
-    return new Date('2025-05 -31');
-}
+// function findGracePeriod(start_date: Date | string) {
+//     const startDate = new Date(start_date);
+//     const gracePeriod = new Date(startDate);
+//     gracePeriod.setDate(gracePeriod.getDate() + 21);
+//     //return gracePeriod;
+//     return new Date('2025-05 -31');
+// }
