@@ -6,10 +6,10 @@ import cors from 'cors';
 import helmet from 'helmet';
 const fileUpload = require('express-fileupload');
 dotenv.config();
-import { notFoundHandler } from './middleware/notFound';
-import { errorHandler } from './middleware/error';
+import { notFoundHandler } from '../src/middleware/notFound';
+import { errorHandler } from '../src/middleware/error';
 require('./config/db_connection');
-import { router as routes } from './routes/';
+import { router as routes } from '../src/routes/';
 
 
 if (!process.env.PORT) {
