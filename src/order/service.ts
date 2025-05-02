@@ -3,7 +3,7 @@ import { generateId } from '../helpers/utility';
 import { ORDER_TYPES } from '../config/constants';
 
 export const orderService = {
-    async createClassOrder(schoolId: string) {        
+    async createClassOrder(schoolId: string) {
         return Order.create({
             item_type: ORDER_TYPES.class_sub,
             reference: generateId('ORD_'),
@@ -27,7 +27,7 @@ export const orderService = {
     },
 
     async list(criteria: object): Promise<IOrder[]> {
-        return Order.find(criteria).sort({ createdAt: 'desc' });
+        return Order.find(criteria).sort({ createdAt: 'desc' }).lean();
     },
 
     async update(criteria: object, data: object): Promise<IOrder | null> {
