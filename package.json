@@ -40,7 +40,8 @@
     "nodemailer": "^6.7.5",
     "nodemailer-express-handlebars": "^5.0.0",
     "serverless-http": "^3.2.0",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
