@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
+    "start": "node dist/src/index.js",
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "build": "npx tsc",
     "lint": "eslint --fix --ext .ts src/**/*ts",
     "test": "echo \"Error: no test specified\" && exit 1"

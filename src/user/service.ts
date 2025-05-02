@@ -88,7 +88,7 @@ export const userService = {
 
         try {
             const isDuplicate = await this.isDuplicateUser(userData);
-            if (isDuplicate === true) return userData;
+            if (isDuplicate === true) return userData as unknown as IUserView;
 
             const newUser = await this.createUserAndUserType(userData);
 
@@ -160,6 +160,10 @@ export const userService = {
         const user = await User.findOne({ email }).select(USER_FIELDS);
 
         if (!user) throw new handleError(400, 'Account not found');
+
+        if (!user.email || process.env.EMAIL_HASH_STRING) {
+            throw new handleError(400, 'Cannot activate account now');
+        }
 
         const hash = crypto.createHash('md5').update(user.email + process.env.EMAIL_HASH_STRING).digest('hex');
         if (hash_string !== hash) {
@@ -428,6 +432,7 @@ export const userService = {
             { label: 'Location', value: 'resident_state' },
             { label: 'Signed up on', value: (row: any) => row.user.createdAt, format: 'd-mmm-yy' }
         ];
+        // @ts-ignore
         return xlsxHelper.write(columns, users, 'parents_mailing_list');
     },
 
@@ -439,6 +444,7 @@ export const userService = {
             { label: 'Grade', value: (row: any) => row.grade },
             { label: 'Gender', value: (row: any) => row.gender }
         ];
+        // @ts-ignore
         return xlsxHelper.write(columns, students, 'students_list');
     },
 
