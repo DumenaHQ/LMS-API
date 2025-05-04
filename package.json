@@ -40,8 +40,8 @@
     "nodemailer": "^6.7.5",
     "nodemailer-express-handlebars": "^5.0.0",
     "serverless-http": "^3.2.0",
-    "useragent": "^2.3.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "useragent": "^2.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
@@ -54,6 +54,7 @@
     "@types/helmet": "^4.0.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.14",
+    "@types/nodemailer": "^6.4.17",
     "@types/useragent": "^2.3.4",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
