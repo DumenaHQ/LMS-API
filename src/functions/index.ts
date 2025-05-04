@@ -44,8 +44,9 @@ app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
 
-const handler = serverless(app);
+// const handler = serverless(app);
 
-module.exports.handler = async (event: any, context: any) => {
-    return handler(event, context);
-}
+// module.exports.handler = async (event: any, context: any) => {
+//     return handler(event, context);
+// }
+module.exports.handler = serverless(app);
