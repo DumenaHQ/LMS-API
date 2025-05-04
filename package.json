@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/src/index.js",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
-    "build": "npx tsc",
+    "build-app": "npx tsc",
+    "build": "netlify deploy --prod",
     "lint": "eslint --fix --ext .ts src/**/*ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -37,6 +38,8 @@
     "json-as-xlsx": "^2.4.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^6.2.1",
+    "netlify-cli": "^20.1.1",
+    "netlify-lambda": "^2.0.16",
     "nodemailer": "^6.7.5",
     "nodemailer-express-handlebars": "^5.0.0",
     "serverless-http": "^3.2.0",

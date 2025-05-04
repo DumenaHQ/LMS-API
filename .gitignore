@@ -6,3 +6,4 @@ yarn.lock
 todo.txt
 info/
 dist/
+.netlify

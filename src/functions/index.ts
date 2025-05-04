@@ -30,7 +30,8 @@ app.use(fileUpload({
     limits: { fileSize: 1000 * 1024 * 1024 },
 }));
 
-app.use('/', routes);
+// app.use('/', routes);
+app.use("/.netlify/functions/app", routes);
 
 
 // catch 404 and forward to error handler
