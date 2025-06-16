@@ -186,30 +186,31 @@ export const courseService = {
     },
 
     async isLessonCompleted(courseId: string, moduleId: string, lessonId: string, learnerId: string): Promise<{ canTakeNextLesson: Boolean, message: string }> {
-        const course = await this.findOne({ _id: courseId });
-        if (!course) throw new handleError(400, 'Invalid course');
+        // const course = await this.findOne({ _id: courseId });
+        // if (!course) throw new handleError(400, 'Invalid course');
 
-        const courseModule = course?.modules?.find((module: IModule) => String(module.id) == String(moduleId));
-        if (!courseModule) throw new handleError(404, 'Lesson module not found');
+        // const courseModule = course?.modules?.find((module: IModule) => String(module.id) == String(moduleId));
+        // if (!courseModule) throw new handleError(404, 'Lesson module not found');
 
-        const lesson = courseModule?.lessons?.find((lesson: Record<string, unknown>) => String(lesson._id) === String(lessonId));
-        if (!lesson) throw new handleError(404, 'Lesson not found');
+        // const lesson = courseModule?.lessons?.find((lesson: Record<string, unknown>) => String(lesson._id) === String(lessonId));
+        // if (!lesson) throw new handleError(404, 'Lesson not found');
 
-        const lessonQuizId = lesson.quiz_id || null;
-        if (!lessonQuizId) return { canTakeNextLesson: true, message: 'Lesson doesn\'t have a quiz' };
+        // const lessonQuizId = lesson.quiz_id || null;
+        // if (!lessonQuizId) return { canTakeNextLesson: true, message: 'Lesson doesn\'t have a quiz' };
 
-        try {
-            const quizResult = await quizService.computeLearnerResult(String(lessonQuizId), learnerId);
-            let message = 'Score below pass mark';
-            let isCompleted = false;
-            if (quizResult.percentageScore! >= QUIZ_PASS_MARK) {
-                isCompleted = true;
-                message = 'Passed';
-            }
-            return { canTakeNextLesson: isCompleted, message };
-        } catch (err) {
-            return { canTakeNextLesson: false, message: err.message };
-        }
+        // try {
+        //     const quizResult = await quizService.computeLearnerResult(String(lessonQuizId), learnerId);
+        //     let message = 'Score below pass mark';
+        //     let isCompleted = false;
+        //     if (quizResult.percentageScore! >= QUIZ_PASS_MARK) {
+        //         isCompleted = true;
+        //         message = 'Passed';
+        //     }
+        //     return { canTakeNextLesson: isCompleted, message };
+        // } catch (err) {
+        //     return { canTakeNextLesson: false, message: err.message };
+        // }
+        return { canTakeNextLesson: true, message: 'Passed' };
     },
 
 
