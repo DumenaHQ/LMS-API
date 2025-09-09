@@ -2,3 +2,9 @@
   command = "npm run build"
   publish = "dist"
   functions = "functions"
+
+[[redirects]]
+      from = "/*" # Redirects requests starting with /api to your function
+      to = "/.netlify/functions/api/:splat"
+      status = 200
+      force = true

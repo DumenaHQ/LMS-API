@@ -1,15 +1,14 @@
 import * as dotenv from 'dotenv';
 import express from 'express';
-// const serverless = require('serverless-http');
 import serverless from 'serverless-http';
 import cors from 'cors';
 import helmet from 'helmet';
 const fileUpload = require('express-fileupload');
 dotenv.config();
-import { notFoundHandler } from '../middleware/notFound';
-import { errorHandler } from '../middleware/error';
-require('./config/db_connection');
-import { router as routes } from '../routes';
+import { notFoundHandler } from '../src/middleware/notFound';
+import { errorHandler } from '../src/middleware/error';
+require('../src/config/db_connection');
+import { router as routes } from '../src/routes';
 
 
 if (!process.env.PORT) {
@@ -30,8 +29,8 @@ app.use(fileUpload({
     limits: { fileSize: 1000 * 1024 * 1024 },
 }));
 
-// app.use('/', routes);
-app.use('/.netlify/functions/app', routes);
+app.use('/', routes);
+// app.use('/.netlify/functions/app', routes);
 
 
 // catch 404 and forward to error handler
@@ -49,4 +48,4 @@ app.listen(PORT, () => {
 // module.exports.handler = async (event: any, context: any) => {
 //     return handler(event, context);
 // }
-module.exports.handler = serverless(app);
+export const handler = serverless(app);
