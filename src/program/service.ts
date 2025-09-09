@@ -2,7 +2,7 @@ import Program, { IProgram, IAddSponsorPayload, IAddLearner, IProgramSponsor } f
 import Course from '../course/model';
 import User, { School } from '../user/models';
 import { handleError } from '../helpers/handleError';
-import mongoose, { ObjectId, Types } from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { ICourseView } from '../course/interfaces';
 import { courseService } from '../course/service';
 import { userService } from '../user/service';
@@ -56,7 +56,7 @@ export const programService = {
         }
 
         // fetch schools
-        const schools = program?.sponsors?.filter((sp: IAddSponsorPayload) => sp.sponsor_type == 'school')!;
+        const schools = program?.sponsors?.filter((sp: IAddSponsorPayload) => sp.sponsor_type == 'school');
         program.schools = schools.map((sch: IProgramSponsor) => {
             const schoolLearners = program.learners.filter((learner: IAddLearner) => String(learner.sponsor_id) == String(sch.user_id));
             return { id: sch.user_id, name: sch.name, student_count: schoolLearners.length };
@@ -142,7 +142,7 @@ export const programService = {
     },
 
 
-    async listSponsorPrograms(sponsorId: ObjectId): Promise<IProgram[] | []> {
+    async listSponsorPrograms(sponsorId: ObjectId) {
         const programs = await this.list({ status: 'active' });
         if (!programs || !programs.length) {
             return [];
@@ -152,22 +152,21 @@ export const programService = {
             delete prog.sponsors;
             return { ...prog, hasJoined };
         });
-        // @ts-ignore
         return sponsorPrograms;
     },
 
 
-    async listProgramsForRoles(userId: ObjectId, userType: string): Promise<IProgram[] | undefined> {
+    async listProgramsForRoles(userId: ObjectId, userType: string) {
         switch (userType) {
-            case USER_TYPES.school:
-                const schoolUser = await School.findOne({ user: userId });
-                return this.listSponsorPrograms(schoolUser?.id);
-            case USER_TYPES.parent:
-                return this.listSponsorPrograms(userId);
-            case USER_TYPES.learner:
-                return this.listLearnerPrograms(String(userId));
-            default:
-                return this.list({ status: 'active' });
+        case USER_TYPES.school:
+            const schoolUser = await School.findOne({ user: userId });
+            return this.listSponsorPrograms(schoolUser?.id);
+        case USER_TYPES.parent:
+            return this.listSponsorPrograms(userId);
+        case USER_TYPES.learner:
+            return this.listLearnerPrograms(String(userId));
+        default:
+            return this.list({ status: 'active' });
         }
     },
 
@@ -177,10 +176,10 @@ export const programService = {
     },
 
 
-    async listEnrolledSchools(programId: string): Promise<object | []> {
+    async listEnrolledSchools(programId: string) {
         const program = await Program.findById(programId);
-        const schools = program?.sponsors?.filter((sp: Record<string, any>) => sp.sponsor_type == 'school')!;
-        return schools.map((sch: Record<string, any>) => ({ school_id: sch.user_id, name: sch.name, student_count: sch.learners.length }));
+        const schools = program?.sponsors?.filter((sp: Record<string, any>) => sp.sponsor_type == 'school');
+        return schools?.map((sch: Record<string, any>) => ({ school_id: sch.user_id, name: sch.name, student_count: sch.learners.length }));
     },
 
 
@@ -210,7 +209,7 @@ export const programService = {
             return learner && !addedLearnerIds.includes(String(learner._id));
         }).map(learner => ({ user_id: learner?._id, sponsor_id: sponsorId }));
 
-        // @ts-ignore
+        // @ts-expect-error: just satisfy the compiler for now
         program.learners = [...program.learners, ...learnersToAdd];
         await program.save();
 
@@ -236,17 +235,17 @@ export const programService = {
     async fetchLearnerDetails(learners: IAddLearner[], user: { roleId: string, role: string }): Promise<IUserView[] | []> {
         let learnerIds;
         switch (user.role) {
-            case USER_TYPES.learner:
-                return [];
-            case USER_TYPES.admin:
-                learnerIds = learners.map(learner => learner.user_id);
-                break;
-            case USER_TYPES.school:
-            case USER_TYPES.parent:
-                const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.roleId));
-                learnerIds = sponsorLearners?.map(learner => learner.user_id);
-                break;
-            default:
+        case USER_TYPES.learner:
+            return [];
+        case USER_TYPES.admin:
+            learnerIds = learners.map(learner => learner.user_id);
+            break;
+        case USER_TYPES.school:
+        case USER_TYPES.parent:
+            const sponsorLearners = learners.filter(learner => String(learner.sponsor_id) == String(user.roleId));
+            learnerIds = sponsorLearners?.map(learner => learner.user_id);
+            break;
+        default:
         }
         return userService.list({ 'user._id': { $in: learnerIds }, 'user.deleted': false }, 'learner');
     },

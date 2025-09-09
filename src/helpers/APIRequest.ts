@@ -3,7 +3,7 @@ const { handleError } = require('../helpers/handleError');
 
 
 export class APIRequest {
-    option: object = { headers: { 'Content-Type': 'application/json' } };
+    option: Record<string, any> = { headers: { 'Content-Type': 'application/json' } };
 
     constructor(options: object) {
         this.option = {
@@ -18,7 +18,7 @@ export class APIRequest {
         try {
             const response = await axios.get(url, this.option);
             return response.data;
-        } catch (err: unknown) {
+        } catch (err: any) {
             throw new handleError(err.response.status, err.response.data.message);
         }
     }
@@ -27,7 +27,7 @@ export class APIRequest {
         try {
             const response = await axios.post(url, body, this.option);
             return response.data;
-        } catch (err) {
+        } catch (err: any) {
             throw new handleError(err.response.status, err.response.data.message);
         }
     }

@@ -36,7 +36,7 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
         const { id: courseId, moduleId } = req.params;
         const lesson_video = req.files && req.files.lesson_video || req.body.lesson_video || undefined;
         const lesson = await courseService.addLesson(courseId, moduleId, { ...req.body, lesson_video });
-        sendResponse(res, 200, 'Lesson added');
+        sendResponse(res, 200, 'Lesson added', { lesson });
     } catch (err) {
         next(err);
     }
@@ -45,7 +45,7 @@ export const addLesson = async (req: Request, res: Response, next: NextFunction)
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { role: userType, id: userId } = req.user;
-        const courses = await courseService.listByUserType(userType, userId);
+        const courses = await courseService.listByUserType(userType, String(userId));
         sendResponse(res, 200, 'Courses fetched', { courses });
     } catch (err) {
         next(err);
@@ -77,9 +77,9 @@ export const isLessonCompleted = async (req: Request, res: Response, next: NextF
     try {
         const { id: learnerId } = req.user;
         const { id: courseId, moduleId, lessonId } = req.params;
-        const lessonStatus = await courseService.isLessonCompleted(courseId, moduleId, lessonId, learnerId);
+        const lessonStatus = await courseService.isLessonCompleted(courseId, moduleId, lessonId, String(learnerId));
         sendResponse(res, 200, 'Lesson Completion Status Fetched', lessonStatus);
     } catch (err) {
         next(err);
     }
-}
+};

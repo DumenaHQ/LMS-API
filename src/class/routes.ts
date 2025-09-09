@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { isAdmin, isAuthenticated, isSchoolOrAdmin } from '../middleware/verifyToken';
-import { validateClassSub } from '../middleware/validateClassSub';
 import { addCourses, addCoursesAcrossTemplateTerms, addLearners, addTemplateCourses, createClass, createTemplate, deleteClass, getClassQuizResults, listClassTemplates, listClasses, listCourses, listLearners, removeTeacherFromClass, removeTemplateCourse, updateClass, updateClassTemplate, viewClass, viewClassCourse, viewClassTemplate } from './controller';
 
 export const router = Router();

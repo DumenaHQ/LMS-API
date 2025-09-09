@@ -30,12 +30,12 @@ export const subscribeToClass = async (req: Request, res: Response, next: NextFu
         if (!order)
             throw Error('Something went wrong while creating your order');
         const { reference, total_amount } = order;
-        const { data: { access_code } } = await paymentService.initializePayment(email, Number(total_amount), reference);
+        const { data: { access_code } } = await paymentService.initializePayment(String(email), Number(total_amount), String(reference));
         sendResponse(res, 200, 'Class Subscription Initiated', { access_code });
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const listClassSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -44,7 +44,7 @@ export const listClassSubscriptions = async (req: Request, res: Response, next: 
     } catch (err) {
         next(err);
     }
-}
+};
 
 export const viewSubscription = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,7 +54,7 @@ export const viewSubscription = async (req: Request, res: Response, next: NextFu
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const updateSchoolSubscription = async (req: Request, res: Response, next: NextFunction) => {

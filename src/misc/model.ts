@@ -7,6 +7,6 @@ const session = new Schema({
         unique: true
     },
     terms: []
-})
+});
 
 export default mongoose.model('Session', session);

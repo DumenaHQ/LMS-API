@@ -18,7 +18,7 @@ export const xlsxHelper = {
                 content
             }
         ];
-
+        // @ts-expect-error: just ignore
         return xlsx(data, settings);
     }
 };

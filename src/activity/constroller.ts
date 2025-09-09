@@ -9,7 +9,7 @@ export const recordUserActivity = async (req: Request, res: Response, next: Next
     try {
         const { id } = req.user;
         const { activity_type, activity_data } = req.body;
-        const data = await activityService.create(req, id, activity_type, activity_data);
+        const data = await activityService.create(req, String(id), activity_type, activity_data);
         sendResponse(res, 201, 'Activity recorded', data);
     } catch (err) {
         next(err);
@@ -20,7 +20,7 @@ export const recordUserActivity = async (req: Request, res: Response, next: Next
 export const listUserActivities = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, fullname, username, role } = req.user;
-        const activities = await activityService.list({user: id});
+        const activities = await activityService.list({user: String(id)});
         const data = {
             user:{id, role, fullname, username},
             activities
@@ -34,7 +34,7 @@ export const listUserActivities = async (req: Request, res: Response, next: Next
 export const listSchoolLearnersActivities = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { school_id } = req.user;
-        const data = await activityService.listSchoolLearnersActivities(school_id);
+        const data = await activityService.listSchoolLearnersActivities(String(school_id));
         sendResponse(res, 200, 'Activities fetched', data);
     } catch (err) {
         next(err);

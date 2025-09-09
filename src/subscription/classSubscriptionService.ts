@@ -64,7 +64,7 @@ export const classSubscriptionService = {
 
                 total_amount += classTotalAmount;
             } catch (err) {
-                console.log(err)
+                console.log(err);
                 // DO TO: handle errors and return to frontend
             }
         }
@@ -109,7 +109,7 @@ export const classSubscriptionService = {
         else if (numOfLearners > 200 && numOfLearners < 501)
             subAmount = 7000;
         else if (numOfLearners > 500)
-            subAmount = 6000
+            subAmount = 6000;
         else
             subAmount = 7500;
 
@@ -132,4 +132,4 @@ export const classSubscriptionService = {
             return [...learners, ...sub.learners];
         }, []);
     }
-}
+};

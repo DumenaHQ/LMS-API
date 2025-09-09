@@ -82,9 +82,9 @@ export const paymentService = {
     async handleWebhook(eventData: Record<string, any>) {
         const { event, data } = eventData;
         switch (event) {
-            case 'charge.success':
-                const { order } = await this.save(data);
-                subscriptionService.grantAccess(order);
+        case 'charge.success':
+            const { order } = await this.save(data);
+            subscriptionService.grantAccess(order);
         }
     }
 };

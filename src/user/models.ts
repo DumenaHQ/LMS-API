@@ -74,7 +74,7 @@ const term = {
     defaultDateChanged: Boolean,
     start_date: Date,
     end_date: Date
-}
+};
 
 
 const UserSchema: Schema = new Schema({

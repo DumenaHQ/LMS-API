@@ -14,7 +14,6 @@ import path from 'path';
 import { quizService } from '../quiz/service';
 import { classSubscriptionService } from '../subscription/classSubscriptionService';
 import { ESubscriptionStatus } from '../subscription/model';
-import { activityService } from '../activity/service';
 
 const classOrTemplateModel: Record<string, any> = {
     'class': Class,
@@ -90,7 +89,7 @@ export const classService = {
         });
     },
 
-    async viewTemplate(criteria: object): Promise<ITemplate | {}> {
+    async viewTemplate(criteria: object): Promise<ITemplate | object> {
         const template: Record<string, any> | null = await ClassTemplate.findOne({ deleted: false, status: EStatus.Active, ...criteria });
         if (!template) return {};
         template.course_count = template.courses.length;
@@ -126,7 +125,7 @@ export const classService = {
 
         const [
             { learners, learner_count },
-            { courses, classCourses, course_count }
+            { classCourses, course_count }
         ] = await Promise.all([
             this.processClassLearners(classroom),
             this.processClassCourses(classroom)
@@ -173,13 +172,14 @@ export const classService = {
         const learners = classLearners.map((learner: IUserView) => {
             return subscribedLearnersId.includes(String(learner.id))
                 ? { ...learner, paid: true }
-                : { ...learner, paid: false }
+                : { ...learner, paid: false };
         });
 
-        return { learners, learner_count: learners && learners.length || 0 }
+        return { learners, learner_count: learners && learners.length || 0 };
     },
 
     async processClassCourses(classroom: IClass) {
+        //@ts-expect-error`: just ignore
         const courseIds = classroom.template ? classroom.template.courses : classroom.courses;
         const courses = await courseService.list({ _id: { $in: courseIds } });
 
@@ -187,12 +187,14 @@ export const classService = {
             let modules;
             let lesson_count = course.lesson_count;
             if (classroom.template) {
+                // @ts-expect-error: just ignore
                 const active_term = classroom?.template?.terms.find((term: any) => term.title === classroom.active_term?.title);
                 modules = active_term ? active_term.modules : course.modules;
 
-                // THIS IS A HACK. SHOULD BE REMQVED
+                // THIS IS A HACK. SHOULD BE REMOVED
                 modules = modules.length
                     ? modules
+                    // @ts-expect-error: just ignore
                     : classroom?.template?.terms.find((term: any) => term.title == 'first term')?.modules;
 
                 lesson_count = modules?.reduce((total: number, module: IModule) => total + (module.lessons?.length || 0), 0) || 0;
@@ -281,10 +283,10 @@ export const classService = {
         }));
 
         switch (filter) {
-            case 'active_term':
-                return allClasses.filter((clas: any) => clas.active_term != null);
-            default:
-                return allClasses;
+        case 'active_term':
+            return allClasses.filter((clas: any) => clas.active_term != null);
+        default:
+            return allClasses;
         }
     },
 
@@ -609,6 +611,7 @@ export const classService = {
                 const extraModule = i < remainderModules ? 1 : 0;
                 const modulesForTerm = minModulesPerTerm + extraModule;
 
+                // @ts-expect-error: just ignore
                 classTemplate.terms[i].modules.push(...course.modules.slice(moduleIndex, moduleIndex + modulesForTerm));
                 moduleIndex += modulesForTerm;
             }
@@ -621,14 +624,14 @@ export const classService = {
     async getWeeklyLessons(classroom: Record<string, any>, currentDate: Date, defaultNumOfStudyingWks = 10) {
         const { active_term: term, courses } = classroom;
         if (!term) {
-            throw new Error("No active term found");
+            throw new Error('No active term found');
         }
         const termStartDate = new Date(term.start_date).getTime();
         const termEndDate = new Date(term.end_date).getTime();
         const givenDate = new Date(currentDate).getTime();
 
         if (givenDate < termStartDate || givenDate > termEndDate) {
-            throw new Error("Date is out of the term range");
+            throw new Error('Date is out of the term range');
         }
         const totalLessons = (courses || [])
             .flatMap((course: any) => course.modules
@@ -637,9 +640,9 @@ export const classService = {
                         course_title: course.title,
                         module_title: module.title,
                         lessons: module.lessons?.map((lesson: any) => {
-                            return { id: lesson.id, title: lesson.title }
+                            return { id: lesson.id, title: lesson.title };
                         }) || [],
-                    }
+                    };
                 })
             );
         const numOfLessons = totalLessons.length;
@@ -662,7 +665,7 @@ export const classService = {
         const weekPosition = Math.ceil((givenDate - termStartDate) / (7 * 24 * 60 * 60 * 1000));
 
         if (weekPosition < 1 || weekPosition > weeks.length) {
-            throw new Error("Invalid week position");
+            throw new Error('Invalid week position');
         }
 
         return weeks[weekPosition - 1];

@@ -41,6 +41,7 @@ const sendMail = (to: string, subject: string, template: string, data: object) =
         context: data
     };
     // send mail with defined transport object
+    // @ts-expect-error: just ignore
     transporter.sendMail(mailOptions, (error: Error, info: { messageId: string; }) => {
         if (error) {
             return console.log(error);
@@ -86,7 +87,7 @@ export const emailService = {
             schoolName,
             loginLink: BASE_URL + '#/login'
         };
-        const subject = `Your Child has been Enrolled on DUMENA Platform!`;
+        const subject = 'Your Child has been Enrolled on DUMENA Platform!';
         const template = 'parentChildEnrollment';
         sendMail(parent_email, subject, template, data);
     },
@@ -160,7 +161,7 @@ export const emailService = {
             context: data
         };
         // send mail with defined transport object
-        transporter.sendMail(mailOptions, (error: Error, info: any) => {
+        transporter.sendMail(mailOptions, (error: any, info: any) => {
             if (error) {
                 return console.log(error);
             }

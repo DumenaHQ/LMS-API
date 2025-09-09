@@ -32,6 +32,7 @@ export const putObject = async (bucketName: string, key: string, body: Buffer, C
     };
 
     return new Promise((resolve, reject) => {
+        // @ts-expect-error: just ignore
         s3Service.putObject(params, (err: Error, data: any) => {
             if (err) reject(err);
             return resolve(data);

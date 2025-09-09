@@ -8,7 +8,7 @@ import mongoose, { ObjectId } from 'mongoose';
 import { emailService } from '../helpers/email';
 import { generateId, getValidModelFields } from '../helpers/utility';
 import { paymentService } from '../payment/service';
-import { SALT_ROUNDS, TERMS, USER_FIELDS, USER_TYPES } from '../config/constants';
+import { SALT_ROUNDS, USER_FIELDS, USER_TYPES } from '../config/constants';
 import { xlsxHelper } from '../helpers/xlsxHelper';
 import Class from '../class/model';
 import { UserSubscription } from '../subscription/model';
@@ -27,7 +27,7 @@ const userModel: Record<string, any> = {
 
 
 export const userService = {
-    async authenticate(emailOrUsername: string, password: string): Promise<object> {
+    async authenticate(emailOrUsername: string, password: string) {
         const usernameOrEmail = emailOrUsername.toLowerCase();
         const foundUser = await User.findOne({ $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }] });
 
@@ -75,12 +75,12 @@ export const userService = {
     },
 
 
-    async create(userData: IUserCreate, user: { school_id: string; role: string; } | null = null): Promise<IUserView | { status: string, message: string, data: {} }> {
+    async create(userData: IUserCreate, user: { school_id: string; role: string; } | null = null): Promise<IUserView | { status: string, message: string, data: object }> {
         const { user_type, email = undefined } = userData;
         if (email != undefined) {
             userData.email = email.toLowerCase();
         }
-        if (email === "") {
+        if (email === '') {
             delete userData.email;
         }
 
@@ -382,7 +382,7 @@ export const userService = {
     },
 
 
-    async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<{}> {
+    async addSchoolStudents(schoolId: string, studentsData: [], schoolName: string): Promise<object> {
         const password = 'dumena';
         return Promise.all(studentsData.map(async (student: any) => {
             const learner = await this.create({ ...student, school: schoolId, password, user_type: 'learner' }, null);
@@ -432,7 +432,7 @@ export const userService = {
             { label: 'Location', value: 'resident_state' },
             { label: 'Signed up on', value: (row: any) => row.user.createdAt, format: 'd-mmm-yy' }
         ];
-        // @ts-ignore
+        // @ts-expect-error: just ignore
         return xlsxHelper.write(columns, users, 'parents_mailing_list');
     },
 
@@ -444,7 +444,7 @@ export const userService = {
             { label: 'Grade', value: (row: any) => row.grade },
             { label: 'Gender', value: (row: any) => row.gender }
         ];
-        // @ts-ignore
+        // @ts-expect-error: just ignore
         return xlsxHelper.write(columns, students, 'students_list');
     },
 

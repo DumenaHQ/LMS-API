@@ -81,7 +81,7 @@ export const quizService = {
     },
 
 
-    async view(criteria: object, user: Record<string, any>): Promise<IQuiz> {
+    async view(criteria: object, user: Record<string, any> = {}): Promise<IQuiz> {
         const quiz = await this.findOne(criteria) as IQuiz;
         if (!quiz) throw new handleError(404, 'Quiz not found');
 
@@ -136,6 +136,8 @@ export const quizService = {
         const quiz = await this.view(criteria, {});
         const qq: IQuizQuestion = quiz.questions?.find((question: IQuizQuestion) => String(question._id) == questionId)!;
         const { question, optA, optB, optC, optD, optE, answer } = questionData;
+        if (!qq) throw new handleError(404, 'Question not found');
+
         return Quiz.findOneAndUpdate(
             criteria,
             {
@@ -206,7 +208,7 @@ export const quizService = {
 
         let percentageScore;
         if (quizScore) {
-            percentageScore = (quizScore / quiz.questions?.length!) * 100;
+            percentageScore = (quizScore / quiz.questions?.length) * 100;
         }
 
         return {
@@ -245,7 +247,8 @@ export const quizService = {
             const score = this.computeQuizResult(quiz.questions!, learnerAns.answers);
             let percentageScore;
             if (score) {
-                percentageScore = (score / quiz.questions?.length!) * 100;
+                // @ts-expect-error: just ignore
+                percentageScore = (score / quiz.questions?.length) * 100;
             }
             return { ...learner, score, percentageScore };
         });

@@ -57,7 +57,7 @@ export const removeTemplateCourse = async (req: Request, res: Response, next: Ne
     } catch (err) {
         next(err);
     }
-}
+};
 
 
 export const listCourses = async (req: Request, res: Response, next: NextFunction) => {
@@ -112,7 +112,7 @@ export const listClasses = async (req: Request, res: Response, next: NextFunctio
     try {
         const { role, id } = req.user;
         const { filter } = req.query;
-        const roleUserId = role === USER_TYPES.school ? req.user[`school_id`] : id;
+        const roleUserId = role === USER_TYPES.school ? req.user['school_id'] : id;
         const classes = await classService.listClassesForRoles(String(roleUserId), role, String(filter));
         sendResponse(res, 200, 'Classes Fetched', { classes });
     } catch (err) {
@@ -125,7 +125,7 @@ export const viewClass = async (req: Request, res: Response, next: NextFunction)
     try {
         const { id: classId } = req.params;
         const { role, id, subStatus = null } = req.user;
-        const roleUserId = role === USER_TYPES.school ? String(req.user[`school_id`]) : String(id);
+        const roleUserId = role === USER_TYPES.school ? String(req.user['school_id']) : String(id);
         const _class = await classService.viewClass(classId, { roleUserId, role }, subStatus);
         if (subStatus === 'inactive')
             return sendResponse(res, 206, 'You currently do not have an active subscription access to this class', { class: _class });

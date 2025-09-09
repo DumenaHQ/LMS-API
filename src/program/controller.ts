@@ -110,7 +110,7 @@ export const listPrograms = async (req: Request, res: Response, next: NextFuncti
 export const viewProgram = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id: programId } = req.params;
-        const { role, id } = req.user;
+        const { role } = req.user;
         const user = { role, roleId: (req.user as any)[`${role}_id`] };
 
         const program = await programService.view(programId, user);

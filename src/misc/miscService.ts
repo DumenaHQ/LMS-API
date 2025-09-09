@@ -33,9 +33,9 @@ export const miscService = {
         const users = await User.find({ status: 'active', deleted: false, role: 'learner' }).select('_id username');
         return Promise.all(users.map(
             async user => {
-                return user.username && User.updateOne({ _id: user._id }, { username: user.username.toLowerCase() })
+                return user.username && User.updateOne({ _id: user._id }, { username: user.username.toLowerCase() });
             }
-        ))
+        ));
     },
 
     async fetchCurrentSession() {
@@ -84,6 +84,6 @@ export const miscService = {
         return null;
     }
 
-}
+};
 
 

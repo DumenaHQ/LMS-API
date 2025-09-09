@@ -13,11 +13,13 @@ before(async () => {
         fixtures[name.split('.')[0]] = require(`./fixtures/${name}`);
     });
 
+    // @ts-expect-error: just ignore
     global.fixtures = fixtures;
 
     // create user auth token
     const userData = fixtures.users[0];
     const user = await User.create(userData);
+    // @ts-expect-error: just ignore
     global.fixtures.jwtToken = await userService.generateUserToken(user);
 });
 
@@ -32,7 +34,7 @@ after(async () => {
         try {
             await collection.deleteMany({});
             await collection.drop();
-        } catch (error) {
+        } catch (error:any) {
             if (error.message === "ns not found") return;
 
             if (error.message.includes("a background operation is currently running"))

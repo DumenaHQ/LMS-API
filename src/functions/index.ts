@@ -31,7 +31,7 @@ app.use(fileUpload({
 }));
 
 // app.use('/', routes);
-app.use("/.netlify/functions/app", routes);
+app.use('/.netlify/functions/app', routes);
 
 
 // catch 404 and forward to error handler

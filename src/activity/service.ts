@@ -30,7 +30,7 @@ export const activityService = {
             }
         };
 
-        // return Activity.create(activityData);
+        return Activity.create(activityData);
     },
 
     async list(match = {}) {
@@ -45,18 +45,18 @@ export const activityService = {
     },
 
     async getActivityDetails(activity: Record<string, any>) {
-        const { user, activityType, activityData, createdAt } = activity;
+        // const { user, activityType, activityData, createdAt } = activity;
 
-        switch (activityType) {
-            case EActivityType.COMPLETED_LESSON:
+        // switch (activityType) {
+        // case EActivityType.COMPLETED_LESSON:
 
-            case EActivityType.COMPLETED_QUIZ:
-        }
+        // case EActivityType.COMPLETED_QUIZ:
+        //}
     },
 
 
     async listSchoolLearnersActivities(school_id: string) {
-        const { learners: students, grades } = await userService.listSchoolStudents(school_id, {});
+        const { learners: students } = await userService.listSchoolStudents(school_id, {});
 
         const data = await Promise.all(
             students.flatMap(async (student) => {

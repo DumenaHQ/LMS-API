@@ -53,7 +53,7 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
         const { body, params: { question_id } } = req;
         const comment = await supportService.createComment({
             comment: body.comment,
-            user_id: id,
+            user_id: String(id),
             question_id
         });
         sendResponse(res, 201, 'Comment Posted', { comment });

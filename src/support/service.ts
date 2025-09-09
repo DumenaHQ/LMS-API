@@ -47,6 +47,7 @@ export const supportService = {
             path: 'user',
             select: 'fullname role'
         });
+        // @ts-expect-error: just ignore
         return data.map((comment: IAddSupportComment) => comment.toJSON());
     }
 };

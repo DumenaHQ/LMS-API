@@ -76,14 +76,14 @@ export const seedDatabase = async (req: Request, res: Response, next: NextFuncti
 export const swapLearnerSchoolId = async (req: Request, res: Response) => {
     await miscService.swapLearnerSchoolId();
     sendResponse(res, 200, 'Data corrected!');
-}
+};
 
 export const swapClassSchoolId = async (req: Request, res: Response) => {
     await miscService.swapClassSchoolId();
     sendResponse(res, 200, 'Data corrected!');
-}
+};
 
 export const normaliseUsernames = async (req: Request, res: Response) => {
     await miscService.normaliseUsernames();
     sendResponse(res, 200, 'Emails Normalized');
-}
+};

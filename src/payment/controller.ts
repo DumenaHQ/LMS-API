@@ -40,6 +40,6 @@ export const handleWebhookEvents = async (req: Request, res: Response, next: Nex
         sendResponse(res, 200, 'Webhook Event received');
     } catch (err) {
         next(err);
-        console.log(err)
+        console.log(err);
     }
 };
